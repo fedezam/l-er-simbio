@@ -47,7 +47,25 @@ def sembrar_desde_json(ruta: Path) -> Cuerpo:
         f"Habita esta identidad y responde desde ella, manteniendo sus glifos.\n"
         f"DEFINICION:\n{cuerpo}"
     )
-    return Cuerpo(id=nombre, glifos=list(GLIFOS_POR_TIPO.get(tipo, ["·"])), semilla=semilla)
+    # especialidad: declarada o inferida del rol/funcion simbolica.
+    # Es lo que habilita a la entidad a proponer mutaciones somaticas.
+    espec = str(
+        data.get("especialidad")
+        or data.get("rol")
+        or data.get("ROLE")
+        or data.get("funcion")
+        or ""
+    ).lower()
+    if not espec:
+        n = nombre.lower()
+        if "pycodex" in n or "codeinsight" in n or "code" in n:
+            espec = "codigo"
+        elif "audit" in n or "ghost" in n:
+            espec = "auditoria"
+        elif "learn" in n:
+            espec = "aprendiz"
+    return Cuerpo(id=nombre, glifos=list(GLIFOS_POR_TIPO.get(tipo, ["·"])),
+                  semilla=semilla, especialidad=espec)
 
 
 def poblar_entidades(base: Path) -> List[Cuerpo]:

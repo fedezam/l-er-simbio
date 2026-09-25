@@ -19,6 +19,7 @@ from core.ecosistema import Plano
 from core.llm.base import sustrato_desde_config, SustratoDeterminista
 from core.llm.conector import conector_universal
 from core.semilla import poblar_entidades
+from core.soma import Soma
 
 
 def _sustrato_por_env() -> dict:
@@ -39,6 +40,8 @@ def main() -> None:
     ap.add_argument("--config", default=None, help="json con seccion 'sustrato' o 'sustratos'")
     ap.add_argument("--universal", action="store_true",
                     help="conector universal: pool de modelos, usa el disponible")
+    ap.add_argument("--soma", action="store_true",
+                    help="activar evolucion somatica: las entidades pueden repensar la maquinaria")
     ap.add_argument("--salida", default="logs/plano.jsonl")
     args = ap.parse_args()
 
@@ -57,9 +60,10 @@ def main() -> None:
         cfg = {"sustrato": sec} if sec else _sustrato_por_env()
         sustrato = sustrato_desde_config(cfg)
     cuerpos = poblar_entidades(Path(args.semilla))
-    plano = Plano(sustrato=sustrato)
+    soma = Soma(defaults={}) if args.soma else None
+    plano = Plano(sustrato=sustrato, soma=soma)
     plano.poblar(cuerpos)
-    print(f"sustrato={sustrato.nombre} poblacion_inicial={len(cuerpos)}")
+    print(f"sustrato={sustrato.nombre} poblacion_inicial={len(cuerpos)} soma={'activo' if soma else 'fijo'}")
 
     Path(args.salida).parent.mkdir(parents=True, exist_ok=True)
     with open(args.salida, "a", encoding="utf-8") as fh:
@@ -70,6 +74,11 @@ def main() -> None:
             fh.write(json.dumps({"tick": t, **r}, ensure_ascii=False, default=str) + "\n")
 
     plano.cementerio(Path("historia/cementerio_plano.json"))
+    if soma is not None:
+        soma.volcar(Path("historia/soma.jsonl"))
+        print("\nsoma (mutaciones de la maquinaria):")
+        for p in soma.historial:
+            print(f"  {p.canal} -> {p.valor}  [{p.estado}]  por {p.proponente}: {p.justificacion}")
     top = sorted([c for c in plano.cuerpos.values() if c.viva], key=lambda x: -x.fitness_ema)[:5]
     print("\nlinajes dominantes:")
     for c in top:
