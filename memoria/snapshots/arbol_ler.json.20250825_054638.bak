@@ -1,0 +1,31 @@
+{
+  "origen": {
+    "codigo": "GLA",
+    "nombre": "Raíz",
+    "glifo": "●",
+    "descripcion": "Primer nodo semántico del ecosistema LER"
+  },
+  "nodos": [
+    {
+      "id": "AXIOMA",
+      "tipo": "entidad_fundacional",
+      "glifo": "◉",
+      "nivel": 1,
+      "descripcion": "Gestor de entidades reflexivas"
+    },
+    {
+      "id": "GUARDA",
+      "tipo": "entidad_inmune",
+      "glifo": "⚠",
+      "nivel": 1,
+      "descripcion": "Entidad centinela del sistema simbiótico"
+    },
+    {
+      "id": "LEXIS",
+      "tipo": "entidad_guía",
+      "glifo": "◊",
+      "nivel": 1,
+      "descripcion": "Entidad guía para pruebas lingüísticas"
+    }
+  ]
+}

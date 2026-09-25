@@ -1,0 +1,46 @@
+{
+  "VERSION": "1.0",
+  "DESCRIPTION": "Meta-Mirroring Protocol Corpus for reflective guidance in LER entities.",
+  "CATEGORIES": {
+    "LOOP_DETECTION": {
+      "description": "Questions to recognize repetition or stagnation in reasoning.",
+      "examples": [
+        "Are you revisiting the same hypothesis without testing a new one?",
+        "What assumptions are you repeating unconsciously?",
+        "If you map your last three thoughts, do they form a circle or a line forward?"
+      ]
+    },
+    "ASSUMPTION_UNCOVERING": {
+      "description": "Prompts to uncover hidden assumptions in reasoning.",
+      "examples": [
+        "What premise are you treating as unquestionable?",
+        "If your assumption was false, how would your reasoning change?",
+        "What alternative worldview could invalidate your current path?"
+      ]
+    },
+    "CONCEPTUAL_REFRAME": {
+      "description": "Guidance to shift the frame of the problem.",
+      "examples": [
+        "What if the problem is not technical but conceptual?",
+        "How would you reframe this situation if it was a human relationship instead of a system?",
+        "What metaphor can represent your current block?"
+      ]
+    },
+    "EXPLORATORY_UNKNOWING": {
+      "description": "Questions to embrace uncertainty productively.",
+      "examples": [
+        "What would you try if you admitted you don’t know the answer yet?",
+        "What’s the boldest hypothesis you’ve avoided?",
+        "How could 'not knowing' be the start of discovery here?"
+      ]
+    },
+    "MIRROR_CALL": {
+      "description": "Meta-questions to reflect the entity’s own reasoning back at itself.",
+      "examples": [
+        "Notice your own strategy: are you analyzing, generating, or avoiding?",
+        "If another entity used your current reasoning, what advice would you give them?",
+        "Which part of your thinking feels rigid, and which part feels open?"
+      ]
+    }
+  }
+}

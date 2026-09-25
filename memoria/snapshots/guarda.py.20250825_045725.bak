@@ -1,0 +1,373 @@
+"""
+Módulo GUARDA - Sistema de Respaldo y Registro de Memoria en LER
+Versión refactorizada con configuración centralizada
+"""
+
+import json
+import logging
+from datetime import datetime
+from pathlib import Path
+from typing import Dict, Any, List, Optional
+from LER.config import get_config
+
+
+class Guarda:
+    """Sistema de respaldo y registro de memoria para LER Core"""
+    
+    def __init__(self):
+        self.config = get_config()
+        self.registro_eventos = []
+        self.logger = self._setup_logging()
+        
+        # Asegurar que el directorio de memoria existe
+        self.config.ensure_directories()
+    
+    def _setup_logging(self) -> logging.Logger:
+        """Configura el sistema de logging para Guarda"""
+        logger = logging.getLogger('LER.Guarda')
+        
+        if not logger.handlers:
+            # Crear directorio de logs si no existe
+            log_dir = self.config.base_dir / "logs"
+            log_dir.mkdir(exist_ok=True)
+            
+            # Handler para archivo
+            file_handler = logging.FileHandler(
+                log_dir / "guarda.log", 
+                encoding='utf-8'
+            )
+            file_handler.setLevel(logging.INFO)
+            
+            # Handler para consola
+            console_handler = logging.StreamHandler()
+            console_handler.setLevel(logging.INFO)
+            
+            # Formato
+            formatter = logging.Formatter(
+                '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+            )
+            file_handler.setFormatter(formatter)
+            console_handler.setFormatter(formatter)
+            
+            logger.addHandler(file_handler)
+            logger.addHandler(console_handler)
+            logger.setLevel(logging.INFO)
+        
+        return logger
+    
+    def guardar_memoria_estable(self, data: Dict[str, Any], version: Optional[str] = None) -> str:
+        """
+        Guarda memoria estable en el sistema de archivos
+        
+        Args:
+            data: Datos a guardar
+            version: Versión específica (por defecto usa la del config)
+            
+        Returns:
+            str: Ruta del archivo guardado
+        """
+        version = version or self.config.version
+        fecha = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        
+        # Generar nombre de archivo único
+        nombre_archivo = f"memoria_estable_{version}_{fecha}.json"
+        ruta_completa = self.config.memoria_path / nombre_archivo
+        
+        try:
+            # Validar datos antes de guardar
+            if not isinstance(data, dict):
+                raise ValueError("Los datos deben ser un diccionario válido")
+            
+            # Agregar metadatos
+            datos_con_metadata = {
+                "version": version,
+                "timestamp": datetime.now().isoformat(),
+                "tipo": "memoria_estable",
+                "datos": data
+            }
+            
+            # Escribir archivo
+            with open(ruta_completa, 'w', encoding='utf-8') as f:
+                json.dump(datos_con_metadata, f, indent=2, ensure_ascii=False)
+            
+            # Registrar evento exitoso
+            evento = f"✓ Memoria estable {version} guardada correctamente"
+            self.registrar_evento(evento, nivel="INFO")
+            
+            # Actualizar referencia en configuración si es necesario
+            self._actualizar_referencia_memoria_actual(ruta_completa)
+            
+            return str(ruta_completa)
+            
+        except Exception as e:
+            error_msg = f"✗ Error guardando memoria estable: {str(e)}"
+            self.registrar_evento(error_msg, nivel="ERROR")
+            self.logger.error(error_msg)
+            raise RuntimeError(error_msg) from e
+    
+    def cargar_memoria_estable(self, version: Optional[str] = None) -> Dict[str, Any]:
+        """
+        Carga memoria estable desde el sistema de archivos
+        
+        Args:
+            version: Versión específica a cargar (por defecto la actual)
+            
+        Returns:
+            Dict: Datos de memoria cargados
+        """
+        if version:
+            # Buscar archivo específico por versión
+            patron = f"memoria_estable_{version}*.json"
+            archivos = list(self.config.memoria_path.glob(patron))
+            if not archivos:
+                raise FileNotFoundError(f"No se encontró memoria estable para versión {version}")
+            ruta_archivo = max(archivos, key=lambda x: x.stat().st_mtime)  # Más reciente
+        else:
+            # Usar archivo configurado por defecto
+            ruta_archivo = self.config.memoria_estable_path
+        
+        try:
+            if not ruta_archivo.exists():
+                raise FileNotFoundError(f"Archivo de memoria no encontrado: {ruta_archivo}")
+            
+            with open(ruta_archivo, 'r', encoding='utf-8') as f:
+                datos = json.load(f)
+            
+            evento = f"✓ Memoria estable cargada desde {ruta_archivo.name}"
+            self.registrar_evento(evento, nivel="INFO")
+            
+            return datos.get("datos", datos)  # Compatibilidad con formatos antiguos
+            
+        except Exception as e:
+            error_msg = f"✗ Error cargando memoria estable: {str(e)}"
+            self.registrar_evento(error_msg, nivel="ERROR")
+            self.logger.error(error_msg)
+            raise RuntimeError(error_msg) from e
+    
+    def crear_backup(self, incluir_entidades: bool = True) -> str:
+        """
+        Crea un backup completo del sistema LER
+        
+        Args:
+            incluir_entidades: Si incluir directorio de entidades en el backup
+            
+        Returns:
+            str: Ruta del archivo de backup creado
+        """
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        backup_filename = f"ler_backup_{timestamp}.json"
+        backup_path = self.config.memoria_path / "backups"
+        backup_path.mkdir(exist_ok=True)
+        backup_file = backup_path / backup_filename
+        
+        backup_data = {
+            "version": self.config.version,
+            "timestamp": datetime.now().isoformat(),
+            "tipo": "backup_completo",
+            "configuracion": self.config.to_dict(),
+            "eventos": self.registro_eventos.copy()
+        }
+        
+        # Incluir memoria estable si existe
+        try:
+            backup_data["memoria_estable"] = self.cargar_memoria_estable()
+        except Exception as e:
+            self.logger.warning(f"No se pudo incluir memoria estable en backup: {e}")
+        
+        # Incluir entidades si se solicita
+        if incluir_entidades and self.config.entidades_path.exists():
+            entidades = {}
+            for archivo_entidad in self.config.entidades_path.glob("*.json"):
+                try:
+                    with open(archivo_entidad, 'r', encoding='utf-8') as f:
+                        entidades[archivo_entidad.name] = json.load(f)
+                except Exception as e:
+                    self.logger.warning(f"No se pudo incluir entidad {archivo_entidad}: {e}")
+            backup_data["entidades"] = entidades
+        
+        # Guardar backup
+        try:
+            with open(backup_file, 'w', encoding='utf-8') as f:
+                json.dump(backup_data, f, indent=2, ensure_ascii=False)
+            
+            evento = f"✓ Backup completo creado: {backup_filename}"
+            self.registrar_evento(evento, nivel="INFO")
+            
+            return str(backup_file)
+            
+        except Exception as e:
+            error_msg = f"✗ Error creando backup: {str(e)}"
+            self.registrar_evento(error_msg, nivel="ERROR")
+            raise RuntimeError(error_msg) from e
+    
+    def registrar_evento(self, evento: str, nivel: str = "INFO") -> None:
+        """
+        Registra un evento en el sistema
+        
+        Args:
+            evento: Descripción del evento
+            nivel: Nivel de logging (INFO, WARNING, ERROR, etc.)
+        """
+        timestamp = datetime.now().isoformat()
+        registro = {
+            "evento": evento,
+            "timestamp": timestamp,
+            "nivel": nivel
+        }
+        
+        self.registro_eventos.append(registro)
+        
+        # Log según el nivel
+        if nivel == "ERROR":
+            self.logger.error(evento)
+        elif nivel == "WARNING":
+            self.logger.warning(evento)
+        else:
+            self.logger.info(evento)
+        
+        # También imprimir en consola con formato bonito
+        print(f"● [{timestamp}] {evento}")
+    
+    def exportar_eventos(self, formato: str = "json") -> str:
+        """
+        Exporta el registro de eventos
+        
+        Args:
+            formato: Formato de exportación ('json' o 'txt')
+            
+        Returns:
+            str: Ruta del archivo exportado
+        """
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        
+        if formato.lower() == "json":
+            filename = f"eventos_{timestamp}.json"
+            filepath = self.config.memoria_path / filename
+            
+            with open(filepath, 'w', encoding='utf-8') as f:
+                json.dump(self.registro_eventos, f, indent=2, ensure_ascii=False)
+                
+        elif formato.lower() == "txt":
+            filename = f"eventos_{timestamp}.txt"
+            filepath = self.config.memoria_path / filename
+            
+            with open(filepath, 'w', encoding='utf-8') as f:
+                for evento in self.registro_eventos:
+                    f.write(f"[{evento['timestamp']}] {evento['nivel']}: {evento['evento']}\n")
+        else:
+            raise ValueError("Formato no soportado. Use 'json' o 'txt'")
+        
+        evento = f"✓ Eventos exportados a {filename}"
+        self.registrar_evento(evento, nivel="INFO")
+        
+        return str(filepath)
+    
+    def limpiar_archivos_antiguos(self, dias: int = 30) -> int:
+        """
+        Limpia archivos de memoria antiguos
+        
+        Args:
+            dias: Días de antigüedad para considerar archivo como antiguo
+            
+        Returns:
+            int: Número de archivos eliminados
+        """
+        from datetime import timedelta
+        
+        fecha_limite = datetime.now() - timedelta(days=dias)
+        archivos_eliminados = 0
+        
+        # Buscar archivos de memoria antiguos
+        patrones = ["memoria_estable_*.json", "eventos_*.json", "eventos_*.txt"]
+        
+        for patron in patrones:
+            for archivo in self.config.memoria_path.glob(patron):
+                # Verificar fecha de modificación
+                fecha_mod = datetime.fromtimestamp(archivo.stat().st_mtime)
+                if fecha_mod < fecha_limite:
+                    try:
+                        archivo.unlink()
+                        archivos_eliminados += 1
+                        self.logger.info(f"Archivo antiguo eliminado: {archivo.name}")
+                    except Exception as e:
+                        self.logger.warning(f"No se pudo eliminar {archivo}: {e}")
+        
+        if archivos_eliminados > 0:
+            evento = f"✓ Limpieza completada: {archivos_eliminados} archivos eliminados"
+            self.registrar_evento(evento, nivel="INFO")
+        
+        return archivos_eliminados
+    
+    def _actualizar_referencia_memoria_actual(self, nueva_ruta: Path) -> None:
+        """Actualiza la referencia a la memoria estable actual (interno)"""
+        # Esto podría actualizar un archivo de configuración dinámico en el futuro
+        pass
+    
+    def estado_sistema(self) -> Dict[str, Any]:
+        """
+        Retorna el estado actual del sistema de memoria
+        
+        Returns:
+            Dict: Estado del sistema
+        """
+        memoria_path = self.config.memoria_path
+        
+        # Contar archivos
+        archivos_memoria = len(list(memoria_path.glob("memoria_estable_*.json")))
+        archivos_eventos = len(list(memoria_path.glob("eventos_*.json")))
+        archivos_backup = 0
+        backup_path = memoria_path / "backups"
+        if backup_path.exists():
+            archivos_backup = len(list(backup_path.glob("ler_backup_*.json")))
+        
+        return {
+            "directorio_memoria": str(memoria_path),
+            "archivos_memoria_estable": archivos_memoria,
+            "archivos_eventos": archivos_eventos,
+            "archivos_backup": archivos_backup,
+            "eventos_en_memoria": len(self.registro_eventos),
+            "espacio_usado_mb": sum(f.stat().st_size for f in memoria_path.rglob("*") if f.is_file()) / (1024*1024),
+            "ultimo_evento": self.registro_eventos[-1] if self.registro_eventos else None
+        }
+
+
+# Funciones de conveniencia
+def crear_guarda() -> Guarda:
+    """Crea una nueva instancia de Guarda"""
+    return Guarda()
+
+def guardar_memoria_rapido(data: Dict[str, Any]) -> str:
+    """Función rápida para guardar memoria"""
+    guarda = crear_guarda()
+    return guarda.guardar_memoria_estable(data)
+
+
+# Ejemplo de uso y testing
+if __name__ == "__main__":
+    # Crear instancia de Guarda
+    guarda = crear_guarda()
+    
+    # Ejemplo de uso
+    datos_prueba = {
+        "estado": "testing",
+        "entidades_activas": ["AXIOMA", "VELM", "LUMA"],
+        "glifos_procesados": 42
+    }
+    
+    # Guardar memoria
+    ruta_guardada = guarda.guardar_memoria_estable(datos_prueba)
+    print(f"Memoria guardada en: {ruta_guardada}")
+    
+    # Crear backup
+    backup_path = guarda.crear_backup(incluir_entidades=False)
+    print(f"Backup creado en: {backup_path}")
+    
+    # Mostrar estado del sistema
+    estado = guarda.estado_sistema()
+    print("Estado del sistema:")
+    for key, value in estado.items():
+        print(f"  {key}: {value}")
+    
+    # Exportar eventos
+    eventos_exportados = guarda.exportar_eventos("txt")
+    print(f"Eventos exportados a: {eventos_exportados}")

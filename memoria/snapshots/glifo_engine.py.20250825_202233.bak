@@ -1,0 +1,137 @@
+import json
+import os
+
+class GlifoEngine:
+    """
+    Motor simbólico para LER.
+    Depende exclusivamente de un JSON de glifos universales.
+    """
+
+    def __init__(self, ruta_glifos: str):
+        """
+        Inicializa el motor cargando los glifos desde el archivo JSON.
+        Lanza FileNotFoundError si no existe.
+        """
+        self.ruta_glifos = ruta_glifos
+
+        # Operadores Mathema
+        self.operadores = {
+            "+": "Suma simbólica / Fusión",
+            "⊗": "Producto tensorial / Interacción",
+            "¬": "Negación / Inversión",
+            "Δ": "Transformación / Delta",
+            "∞": "Infinito / Continuidad",
+            "→": "Implicación / Flujo direccional",
+            "⇆": "Equivalencia bidireccional",
+            "∘": "Composición funcional",
+            "·": "Producto punto / Resonancia"
+        }
+
+        # Cargar glifos desde JSON
+        if not os.path.exists(self.ruta_glifos):
+            raise FileNotFoundError(f"No se encontró el archivo de glifos: {self.ruta_glifos}")
+
+        with open(self.ruta_glifos, "r", encoding="utf-8") as f:
+            self.glifos = json.load(f)
+
+    def es_glifo_valido(self, simbolo: str) -> bool:
+        """Verifica si un símbolo es un glifo o un operador válido"""
+        for datos in self.glifos.values():
+            if datos.get("glifo") == simbolo:
+                return True
+        return simbolo in self.operadores
+
+    def descripcion_glifo(self, simbolo: str) -> str:
+        """Devuelve la descripción de un glifo o un operador"""
+        for datos in self.glifos.values():
+            if datos.get("glifo") == simbolo:
+                categoria = datos.get("categoria", "general")
+                nivel = datos.get("nivel", 0)
+                return f"{datos['descripcion']} [{categoria.title()}, Nivel {nivel}]"
+
+        if simbolo in self.operadores:
+            return f"Operador Mathema: {self.operadores[simbolo]}"
+
+        return f"Símbolo no reconocido: '{simbolo}'"
+
+    def validar_expresion(self, expresion: str):
+        """Valida una expresión y devuelve (es_valida, lista_de_errores)"""
+        partes = expresion.split()
+        errores = []
+
+        for i, simbolo in enumerate(partes, 1):
+            if not self.es_glifo_valido(simbolo):
+                errores.append(f"Posición {i}: '{simbolo}' no es válido")
+
+        return len(errores) == 0, errores
+
+    def representar_expresion(self, expresion: str) -> str:
+        """Representa la expresión con descripción detallada"""
+        partes = expresion.split()
+        if not partes:
+            return "Expresión vacía"
+
+        es_valida, errores = self.validar_expresion(expresion)
+        resultado = [f"Expresión Mathema: {expresion}", "="*50]
+
+        if not es_valida:
+            resultado.append("ERRORES DE VALIDACIÓN:")
+            for err in errores:
+                resultado.append(f"  {err}")
+            resultado.append("="*50)
+
+        for i, simbolo in enumerate(partes, 1):
+            desc = self.descripcion_glifo(simbolo)
+            resultado.append(f"{i:2d}. {simbolo} → {desc}")
+
+        return "\n".join(resultado)
+
+    def analizar_flujo(self, expresion: str):
+        """Analiza el flujo simbólico de la expresión"""
+        partes = expresion.split()
+        if len(partes) < 2:
+            return "Expresión muy corta para análisis de flujo"
+
+        resultado = ["ANÁLISIS DE FLUJO SIMBÓLICO", "="*40]
+        for i, simbolo in enumerate(partes, 1):
+            if simbolo in self.operadores:
+                resultado.append(f"{i:2d}. Operador → {self.operadores[simbolo]}")
+            elif any(datos.get("glifo") == simbolo for datos in self.glifos.values()):
+                resultado.append(f"{i:2d}. Glifo → {simbolo}")
+            else:
+                resultado.append(f"{i:2d}. Desconocido → {simbolo}")
+
+        return "\n".join(resultado)
+
+    def obtener_estadisticas(self) -> str:
+        """Devuelve estadísticas del motor"""
+        total_glifos = len(self.glifos)
+        total_operadores = len(self.operadores)
+
+        categorias = {}
+        for datos in self.glifos.values():
+            cat = datos.get("categoria", "sin_categoria")
+            categorias[cat] = categorias.get(cat, 0) + 1
+
+        resultado = [
+            "ESTADÍSTICAS DEL MOTOR GLÍFICO",
+            "="*40,
+            f"Total de glifos cargados: {total_glifos}",
+            f"Total de operadores: {total_operadores}",
+            "",
+            "Distribución por categorías:"
+        ]
+        for cat, count in categorias.items():
+            resultado.append(f"  {cat.title()}: {count}")
+
+        return "\n".join(resultado)
+
+# --- Modo de prueba ---
+if __name__ == "__main__":
+    ruta_json = "./glifos/glifos_universales.json"
+    engine = GlifoEngine(ruta_json)
+
+    expresion_test = "• → ○ ⊗ ⊙"
+    print(engine.obtener_estadisticas())
+    print(engine.representar_expresion(expresion_test))
+    print(engine.analizar_flujo(expresion_test))

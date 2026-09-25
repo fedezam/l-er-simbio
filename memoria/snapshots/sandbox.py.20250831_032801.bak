@@ -1,0 +1,4 @@
+{
+  "archivo": "sandbox/sandbox.py",
+  "contenido": "from typing import List, Dict, Any\nfrom entities.entity import Entity\n\nclass Sandbox:\n    async def run_simulation(self, entities: List[Entity], rounds: int) -> List[Dict[str, Any]]:\n        print(f\"⏳ Ejecutando simulación en sandbox con {len(entities)} entidades por {rounds} rondas...\")\n        return [entity.to_dict() for entity in entities]"
+}

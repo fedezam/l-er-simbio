@@ -1,0 +1,38 @@
+{
+  "entity": "arbiter.planificador",
+  "session_start": "2025-08-31T00:12:29.038052",
+  "last_update": "2025-08-31T00:54:39.719270",
+  "visited_files": [
+    "/workspaces/ler-universe17/LER/core/glifo_engine.py",
+    "/workspaces/ler-universe17/LER/core/guarda.py",
+    "/workspaces/ler-universe17/LER/core/entity_runner.py",
+    "/workspaces/ler-universe17/LER/core/ler.core.json",
+    "/workspaces/ler-universe17/LER/core/__init__.py",
+    "/workspaces/ler-universe17/LER/core/ler_parser.py",
+    "/workspaces/ler-universe17/LER/core/sistema_inmune.py",
+    "/workspaces/ler-universe17/LER/core/ler_config.json",
+    "/workspaces/ler-universe17/LER/core/ara_tipos.py",
+    "/workspaces/ler-universe17/LER/core/config.py",
+    "/workspaces/ler-universe17/LER/core/axioma.py",
+    "/workspaces/ler-universe17/LER/core/constructor_axioma.py",
+    "/workspaces/ler-universe17/LER/core/README_CORE.md",
+    "/workspaces/ler-universe17/LER/core/reflexivity_test.py",
+    "/workspaces/ler-universe17/LER/core/glosario_loader.py",
+    "/workspaces/ler-universe17/LER/core/sandbox.py",
+    "/workspaces/ler-universe17/LER/core/memoria_estable_1.4.1.json",
+    "/workspaces/ler-universe17/LER/core/modulo_ara.py",
+    "/workspaces/ler-universe17/LER/core/nivel_reflexivo.py",
+    "/workspaces/ler-universe17/LER/README_LER.md",
+    "/workspaces/ler-universe17/LER/logs/reparacion_20250808_045530.json",
+    "/workspaces/ler-universe17/LER/entities/codeinsight/reports/report.md"
+  ],
+  "processed_folders": [
+    "logs",
+    ".",
+    "core"
+  ],
+  "files_processed": 22,
+  "ghost_version": "0.3",
+  "plan_version": "AuditorLER — v1.0",
+  "resume_hint": "Para continuar: python3 auditor_ler.py [nombre_carpeta]"
+}

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Test de Glifos — LER-Universal v1.3</title>
+  <link rel="stylesheet" href="../css/ler-universal.css">
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 2rem;
+      background: #f9f9f9;
+    }
+    h1, h2 {
+      font-family: 'LER-Universal', sans-serif;
+      margin-top: 2rem;
+      color: #333;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+      gap: 1rem;
+      margin: 1rem 0;
+    }
+    .glyph-box {
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 1rem;
+      text-align: center;
+      font-size: 2rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .label {
+      font-size: 0.7rem;
+      color: #555;
+      margin-top: .5rem;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <h1>LER-Universal v1.3 — Test de Glifos</h1>
+  <p>Verificación visual de categorías y renderizado de la fuente <b>LER-Universal</b>.</p>
+
+  <h2>Glosario</h2>
+  <div class="grid ler-glyph ler-glosario">
+    <div class="glyph-box">◌<span class="label">GLA</span></div>
+    <div class="glyph-box">◑<span class="label">GLB</span></div>
+    <div class="glyph-box">∿<span class="label">GLC</span></div>
+    <div class="glyph-box">∗<span class="label">GLD</span></div>
+    <div class="glyph-box">※<span class="label">GLE</span></div>
+  </div>
+
+  <h2>Reflexivos</h2>
+  <div class="grid ler-glyph ler-reflexivo">
+    <div class="glyph-box">⟁<span class="label">Ref 1</span></div>
+    <div class="glyph-box">⧙<span class="label">Ref 2</span></div>
+    <div class="glyph-box">⟲<span class="label">Ref 3</span></div>
+    <div class="glyph-box">⦾<span class="label">Ref 4</span></div>
+  </div>
+
+  <h2>Sistema</h2>
+  <div class="grid ler-glyph ler-sistema">
+    <div class="glyph-box">◉<span class="label">Sistema 1</span></div>
+    <div class="glyph-box">⬒<span class="label">Sistema 2</span></div>
+    <div class="glyph-box">⬓<span class="label">Sistema 3</span></div>
+    <div class="glyph-box">⬔<span class="label">Sistema 4</span></div>
+  </div>
+
+  <h2>Interacción</h2>
+  <div class="grid ler-glyph ler-interaccion">
+    <div class="glyph-box">➕<span class="label">Suma</span></div>
+    <div class="glyph-box">➖<span class="label">Resta</span></div>
+    <div class="glyph-box">✦<span class="label">Estrella</span></div>
+    <div class="glyph-box">⇆<span class="label">Swap</span></div>
+  </div>
+
+  <footer style="margin-top:3rem; font-size:0.8rem; color:#666;">
+    Generado automáticamente — LER-Universal v1.3
+  </footer>
+</body>
+</html>

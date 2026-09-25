@@ -1,0 +1,293 @@
+{
+  "metadata": {
+    "timestamp": "2025-08-24T06:03:01.816361",
+    "total_archivos": 7,
+    "version": "PYcodex Lite",
+    "base_dir": "/workspaces/ler-universe17/LER/entities",
+    "duracion_segundos": 0.11482477188110352
+  },
+  "resultados": {
+    "/workspaces/ler-universe17/LER/entities/__init__.py": {
+      "estado": "ok",
+      "metricas": {
+        "complejidad_ciclomatica": 1,
+        "anidamiento_maximo": 0,
+        "docstrings": {
+          "total": 0,
+          "con_docstring": 0,
+          "porcentaje": 0
+        }
+      },
+      "funciones": [],
+      "clases": [],
+      "total_lineas": 1,
+      "lineas_codigo": 0,
+      "lineas_comentarios": 1,
+      "lineas_largas": [],
+      "importaciones_faltantes": [],
+      "posibles_problemas": [],
+      "timestamp": "2025-08-24T06:03:01.703594"
+    },
+    "/workspaces/ler-universe17/LER/entities/entity.py": {
+      "estado": "con_advertencias",
+      "metricas": {
+        "complejidad_ciclomatica": 2,
+        "anidamiento_maximo": 3,
+        "docstrings": {
+          "total": 5,
+          "con_docstring": 3,
+          "porcentaje": 60.0
+        }
+      },
+      "funciones": [
+        "__init__",
+        "from_json",
+        "to_dict",
+        "__str__"
+      ],
+      "clases": [
+        "Entity"
+      ],
+      "total_lineas": 38,
+      "lineas_codigo": 32,
+      "lineas_comentarios": 1,
+      "lineas_largas": [],
+      "importaciones_faltantes": [
+        "typing"
+      ],
+      "posibles_problemas": [],
+      "timestamp": "2025-08-24T06:03:01.706645"
+    },
+    "/workspaces/ler-universe17/LER/entities/system_entity.py": {
+      "estado": "con_advertencias",
+      "metricas": {
+        "complejidad_ciclomatica": 61,
+        "anidamiento_maximo": 8,
+        "docstrings": {
+          "total": 21,
+          "con_docstring": 17,
+          "porcentaje": 80.95238095238095
+        }
+      },
+      "funciones": [
+        "diagnostico_completo_lite",
+        "analizar_archivo_especifico",
+        "__init__",
+        "show_progress",
+        "__init__",
+        "obtener_archivos_ler",
+        "verificar_importaciones_locales",
+        "_es_modulo_estandar",
+        "analizar_archivo_detallado",
+        "_calcular_complejidad",
+        "_calcular_anidamiento",
+        "_contar_docstrings",
+        "_detectar_problemas",
+        "analizar_archivo",
+        "ejecutar_diagnostico",
+        "mostrar_resumen",
+        "guardar_resultados",
+        "mostrar_archivos_con_problemas",
+        "_profundidad"
+      ],
+      "clases": [
+        "Tracker",
+        "PYcodexLite"
+      ],
+      "total_lineas": 366,
+      "lineas_codigo": 286,
+      "lineas_comentarios": 17,
+      "lineas_largas": [
+        241
+      ],
+      "importaciones_faltantes": [],
+      "posibles_problemas": [
+        "Funci_n 'analizar_archivo_detallado' muy larga (56 l_neas)",
+        "Comentario pendiente en l_nea 219: if 'TODO' in linea or 'FIXME' in linea or 'XXX' in linea:"
+      ],
+      "timestamp": "2025-08-24T06:03:01.728775"
+    },
+    "/workspaces/ler-universe17/LER/entities/auditor_ler.py": {
+      "estado": "con_advertencias",
+      "metricas": {
+        "complejidad_ciclomatica": 13,
+        "anidamiento_maximo": 4,
+        "docstrings": {
+          "total": 7,
+          "con_docstring": 2,
+          "porcentaje": 28.57142857142857
+        }
+      },
+      "funciones": [
+        "__init__",
+        "escanear_archivos",
+        "probar_ejecucion",
+        "proponer_parche",
+        "aplicar_parche",
+        "auditar"
+      ],
+      "clases": [
+        "AuditorLER"
+      ],
+      "total_lineas": 80,
+      "lineas_codigo": 68,
+      "lineas_comentarios": 1,
+      "lineas_largas": [],
+      "importaciones_faltantes": [
+        "subprocess"
+      ],
+      "posibles_problemas": [
+        "Comentario pendiente en l_nea 52: contenido = contenido.replace(error, f\"# FIXME: {error}\")"
+      ],
+      "timestamp": "2025-08-24T06:03:01.734282"
+    },
+    "/workspaces/ler-universe17/LER/entities/pycodex/pycodex_reflexivo.py": {
+      "estado": "con_advertencias",
+      "metricas": {
+        "complejidad_ciclomatica": 64,
+        "anidamiento_maximo": 6,
+        "docstrings": {
+          "total": 19,
+          "con_docstring": 17,
+          "porcentaje": 89.47368421052632
+        }
+      },
+      "funciones": [
+        "obtener_archivos_ler",
+        "__init__",
+        "show_progress",
+        "__init__",
+        "obtener_api_key",
+        "calcular_entropia",
+        "verificar_importaciones_locales",
+        "necesita_llm",
+        "analizar_json",
+        "analizar_markdown",
+        "analizar_texto",
+        "evaluar_con_llm",
+        "evaluar_salud_ler",
+        "analizar_archivo",
+        "ejecutar_diagnostico",
+        "mostrar_resumen",
+        "proponer_reparacion"
+      ],
+      "clases": [
+        "Tracker",
+        "PYcodex"
+      ],
+      "total_lineas": 429,
+      "lineas_codigo": 371,
+      "lineas_comentarios": 7,
+      "lineas_largas": [
+        58,
+        63,
+        360,
+        367
+      ],
+      "importaciones_faltantes": [
+        "glosario_loader"
+      ],
+      "posibles_problemas": [
+        "Funci_n 'analizar_archivo' muy larga (66 l_neas)"
+      ],
+      "timestamp": "2025-08-24T06:03:01.758353"
+    },
+    "/workspaces/ler-universe17/LER/entities/pycodex/pycodex.py": {
+      "estado": "ok",
+      "metricas": {
+        "complejidad_ciclomatica": 12,
+        "anidamiento_maximo": 4,
+        "docstrings": {
+          "total": 7,
+          "con_docstring": 0,
+          "porcentaje": 0.0
+        }
+      },
+      "funciones": [
+        "__init__",
+        "analizar_archivo",
+        "evaluar_con_llm",
+        "ejecutar_diagnostico",
+        "obtener_resultado",
+        "guardar_resultados"
+      ],
+      "clases": [
+        "PYcodex"
+      ],
+      "total_lineas": 126,
+      "lineas_codigo": 103,
+      "lineas_comentarios": 1,
+      "lineas_largas": [],
+      "importaciones_faltantes": [],
+      "posibles_problemas": [],
+      "timestamp": "2025-08-24T06:03:01.764972"
+    },
+    "/workspaces/ler-universe17/LER/entities/pycodex/reparador_asistido.py": {
+      "estado": "con_advertencias",
+      "metricas": {
+        "complejidad_ciclomatica": 130,
+        "anidamiento_maximo": 10,
+        "docstrings": {
+          "total": 30,
+          "con_docstring": 28,
+          "porcentaje": 93.33333333333333
+        }
+      },
+      "funciones": [
+        "main",
+        "reparar_todo",
+        "reparar_interactivo",
+        "solo_python",
+        "solo_core",
+        "dry_run",
+        "__init__",
+        "crear_directorios",
+        "inicializar_criticidad",
+        "normalizar_resultados",
+        "construir_mapa_dependencias",
+        "agregar_dependencia",
+        "obtener_ultimo_reporte",
+        "evaluar_salud",
+        "reparacion_inteligente_llm",
+        "reparacion_especifica_por_error",
+        "reparar_error_sintaxis",
+        "reparar_json",
+        "reparar_imports",
+        "priorizar_archivos",
+        "crear_backup_inteligente",
+        "verificar_reparacion_completa",
+        "rollback_inteligente",
+        "aplicar_reparacion_completa",
+        "confirmar_accion",
+        "mostrar_diferencia_avanzada",
+        "ejecutar_reparaciones_completas",
+        "mostrar_resumen_definitivo",
+        "calcular_prioridad"
+      ],
+      "clases": [
+        "ReparadorDefinitivo"
+      ],
+      "total_lineas": 822,
+      "lineas_codigo": 620,
+      "lineas_comentarios": 55,
+      "lineas_largas": [
+        449
+      ],
+      "importaciones_faltantes": [
+        "argparse",
+        "difflib",
+        "typing",
+        "pycodex_reflexivo",
+        "glob",
+        "subprocess"
+      ],
+      "posibles_problemas": [
+        "Funci_n 'reparacion_inteligente_llm' muy larga (67 l_neas)",
+        "Funci_n 'ejecutar_reparaciones_completas' muy larga (147 l_neas)",
+        "Funci_n 'mostrar_resumen_definitivo' muy larga (64 l_neas)",
+        "Comentario pendiente en l_nea 557: # TODO: Obtener resultados del diagnóstico recién ejecutado"
+      ],
+      "timestamp": "2025-08-24T06:03:01.815757"
+    }
+  }
+}

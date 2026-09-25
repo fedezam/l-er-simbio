@@ -1,0 +1,62 @@
+# /core/modules/_plantilla_modulo.py
+"""
+Plantilla universal para crear módulos LER compatibles con GL-X.
+Copiar este archivo, renombrarlo y completar los campos.
+"""
+
+from __future__ import annotations
+from .base import ModuloBase
+from ..glifos import GlosarioMathema   # Resuelve glifos en runtime
+
+class ModuloNombre(ModuloBase):
+    """
+    Módulo: <nombre_del_modulo>
+    Función: <breve_descripción>
+    """
+
+    def __init__(self) -> None:
+        super().__init__(
+            id="mod_<nombre_del_modulo>",
+            nombre="<nombre_del_modulo>",
+            descripcion="<descripción breve>",
+            activadores=[
+                "GL30-G",  # ◉  Consciente
+                "GLD",     # ✱  Nodo
+                "GL8",     # ↻  Iterativo
+            ],
+            atributos={
+                "clave1": True,
+                "clave2": "contextual",
+                "clave3": 42,
+            },
+            nivel_reflexividad="R++"
+        )
+
+    # ----------------------------------------------------------
+    # Métodos opcionales (copiar si los necesitas)
+    # ----------------------------------------------------------
+
+    def resolver_glifos(self) -> list[str]:
+        """Devuelve los glifos Unicode reales."""
+        return [GlosarioMathema[clave]["glifo"] for clave in self.activadores]
+
+    def inicializar(self, entidad: dict) -> None:
+        """Inyecta el módulo en la entidad y ejecuta configuración inicial."""
+        super().inicializar(entidad)
+        # Personalizar lógica inicial aquí
+        entidad.setdefault("_modulo_", {})
+        entidad["_modulo_"][self.id] = {"estado": "activo"}
+
+    def ejecutar(self, contexto: dict) -> dict:
+        """
+        Lógica principal del módulo.
+        `contexto` puede contener:
+        - entidad: dict
+        - entorno: str
+        - feedback: list[str]
+        Retorna dict con resultado o glifos generados.
+        """
+        return {
+            "accion": "ejecutado",
+            "glifos_resultantes": self.resolver_glifos()
+        }

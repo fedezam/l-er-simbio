@@ -1,0 +1,15 @@
+LER-Universal Font v1.3
+================================
+
+Este paquete tipográfico está basado en **Noto Sans Symbols 2**, 
+que utiliza la licencia SIL Open Font License (OFL).
+
+Las modificaciones y adaptaciones realizadas para el ecosistema **LER** 
+mantienen compatibilidad con la licencia OFL.
+
+Puedes usar, modificar y distribuir esta fuente libremente en proyectos 
+comerciales y no comerciales, siempre que mantengas esta notificación de licencia.
+
+Para más detalles sobre OFL: https://scripts.sil.org/OFL
+
+Generado automáticamente: 2025-08-19 12:46:23
