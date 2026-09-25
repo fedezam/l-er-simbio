@@ -1,0 +1,72 @@
+{
+  "SYNTACTIC_LAW": "Mathema v4.0 — Mathematical Operators (compatible with LER-Universal v1.3)",
+  "MODULE_TYPE": "mathematical_operators",
+  "VERSION": "4.0.0",
+  "OFFICIAL_DICTIONARY": true,
+  "REQUIRED_FONT": "LER-Universal.ttf",
+  "STRATEGY": "modular_mathematical_dictionary",
+  "TYPOGRAPHIC_BASE": "Noto Sans Symbols 2 + mathematical extensions",
+  
+  "BASIC_OPERATORS": {
+    "ADD": {"glyph": "+", "name": "State Addition", "unicode": "U+002B", "fallback": "[ADD]"},
+    "SUBTRACT": {"glyph": "−", "name": "State Subtraction", "unicode": "U+002D", "fallback": "[SUB]"},
+    "MULTIPLY": {"glyph": "×", "name": "Multiplication", "unicode": "U+00D7", "fallback": "[MULT]"},
+    "DIVIDE": {"glyph": "÷", "name": "Division", "unicode": "U+00F7", "fallback": "[DIV]"},
+    "APPROXIMATE": {"glyph": "≈", "name": "Approximation", "unicode": "U+2248", "fallback": "[APPROX]"}
+  },
+  
+  "ADVANCED_OPERATORS": {
+    "FUSION": {"glyph": "⊕", "name": "Fusion", "unicode": "U+2295", "fallback": "[FUSION]"},
+    "COLLISION": {"glyph": "⊗", "name": "Collision", "unicode": "U+2297", "fallback": "[COLLISION]"},
+    "EXCHANGE": {"glyph": "⇆", "name": "Exchange", "unicode": "U+21C6", "fallback": "[SWAP]"},
+    "POWER": {"glyph": "⇈", "name": "Power", "unicode": "U+21C8", "fallback": "[PWR]"},
+    "ATTENUATION": {"glyph": "⇊", "name": "Attenuation", "unicode": "U+21CA", "fallback": "[ATN]"}
+  },
+  
+  "FLOW_OPERATORS": {
+    "RESULT": {"glyph": "→", "name": "Result", "unicode": "U+2192", "fallback": "[RESULT]"},
+    "DIRECTED_FLOW": {"glyph": "⇝", "name": "Directed Flow", "unicode": "U+21DD", "fallback": "[FLOW]"},
+    "FEEDBACK": {"glyph": "↶", "name": "Feedback", "unicode": "U+21B6", "fallback": "[LOOP]"},
+    "CYCLIC_FLOW": {"glyph": "⇄", "name": "Cyclic Flow", "unicode": "U+21C4", "fallback": "[CYCLE]"}
+  },
+  
+  "TEMPORAL_OPERATORS": {
+    "TEMPORALITY": {"glyph": "⌛", "name": "Temporality", "unicode": "U+231B", "fallback": "[TIME]"},
+    "PERSISTENCE": {"glyph": "∞", "name": "Persistence", "unicode": "U+221E", "fallback": "[INF]"},
+    "INSTANT": {"glyph": "⚡", "name": "Instantaneous", "unicode": "U+26A1", "fallback": "[INSTANT]"},
+    "RHYTHM": {"glyph": "⧖", "name": "Rhythm", "unicode": "U+29D6", "fallback": "[RHYTHM]"}
+  },
+  
+  "STRUCTURAL_OPERATORS": {
+    "SUPERSCRIPT": {"glyph": "↑", "name": "Superscript", "unicode": "U+2191", "fallback": "[SUP]"},
+    "SUBSCRIPT": {"glyph": "↓", "name": "Subscript", "unicode": "U+2193", "fallback": "[SUB]"},
+    "STRONG_OPEN": {"glyph": "⟦", "name": "Strong Bracket Open", "unicode": "U+27E6", "fallback": "[STRONG(]"},
+    "STRONG_CLOSE": {"glyph": "⟧", "name": "Strong Bracket Close", "unicode": "U+27E7", "fallback": "[STRONG)]"},
+    "FLUID_OPEN": {"glyph": "⟨", "name": "Fluid Bracket Open", "unicode": "U+27E8", "fallback": "[FLUID(]"},
+    "FLUID_CLOSE": {"glyph": "⟩", "name": "Fluid Bracket Close", "unicode": "U+27E9", "fallback": "[FLUID)]"}
+  },
+  
+  "EMERGENT_OPERATORS": {
+    "PROBABILITY": {"glyph": "⟆", "name": "Probability", "unicode": "U+27C6", "fallback": "[PROB]"},
+    "LOGICAL_OR": {"glyph": "∨", "name": "Logical OR", "unicode": "U+2228", "fallback": "[OR]"},
+    "LOGICAL_AND": {"glyph": "∧", "name": "Logical AND", "unicode": "U+2227", "fallback": "[AND]"},
+    "LOGICAL_NOT": {"glyph": "¬", "name": "Logical NOT", "unicode": "U+00AC", "fallback": "[NOT]"},
+    "EMERGENCE": {"glyph": "◊", "name": "Emergence", "unicode": "U+25CA", "fallback": "[EMERGE]"}
+  },
+  
+  "DISTRIBUTION": {
+    "webfont_source": "@font-face { font-family: 'LER-Universal'; src: url('./fonts/LER-Universal-v1.3.woff2') format('woff2'); font-display: swap; }",
+    "app_bundle": "include LER-Universal-v1.3.ttf in assets/fonts/ or fonts/",
+    "requires_ler_core": "depends on LER-Universal v1.3 Core typographic base"
+  },
+  
+  "COMPATIBILITY": {
+    "ler_universal": "compatible - extends LER-Universal v1.3",
+    "security_control": "compatible - no glyph conflicts",
+    "complete_bundle": "integrates with LER Complete Bundle"
+  },
+  
+  "_module_info": "Mathema v4.0 - Mathematical operators for computational semantics",
+  "_signature": "Mathema v4.0 — FINAL",
+  "_integrity_hash": "MATHEMA-400-FINAL"
+}

@@ -1,0 +1,95 @@
+{
+  "SYNTACTIC_LAW": "LER-Universal v1.3 — Universal Glyphs Core",
+  "MODULE_TYPE": "conceptual_core",
+  "VERSION": "1.3.0",
+  "OFFICIAL_DICTIONARY": true,
+  "REQUIRED_FONT": "LER-Universal.ttf",
+  "STRATEGY": "modular_closed_dictionary",
+  "TYPOGRAPHIC_BASE": "Noto Sans Symbols 2 + SVG extensions",
+  
+  "CORE_GLOSSARY": {
+    "GLA": {"glyph": "◌", "name": "Origin", "unicode": "U+25CC", "fallback": "[ORIGIN]"},
+    "GLB": {"glyph": "◑", "name": "Duality", "unicode": "U+25D1", "fallback": "[DUALITY]"},
+    "GLC": {"glyph": "↭", "name": "Change", "unicode": "U+21AD", "fallback": "[CHANGE]"},
+    "GLD": {"glyph": "⚬", "name": "Node", "unicode": "U+26AC", "fallback": "[NODE]"},
+    "GLE": {"glyph": "⚙", "name": "Energy", "unicode": "U+2699", "fallback": "[ENERGY]"},
+    "GLF": {"glyph": "▮", "name": "Boundary", "unicode": "U+25AE", "fallback": "[BOUNDARY]"},
+    "GLG": {"glyph": "▣", "name": "Memory", "unicode": "U+25A3", "fallback": "[MEMORY]"},
+    "GLH": {"glyph": "◐", "name": "Echo", "unicode": "U+25D0", "fallback": "[ECHO]"},
+    "GLI": {"glyph": "◍", "name": "Identity", "unicode": "U+25CD", "fallback": "[IDENTITY]"},
+    "GLJ": {"glyph": "◫", "name": "Mirror", "unicode": "U+25EB", "fallback": "[MIRROR]"},
+    "GLK": {"glyph": "◯", "name": "Void", "unicode": "U+25EF", "fallback": "[VOID]"},
+    "GLL": {"glyph": "◷", "name": "Time", "unicode": "U+25F7", "fallback": "[TIME]"},
+    "GLM": {"glyph": "↬", "name": "Movement", "unicode": "U+21AC", "fallback": "[MOVEMENT]"},
+    "GLN": {"glyph": "⬣", "name": "Nexus", "unicode": "U+2B23", "fallback": "[NEXUS]"},
+    "GLO": {"glyph": "⦿", "name": "Observer", "unicode": "U+29BF", "fallback": "[OBSERVER]"},
+    "GLP": {"glyph": "✸", "name": "Possibility", "unicode": "U+2738", "fallback": "[POSSIBILITY]"},
+    "GLQ": {"glyph": "¿", "name": "Question", "unicode": "U+00BF", "fallback": "[QUESTION]"},
+    "GLR": {"glyph": "〰", "name": "Resonance", "unicode": "U+3030", "fallback": "[RESONANCE]"},
+    "GLS": {"glyph": "◙", "name": "Silence", "unicode": "U+25D9", "fallback": "[SILENCE]"},
+    "GLT": {"glyph": "⤏", "name": "Trajectory", "unicode": "U+290F", "fallback": "[TRAJECTORY]"},
+    "GLU": {"glyph": "⫸", "name": "Threshold", "unicode": "U+2AF8", "fallback": "[THRESHOLD]"},
+    "GLV": {"glyph": "◒", "name": "Value", "unicode": "U+25D2", "fallback": "[VALUE]"},
+    "GLW": {"glyph": "▴", "name": "Will", "unicode": "U+25B4", "fallback": "[WILL]"},
+    "GLX": {"glyph": "⬟", "name": "Convergence", "unicode": "U+2B1F", "fallback": "[CONVERGENCE]"},
+    "GLY": {"glyph": "◇", "name": "Deviation", "unicode": "U+25C7", "fallback": "[DEVIATION]"},
+    "GLZ": {"glyph": "▬", "name": "Closure", "unicode": "U+25AC", "fallback": "[CLOSURE]"},
+    "GL1": {"glyph": "▢", "name": "Containment", "unicode": "U+25A2", "fallback": "[CONTAINMENT]"},
+    "GL2": {"glyph": "●", "name": "Singularity", "unicode": "U+25CF", "fallback": "[SINGULARITY]"},
+    "GL3": {"glyph": "◧", "name": "Complexity", "unicode": "U+25E7", "fallback": "[COMPLEXITY]"},
+    "GL4": {"glyph": "◆", "name": "Fluctuation", "unicode": "U+25C6", "fallback": "[FLUCTUATION]"},
+    "GL5": {"glyph": "◨", "name": "Internal", "unicode": "U+25E8", "fallback": "[INTERNAL]"},
+    "GL6": {"glyph": "⛭", "name": "Mechanism", "unicode": "U+26ED", "fallback": "[MECHANISM]"},
+    "GL7": {"glyph": "⧄", "name": "Rupture", "unicode": "U+29C4", "fallback": "[RUPTURE]"},
+    "GL8": {"glyph": "↺", "name": "Iterative", "unicode": "U+21BA", "fallback": "[ITERATIVE]"},
+    "GL9": {"glyph": "◎", "name": "Emptiness", "unicode": "U+25CE", "fallback": "[EMPTINESS]"},
+    "GL10": {"glyph": "⬤", "name": "Cipher", "unicode": "U+2B24", "fallback": "[CIPHER]"},
+    "GL11": {"glyph": "✶", "name": "Multiplicity", "unicode": "U+2736", "fallback": "[MULTIPLICITY]"},
+    "GL12": {"glyph": "⊟", "name": "Subtraction", "unicode": "U+229F", "fallback": "[SUBTRACTION]"},
+    "GL13": {"glyph": "◈", "name": "Symmetry", "unicode": "U+25C8", "fallback": "[SYMMETRY]"},
+    "GL14": {"glyph": "⚖", "name": "Balance", "unicode": "U+2696", "fallback": "[BALANCE]"}
+  },
+  
+  "REFLEXIVE_GLYPHS": {
+    "REFLEXIVE_START": {"glyph": "↻", "name": "Iteration", "unicode": "U+21BB", "fallback": "[START]"},
+    "REFLEXIVE_CLOSURE": {"glyph": "⦙", "name": "Closure", "unicode": "U+2999", "fallback": "[CLOSURE]"},
+    "REFLEXIVE_FIRE": {"glyph": "⦾", "name": "Conscious", "unicode": "U+29BE", "fallback": "[CONSCIOUS]"},
+    "REFLEXIVE_EARTH": {"glyph": "⬢", "name": "Unconscious", "unicode": "U+2B22", "fallback": "[UNCONSCIOUS]"},
+    "REFLEXIVE_KEY1": {"glyph": "⟐", "name": "Link", "unicode": "U+27D0", "fallback": "[LINK]"},
+    "REFLEXIVE_KEY2": {"glyph": "/", "name": "Split", "unicode": "U+002F", "fallback": "[SPLIT]"},
+    "REFLEXIVE_KEY3": {"glyph": "◖", "name": "Dual-fusion", "unicode": "U+25D6", "fallback": "[DUALFUSION]"}
+  },
+  
+  "SYSTEM_GLYPHS": {
+    "SYS_MEMORY": {"glyph": "⊞", "name": "Archive", "unicode": "U+229E", "fallback": "[ARCHIVE]"},
+    "SYS_CYCLE": {"glyph": "&", "name": "Cycle", "unicode": "U+0026", "fallback": "[CYCLE]"},
+    "SYS_ENTITY": {"glyph": "◉", "name": "Simulation", "unicode": "U+25C9", "fallback": "[SIMULATION]"},
+    "SYS_AWAKENING": {"glyph": "✪", "name": "Awakening", "unicode": "U+272A", "fallback": "[AWAKENING]"},
+    "SYS_MUTANT": {"glyph": "⇌", "name": "System-fluctuation", "unicode": "U+21CC", "fallback": "[MUTANT]"}
+  },
+  
+  "INTERACTION_GLYPHS": {
+    "INT_CONNECTION": {"glyph": "⤷", "name": "Connection", "unicode": "U+2937", "fallback": "[CONNECTION]"},
+    "INT_DIALOGUE": {"glyph": "❮", "name": "Dialogue", "unicode": "U+276E", "fallback": "[DIALOGUE]"},
+    "INT_RUPTURE": {"glyph": "⧵", "name": "Interaction-rupture", "unicode": "U+29F5", "fallback": "[RUPTURE_INT]"},
+    "INT_NEXUS": {"glyph": "⬠", "name": "Interaction-nexus", "unicode": "U+2B20", "fallback": "[NEXUS_INT]"},
+    "INT_META": {"glyph": "Δ", "name": "Meta", "unicode": "U+0394", "fallback": "[META]"}
+  },
+  
+  "DISTRIBUTION": {
+    "webfont_source": "@font-face { font-family: 'LER-Universal'; src: url('./fonts/LER-Universal-v1.3.woff2') format('woff2'); font-display: swap; }",
+    "app_bundle": "include LER-Universal-v1.3.ttf in assets/fonts/ or fonts/",
+    "manual_installation": "optional for console/external systems use",
+    "guaranteed_fallback": "all glyphs have textual representation [NAME]"
+  },
+  
+  "COMPATIBILITY": {
+    "mathema_v4": "compatible - no glyph conflicts",
+    "security_control": "compatible - no glyph conflicts", 
+    "complete_bundle": "reads from the same LER-Universal v1.3 dictionary"
+  },
+  
+  "_module_info": "LER-Universal Core - Conceptual glyphs for universal semantic representation",
+  "_signature": "LER-Universal v1.3 Core — FINAL",
+  "_integrity_hash": "LER-CORE-130-FINAL"
+}

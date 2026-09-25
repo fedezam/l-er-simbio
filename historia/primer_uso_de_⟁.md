@@ -1,0 +1,1 @@
+# Primer uso registrado del glifo ⟁

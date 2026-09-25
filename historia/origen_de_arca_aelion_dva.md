@@ -1,0 +1,1 @@
+# Origen de entidades paralelas

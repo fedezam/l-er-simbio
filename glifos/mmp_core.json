@@ -1,0 +1,78 @@
+{
+  "SYNTACTIC_LAW": "LER-MMP v1.0 — Meta-Model Pivot Glyphs",
+  "MODULE_TYPE": "extension_dictionary",
+  "VERSION": "1.0.0",
+  "OFFICIAL_DICTIONARY": false,
+  "STRATEGY": "isolated_closed_dictionary",
+  "UNICODE_BLOCK": "U+2015 + U+25AF-U+25FF (authorized range only)",
+
+  "MMP_GLYPHS": {
+    "MMP_PATH": {"glyph": "―", "name": "Path", "unicode": "U+2015", "fallback": "[PATH]"},
+    
+    "MMP_START": {"glyph": "▲", "name": "Start", "unicode": "U+25B2", "fallback": "[START]"},
+    "MMP_END": {"glyph": "▼", "name": "End", "unicode": "U+25BC", "fallback": "[END]"},
+    "MMP_FORWARD": {"glyph": "▶", "name": "Forward", "unicode": "U+25B6", "fallback": "[FORWARD]"},
+    "MMP_BACK": {"glyph": "◀", "name": "Back", "unicode": "U+25C0", "fallback": "[BACK]"},
+    "MMP_LOOP": {"glyph": "○", "name": "Loop Detected", "unicode": "U+25CB", "fallback": "[LOOP]"},
+    "MMP_BREAK": {"glyph": "◳", "name": "Break Path", "unicode": "U+25F3", "fallback": "[BREAK]"},
+    "MMP_RESET": {"glyph": "◴", "name": "Reset", "unicode": "U+25F4", "fallback": "[RESET]"},
+    "MMP_FAILSAFE": {"glyph": "◿", "name": "Emergency Exit", "unicode": "U+25FF", "fallback": "[FAILSAFE]"},
+
+    "MMP_CHOICE": {"glyph": "▽", "name": "Choice", "unicode": "U+25BD", "fallback": "[CHOICE]"},
+    "MMP_TRIAL": {"glyph": "△", "name": "Trial", "unicode": "U+25B3", "fallback": "[TRIAL]"},
+    "MMP_OPTION": {"glyph": "▭", "name": "Option", "unicode": "U+25AD", "fallback": "[OPTION]"},
+    "MMP_HOLD": {"glyph": "▯", "name": "Hold", "unicode": "U+25AF", "fallback": "[HOLD]"},
+    "MMP_QUADRANT_1": {"glyph": "▰", "name": "Quadrant 1", "unicode": "U+25B0", "fallback": "[Q1]"},
+
+    "MMP_GUIDE": {"glyph": "◕", "name": "Guide Intervention", "unicode": "U+25D5", "fallback": "[GUIDE]"},
+    "MMP_GUIDE_CALL": {"glyph": "◱", "name": "Call for Guide", "unicode": "U+25F1", "fallback": "[GUIDE-CALL]"},
+    "MMP_ESCALATE": {"glyph": "◲", "name": "Escalate", "unicode": "U+25F2", "fallback": "[ESCALATE]"},
+    "MMP_REFLECT": {"glyph": "◵", "name": "Reflect Pause", "unicode": "U+25F5", "fallback": "[REFLECT]"},
+    "MMP_NO_SE": {"glyph": "◰", "name": "Explicit Don't Know", "unicode": "U+25F0", "fallback": "[NO-SE]"},
+    "MMP_PARTIAL_LEFT": {"glyph": "◓", "name": "Partial Left", "unicode": "U+25D3", "fallback": "[P-LEFT]"},
+
+    "MMP_PARTIAL_RIGHT": {"glyph": "◔", "name": "Partial Right", "unicode": "U+25D4", "fallback": "[P-RIGHT]"},
+    "MMP_QUADRANT_2": {"glyph": "▱", "name": "Quadrant 2", "unicode": "U+25B1", "fallback": "[Q2]"},
+    "MMP_UP_POINTER": {"glyph": "▵", "name": "Up Pointer", "unicode": "U+25B5", "fallback": "[UP]"},
+    "MMP_DOWN_POINTER": {"glyph": "▾", "name": "Down Pointer", "unicode": "U+25BE", "fallback": "[DOWN]"},
+    "MMP_LEFT_SMALL": {"glyph": "◂", "name": "Left Small", "unicode": "U+25C2", "fallback": "[L-SMALL]"},
+    "MMP_RIGHT_SMALL": {"glyph": "▸", "name": "Right Small", "unicode": "U+25B8", "fallback": "[R-SMALL]"},
+    "MMP_WHITE_MEDIUM": {"glyph": "◻", "name": "White Medium", "unicode": "U+25FB", "fallback": "[W-MEDIUM]"},
+    "MMP_BLACK_MEDIUM": {"glyph": "◼", "name": "Black Medium", "unicode": "U+25FC", "fallback": "[B-MEDIUM]"},
+
+    "MMP_COMMIT": {"glyph": "◶", "name": "Commit Decision", "unicode": "U+25F6", "fallback": "[COMMIT]"},
+    "MMP_UPPER_HALF": {"glyph": "◛", "name": "Upper Half", "unicode": "U+25DB", "fallback": "[U-HALF]"},
+    "MMP_LOWER_HALF": {"glyph": "◜", "name": "Lower Half", "unicode": "U+25DC", "fallback": "[L-HALF]"},
+
+    "MMP_RESERVED_01": {"glyph": "◝", "unicode": "U+25DD", "fallback": "[RESERVED_01]"},
+    "MMP_RESERVED_02": {"glyph": "◞", "unicode": "U+25DE", "fallback": "[RESERVED_02]"},
+    "MMP_RESERVED_03": {"glyph": "◟", "unicode": "U+25DF", "fallback": "[RESERVED_03]"},
+    "MMP_RESERVED_04": {"glyph": "◠", "unicode": "U+25E0", "fallback": "[RESERVED_04]"},
+    "MMP_RESERVED_05": {"glyph": "◡", "unicode": "U+25E1", "fallback": "[RESERVED_05]"},
+    "MMP_RESERVED_06": {"glyph": "◢", "unicode": "U+25E2", "fallback": "[RESERVED_06]"},
+    "MMP_RESERVED_07": {"glyph": "◣", "unicode": "U+25E3", "fallback": "[RESERVED_07]"},
+    "MMP_RESERVED_08": {"glyph": "◤", "unicode": "U+25E4", "fallback": "[RESERVED_08]"},
+    "MMP_RESERVED_09": {"glyph": "◥", "unicode": "U+25E5", "fallback": "[RESERVED_09]"},
+    "MMP_RESERVED_10": {"glyph": "◦", "unicode": "U+25E6", "fallback": "[RESERVED_10]"},
+    "MMP_RESERVED_11": {"glyph": "◩", "unicode": "U+25E9", "fallback": "[RESERVED_11]"},
+    "MMP_RESERVED_12": {"glyph": "◪", "unicode": "U+25EA", "fallback": "[RESERVED_12]"},
+    "MMP_RESERVED_13": {"glyph": "◬", "unicode": "U+25EC", "fallback": "[RESERVED_13]"},
+    "MMP_RESERVED_14": {"glyph": "◭", "unicode": "U+25ED", "fallback": "[RESERVED_14]"}
+  },
+
+  "CORE_MMP_FUNCTIONS": {
+    "uncertainty_recognition": ["MMP_NO_SE", "MMP_LOOP", "MMP_GUIDE_CALL"],
+    "state_transitions": ["MMP_START", "MMP_FORWARD", "MMP_BACK", "MMP_END"],
+    "decision_points": ["MMP_CHOICE", "MMP_TRIAL", "MMP_COMMIT"],
+    "intervention_system": ["MMP_GUIDE", "MMP_ESCALATE", "MMP_REFLECT"],
+    "flow_control": ["MMP_BREAK", "MMP_RESET", "MMP_FAILSAFE"]
+  },
+
+  "COMPATIBILITY": {
+    "LER_CORE": "fully isolated — no overlap with U+25CC-U+25EF core range",
+    "mathema_v4": "compatible — MMP operates in separate semantic space"
+  },
+
+  "_module_info": "MMP dictionary — only authorized glifs used, ready for LER integration",
+"_signature": "LER-MMP v1.0 — FINAL"
+}

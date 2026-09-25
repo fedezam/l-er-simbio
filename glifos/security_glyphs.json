@@ -1,0 +1,79 @@
+{
+  "LEY_SINTACTICA": "LER-Seguridad v1.0 — Glifos de Control",
+  "DICCIONARIO_OFICIAL": true,
+  "FUENTE_REQUERIDA": "LER-Universal.ttf",
+  "TIPO": "sistema_control",
+  
+  "glifos_seguridad": {
+    "HALT": { 
+      "glifo": "■", 
+      "nombre": "Detener", 
+      "unicode": "U+25A0", 
+      "fallback": "[HALT]",
+      "funcion": "Detención inmediata de procesos"
+    },
+    "PURGE": { 
+      "glifo": "✘", 
+      "nombre": "Purgar", 
+      "unicode": "U+2718", 
+      "fallback": "[PURGE]",
+      "funcion": "Eliminación completa de datos"
+    },
+    "ISOLATE": { 
+      "glifo": "☒", 
+      "nombre": "Aislar", 
+      "unicode": "U+2612", 
+      "fallback": "[ISOLATE]",
+      "funcion": "Cuarentena de componentes"
+    },
+    "AUDIT": { 
+      "glifo": "☑", 
+      "nombre": "Auditar", 
+      "unicode": "U+2611", 
+      "fallback": "[AUDIT]",
+      "funcion": "Verificación de integridad"
+    },
+    "KILL": { 
+      "glifo": "☠", 
+      "nombre": "Terminar", 
+      "unicode": "U+2620", 
+      "fallback": "[KILL]",
+      "funcion": "Terminación forzada irreversible"
+    }
+  },
+  
+  "niveles_criticidad": {
+    "INFORMATIVO": { 
+      "glifos": ["AUDIT"], 
+      "color_sugerido": "#4CAF50",
+      "descripcion": "Verificación rutinaria"
+    },
+    "PRECAUCION": { 
+      "glifos": ["ISOLATE"], 
+      "color_sugerido": "#FF9800",
+      "descripcion": "Medida preventiva"
+    },
+    "CRITICO": { 
+      "glifos": ["HALT", "PURGE"], 
+      "color_sugerido": "#F44336",
+      "descripcion": "Intervención inmediata requerida"
+    },
+    "TERMINAL": { 
+      "glifos": ["KILL"], 
+      "color_sugerido": "#000000",
+      "descripcion": "Acción irreversible de último recurso"
+    }
+  },
+  
+  "compatibilidad": {
+    "ler_universal": "sin_conflictos",
+    "mathema": "sin_conflictos",
+    "sistemas_unix": "inspirado_en_signals",
+    "uso_recomendado": "solo_sistemas_confiables"
+  },
+  
+  "_firma_guardada_por": "GUARDA",
+  "_hash_hmac": "_c8fa-37fd-982e-lercore-glifosseguridad-1.0",
+  "_nota": "Glifos de control crítico - uso restringido",
+  "_version": "LER-Seguridad v1.0"
+}
