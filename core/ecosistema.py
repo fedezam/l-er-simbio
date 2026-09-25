@@ -26,6 +26,9 @@ from typing import Dict, List, Optional
 from core.llm.base import Sustrato
 from core.soma import Propuesta, Soma
 
+if False:  # solo tipos; avoid circular import at runtime
+    from core.juez import Juez
+
 
 @dataclass
 class Cuerpo:
@@ -58,6 +61,8 @@ class Plano:
     log: List[dict] = field(default_factory=list)
     tick: int = 0
     soma: Optional[Soma] = None       # tejido editable; None = genoma fijo del autor
+    juez: Optional["Juez"] = None     # fitness semantico; None = proxy sintactico
+    muestreo_juez: float = 1.0        # proporcion de hidrataciones que se juzgan
     _fitness_antes: Dict[str, float] = field(default_factory=dict)
 
     def __post_init__(self):
@@ -67,6 +72,7 @@ class Plano:
         self.soma.defaults.setdefault("umbral_coherencia", self.umbral_coherencia)
         self.soma.defaults.setdefault("epsilon_mutacion", self.epsilon_mutacion)
         self.soma.defaults.setdefault("costo_hidratacion", self.costo_hidratacion)
+        self.soma.defaults.setdefault("muestreo_juez", self.muestreo_juez)
 
     def _param(self, nombre: str, fallback: float) -> float:
         return self.soma.get(nombre) if self.soma else fallback
@@ -112,12 +118,22 @@ class Plano:
             c.historial.append(resp[:280])
             c.historial = c.historial[-5:]
             score = self._evaluar(c, resp)
+            fuente = "proxy"
+            # EL JUEZ: si hay presupuesto y toca muestreo, el sustrato decide
+            # semanticamente quien es coherente. El proxy queda de respaldo.
+            if (self.juez is not None and self.juez.disponible
+                    and self.rng.random() < self._param("muestreo_juez", self.muestreo_juez)):
+                v = self.juez.juzgar(c, resp)
+                if v is not None:
+                    score = v.score
+                    fuente = "juez"
+                    c.energia = max(0.0, c.energia - self.juez.costo_juez)  # juzgar cuesta
             c.fitness_ema = 0.8 * c.fitness_ema + 0.2 * score
             c.energia -= costo
             c.edad += 1
             if score >= umbral:
                 c.energia = min(2.0, c.energia + score * 0.1)  # la coherencia alimenta
-            eventos.append(("hidratacion", c.id, round(score, 3)))
+            eventos.append(("hidratacion", c.id, round(score, 3), fuente))
 
         # 1b. PROPUESTA SOMÁTICA: las especializadas repiensan la maquinaria
         eventos.extend(self._proponer(vivos))

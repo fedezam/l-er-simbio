@@ -1,3 +1,9 @@
-# Logs
-logs/__pycache__/
+# Compiled/Binary files
+__pycache__/
 *.pyc
+
+# Logs and data files
+logs/historia/soma.jsonl
+historia/juez.jsonl
+logs/
+__pycache__/
