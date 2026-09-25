@@ -1,0 +1,11 @@
+# Python compiled files and caches
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Pytest cache
+.pytest_cache/
+
+# Logs
+logs/
+*.log
