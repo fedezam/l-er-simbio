@@ -36,12 +36,35 @@ class SustratoDeterminista(Sustrato):
     """
 
     def hidratar(self, prompt: str, temperatura: float = 0.7) -> str:
+        # reflejos del mock: como un organismo trivial, responde a los prompts
+        # que reconocen sus formas (juez y traductor). Sin esto, el plano offline
+        # se queda sin semantica y todo degrada a proxy.
+        if "JUEZ DE COHERENCIA" in prompt or "JUEZ DEL SOMA" in prompt:
+            h = int(hashlib.sha256(prompt.encode("utf-8")).hexdigest()[:8], 16) % 31
+            a, b, c = (h % 10) / 10, ((h // 10) % 10) / 10, ((h // 3) % 10) / 10
+            if "identidad" in prompt:
+                return f"identidad:{a:.1f}\nglifos:{b:.1f}\ncoherencia:{c:.1f}"
+            return f"necesidad:{a:.1f}\nmoderacion:{b:.1f}\nsistemicidad:{c:.1f}"
+        if "TRADUCTOR" in prompt or ("canal" in prompt and "valor" in prompt):
+            for w in reversed(prompt.split()):
+                try:
+                    v = float(w.strip(".,;:"))
+                except ValueError:
+                    continue
+                if "umbral" in prompt:
+                    return f"canal:umbral_coherencia valor:{v}"
+                if "epsilon" in prompt or "mutaci" in prompt:
+                    return f"canal:epsilon_mutacion valor:{v}"
+                if "costo" in prompt or "energ" in prompt:
+                    return f"canal:costo_hidratacion valor:{v}"
+                break
         h = hashlib.sha256(prompt.encode("utf-8")).hexdigest() * 2  # padding circular
         tokens = [w for w in prompt.split() if any(c.isalpha() for c in w)]
         if not tokens:
             return ""
         n = max(3, len(tokens) // 4)
-        picks = [tokens[int(h[i:i + 4], 16) % len(tokens)] for i in range(0, n * 4, 4)]
+        picks = [tokens[int(h[i % len(h): i % len(h) + 4], 16) % len(tokens)]
+                 for i in range(0, n * 4, 4)]
         return " ".join(picks)
 
 

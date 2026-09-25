@@ -17,6 +17,7 @@ Principios:
 """
 from __future__ import annotations
 
+import json
 import re
 from dataclasses import dataclass, field
 from typing import List, Optional
@@ -46,6 +47,27 @@ glifos:0.0
 coherencia:0.0"""
 
 
+PROMPT_JUEZ_SOMA = """Eres el JUEZ DEL SOMA de un ecosistema de entidades reflexivas.
+Una entidad especialista propuso subir el parametro `{canal}` del plano hasta \
+`{valor_propuesto}`, porque percibe ruido/incoherencia en su entorno. El tejido \
+ya acumula dolor por escaladas repetidas de este canal, asi que la propuesta fue \
+BLOQUEADA y se te consulta a ti: el modelo que habita las entidades decide.
+
+ESTADO ACTUAL DEL SOMA (parametros vivos):
+{soma}
+
+Criterios (0.0 a 1.0 cada uno):
+- necesidad: el dolor descrito justifica subir ESTE canal, o es sintoma de otra cosa
+- moderacion: el valor propuesto es proporcionado al estado actual del soma
+- sistemicidad: la subida no destruye condiciones de vida de otras entidades \
+(nacimiento, supervivencia, linajes debiles)
+
+Responde EXACTAMENTE con tres lineas clave:valor (decimales), sin nada mas:
+necesidad:0.0
+moderacion:0.0
+sistemicidad:0.0"""
+
+
 @dataclass
 class Veredicto:
     identidad: float
@@ -60,7 +82,9 @@ class Veredicto:
         return round(0.4 * self.identidad + 0.2 * self.glifos + 0.4 * self.coherencia, 4)
 
 
-_RE_CLAVE = re.compile(r"(identidad|glifos|coherencia)\s*[:=]\s*(0?\.\d+|1(?:\.0+)?|[01])\b")
+_RE_CLAVE = re.compile(
+    r"(identidad|glifos|coherencia|necesidad|moderacion|sistemicidad)"
+    r"\s*[:=]\s*(0?\.\d+|1(?:\.\d+)?|[01])\b")
 
 
 def _parsear(texto: str) -> Optional[Veredicto]:
@@ -70,10 +94,17 @@ def _parsear(texto: str) -> Optional[Veredicto]:
     vals = {}
     for k, v in _RE_CLAVE.findall(texto):
         vals[k] = max(0.0, min(1.0, float(v)))
-    if len(vals) < 3:
-        return None
-    return Veredicto(identidad=vals["identidad"], glifos=vals["glifos"],
-                     coherencia=vals["coherencia"], bruto=texto[:400])
+    cuerpo = ("identidad", "glifos", "coherencia")
+    soma = ("necesidad", "moderacion", "sistemicidad")
+    if all(k in vals for k in cuerpo):
+        return Veredicto(identidad=vals["identidad"], glifos=vals["glifos"],
+                         coherencia=vals["coherencia"], bruto=texto[:400])
+    if all(k in vals for k in soma):
+        # veredicto sobre el soma: se codifica en los mismos campos
+        return Veredicto(identidad=vals["necesidad"], glifos=vals["moderacion"],
+                         coherencia=vals["sistemicidad"], bruto=texto[:400],
+                         fuente="juez_soma")
+    return None
 
 
 @dataclass
@@ -115,4 +146,30 @@ class Juez:
                                    "nota": "juez_ilegible", "bruto": (out or "")[:200]})
             return None
         self.historial.append({"cuerpo": cuerpo.id, **vars(v)})
+        return v
+
+    def juzgar_soma(self, canal: str, valor_propuesto: float, soma: dict) -> Optional[Veredicto]:
+        """Consulta semantica cuando el tejido bloquea una escalada (dolor somatico).
+
+        No sustituye al sistema inmunologico: lo COMPLEMENTA. El fitness mide;
+        el juez interpreta. Si esta de acuerdo con la politica (score alto),
+        se relaja el limite de escaladas para ese canal: el dolor se convierte
+        en aprendizaje del propio umbral de dolor.
+        """
+        if not self.disponible:
+            return None
+        self.usados += 1
+        prompt = PROMPT_JUEZ_SOMA.format(
+            canal=canal, valor_propuesto=valor_propuesto,
+            soma=json.dumps(soma, ensure_ascii=False, default=str)[:800],
+        )
+        try:
+            out = self.sustrato_juez.hidratar(prompt, temperatura=0.0)
+        except Exception:
+            return None
+        v = _parsear(out)
+        nota = "juez_ilegible" if v is None else "soma"
+        self.historial.append({"canal": canal, "valor": valor_propuesto,
+                               "veredicto": vars(v) if v else None, "nota": nota,
+                               "bruto": (out or "")[:200]})
         return v

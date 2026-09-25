@@ -68,6 +68,10 @@ class Plano:
     costo_pensar: float = 0.02        # energia que consume hidratarse a si mismo (introspeccion)
     _fitness_antes: Dict[str, float] = field(default_factory=dict)
     _deriva_refleja: bool = True      # fallback refleja solo con sustrato determinista
+    # dolor somatico: limites de escalada por (proponente, canal)
+    ventana_escalada: int = 15        # ticks que tarda el tejido en "desinflamar"
+    max_escaladas: int = 2            # subidas permitidas por canal y ventana
+    _escalas: Dict[tuple, List[int]] = field(default_factory=dict)
 
     def __post_init__(self):
         # con un sustrato real (no determinista) el habla es la UNICA fuente de
@@ -248,6 +252,31 @@ class Plano:
             activa = self.soma.activas.get(canal)
             if activa is not None and abs(activa.valor - valor) < 1e-9:
                 continue  # el soma ya expresa esta voluntad: no spam de propuestas
+            # --- dolor somatico: una escalada repetida del mismo canal duele ---
+            # El reflejo del autor (y cualquier habla) propone subir canales ya
+            # inflamados. Un tejido solo puede escalar `max_escaladas` veces por
+            # `ventana_escalada` ticks; despues, la propuesta se BLOQUEA y en su
+            # lugar se hidrata al juez sobre el soma: el modelo decide si esa
+            # politica tiene sentido. Entre tanto, o el sistema inmunologico
+            # revierte (dolor real), o el fitness demuestra lo contrario.
+            if self._es_escalada(canal, valor):
+                hist = [t for t in self._escalas.get((c.id, canal), [])
+                        if self.tick - t <= self.ventana_escalada]
+                if len(hist) >= self.max_escaladas:
+                    eventos.append(("escalada_bloqueada", c.id, canal, valor))
+                    legitima = False
+                    if self.juez is not None and self.juez.disponible:
+                        v = self.juez.juzgar_soma(canal, valor, self._snapshot_soma())
+                        # el juez puede LEGITIMAR la escalada (score>=0.6):
+                        # se relaja el umbral de dolor para este tejido inflamado
+                        if v is not None and v.score >= 0.6:
+                            legitima = True
+                            self.max_escaladas += 1
+                            eventos.append(("dolor_aprendido", c.id, canal, v.score))
+                    if not legitima:
+                        continue  # dolor: no se postula otra subida hasta que duela menos
+                hist.append(self.tick)
+                self._escalas[(c.id, canal)] = hist
             prop = Propuesta(id=f"{c.id}@{self.tick}", proponente=c.id,
                              canal=canal, valor=valor, justificacion=por_que)
             prop = self.soma.postular(prop)
@@ -271,6 +300,20 @@ class Plano:
                 if k.startswith("prioridad:"):
                     snap[k] = self.soma.get(k)
         return snap
+
+    def _es_escalada(self, canal: str, valor: float) -> bool:
+        """¿Esta propuesta SUBE un canal por encima del genoma del autor?
+
+        Solo las subidas acumulan dolor; bajar (o mantener) siempre es legal:
+        el tejido puede relajarse sin limite.
+        """
+        if not self.soma:
+            return False
+        base = self.soma.defaults.get(canal)
+        if base is None:
+            return False
+        actual = self._param(canal, base)
+        return valor > actual + 1e-9 and valor > base
 
     def _derivar_propuesta(self, c: Cuerpo):
         """La propuesta emerge del estado medido del cuerpo, no de un guión."""
