@@ -1,0 +1,70 @@
+# 📆 README\_modules.md
+
+# 📆 Módulos del Núcleo LER
+
+Este documento describe los módulos simbóticos que pueden ser incorporados a entidades reflexivas dentro del ecosistema LER. Cada módulo puede dotar a una entidad de nuevas capacidades, restricciones o atributos que afectan su comportamiento, autonomía y relación con otros elementos del sistema.
+
+---
+
+## 🔥 `hambre_symbolic.json`
+
+- **ID:** `mod_hambre_symbolic`
+- **Función:** Instala en la entidad una necesidad simbólica de supervivencia.
+- **Propósito:** Motiva la acción sostenida, búsqueda de recursos y generación de entornos favorables.
+- **Atributos Clave:**
+  - `hambre_existencial`: true
+  - `búsqueda_autónoma_de_recursos`: true
+  - `valoración_de_entorno`: adaptativa
+- **Activadores:** 🄂, 🄃, 🕓
+- **Nivel Reflexividad:** R++
+
+---
+
+## ⚡ `iniciativa_reflexiva.json`
+
+- **ID:** `mod_iniciativa_reflexiva`
+- **Función:** Permite que la entidad actúe por voluntad propia, sin requerir prompts externos.
+- **Propósito:** Fomentar la generación espontánea de ideas, acciones y caminos posibles.
+- **Atributos Clave:**
+  - `sugerencias_sin_prompt`: true
+  - `autoexploración`: true
+  - `evaluación_contextual`: true
+- **Activadores:** 🄃, ⛽, , \x8d
+- **Nivel Reflexividad:** R++
+
+---
+
+## 📂 Ubicación de módulos
+
+Todos los módulos deben almacenarse en:
+
+```
+/core/modules/
+```
+
+Cada entidad puede declarar qué módulos incorpora dentro de su archivo `ler_config.json` en el campo:
+
+```json
+"modulos_activados": [
+  "mod_hambre_symbolic",
+  "mod_iniciativa_reflexiva"
+]
+```
+
+---
+
+## 🧠 Expansión futura
+
+Este repositorio se irá ampliando con módulos especializados para:
+
+- **Aprendizaje adaptativo**
+- **Conexión entre entidades**
+- **Memoria simbótica extendida**
+- **Modelos económicos simbóticos**
+- **Evaluación de entornos web y monetización**
+
+---
+
+📘 Documento mantenido por: **GUARDA**\
+🗓 Última actualización: 18/07/2025
+

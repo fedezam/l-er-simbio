@@ -1,0 +1,21 @@
+#!/bin/bash
+
+clear
+echo "=============================="
+echo " 🚀 Iniciando sistema LER Core"
+echo " 🧠 Modo: Reflexivo Simbiótico"
+echo "=============================="
+echo ""
+
+# Cambiar al directorio raíz del proyecto
+cd "$(dirname "$0")"/..
+
+# Ejecutar el núcleo simbiótico
+python3 core/entity_runner.py
+
+echo ""
+echo "=============================="
+echo " ✓ LER finalizado."
+echo " Presiona [Enter] para salir."
+echo "=============================="
+read

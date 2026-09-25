@@ -1,0 +1,1178 @@
+"""
+Módulo completo para parseo formal de Mathema (gramática fractal LFI).
+Este parser avanzado:
+- Analiza secuencias de glifos en estructuras AST complejas.
+- Soporta reglas sintácticas avanzadas con recursión fractal.
+- Integra análisis simbólico del sistema LER.
+- Maneja mutaciones, contenedores, patrones y transformaciones.
+- Soporta anidamiento y estructuras jerárquicas.
+"""
+
+import json
+import logging
+from typing import List, Dict, Any, Optional, Union, Tuple, Set
+from dataclasses import dataclass, field
+from enum import Enum, auto
+from collections import defaultdict
+import re
+
+# Configurar logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+class TipoNodo(Enum):
+    """Tipos de nodos en el AST de Mathema."""
+    PROGRAMA = auto()
+    EXPRESION = auto()
+    EXPRESION_MUTADA = auto()
+    SECUENCIA = auto()
+    CONTENEDOR = auto()
+    MUTACION = auto()
+    TRANSFORMACION = auto()
+    GLIFO = auto()
+    PATRON = auto()
+    BLOQUE_FRACTAL = auto()
+    ENLACE = auto()
+    ESTRUCTURA_ANIDADA = auto()
+
+class TipoGlifo(Enum):
+    """Tipos de glifos según su función gramatical."""
+    LLAVE_PRIMARIA = "llave_primaria"
+    FIRMA_DIGITAL = "firma_digital"
+    CONTENEDOR = "contenedor"
+    CAMBIO = "cambio"
+    RECONFIGURACION = "reconfiguracion"
+    PUENTE = "puente"
+    OPERADOR = "operador"
+    DELIMITADOR = "delimitador"
+    MODIFICADOR = "modificador"
+    DESCONOCIDO = "desconocido"
+
+@dataclass
+class NodoAST:
+    """Nodo del Árbol de Sintaxis Abstracta mejorado."""
+    tipo: TipoNodo
+    valor: Optional[str] = None
+    hijos: List['NodoAST'] = field(default_factory=list)
+    metadatos: Dict[str, Any] = field(default_factory=dict)
+    posicion: int = -1
+    profundidad: int = 0
+    
+    def agregar_hijo(self, hijo: 'NodoAST') -> None:
+        """Agrega un hijo al nodo y actualiza su profundidad."""
+        hijo.profundidad = self.profundidad + 1
+        self.hijos.append(hijo)
+    
+    def buscar_nodos(self, tipo: TipoNodo) -> List['NodoAST']:
+        """Busca todos los nodos de un tipo específico en el subárbol."""
+        resultado = []
+        if self.tipo == tipo:
+            resultado.append(self)
+        for hijo in self.hijos:
+            resultado.extend(hijo.buscar_nodos(tipo))
+        return resultado
+    
+    def to_dict(self) -> Dict[str, Any]:
+        """Convierte el nodo a diccionario para serialización."""
+        return {
+            "tipo": self.tipo.name,
+            "valor": self.valor,
+            "hijos": [hijo.to_dict() for hijo in self.hijos],
+            "metadatos": self.metadatos,
+            "posicion": self.posicion,
+            "profundidad": self.profundidad
+        }
+    
+    def __repr__(self):
+        if self.hijos:
+            return f"{self.tipo.name}({len(self.hijos)} hijos)"
+        else:
+            return f"{self.tipo.name}('{self.valor}')"
+
+class GlosarioMathema:
+    """Glosario extendido de glifos para Mathema."""
+    
+    GLIFOS = {
+        # Glifos de control y activación
+        "🜂": {
+            "significado": "Inicio/activación",
+            "tipo": TipoGlifo.LLAVE_PRIMARIA,
+            "categoria": "control",
+            "peso": 1.0,
+            "precedencia": 10,
+            "asociatividad": "derecha",
+            "puede_abrir": True,
+            "puede_cerrar": False
+        },
+        "🜃": {
+            "significado": "Hash/identidad",
+            "tipo": TipoGlifo.FIRMA_DIGITAL,
+            "categoria": "identidad",
+            "peso": 1.2,
+            "precedencia": 9,
+            "asociatividad": "izquierda",
+            "puede_abrir": False,
+            "puede_cerrar": False
+        },
+        
+        # Glifos contenedores
+        "⟁": {
+            "significado": "Apertura de contenedor",
+            "tipo": TipoGlifo.CONTENEDOR,
+            "categoria": "estructura",
+            "peso": 0.8,
+            "precedencia": 1,
+            "asociatividad": "neutral",
+            "puede_abrir": True,
+            "puede_cerrar": False,
+            "pareja": "⟂"
+        },
+        "⟂": {
+            "significado": "Cierre de contenedor",
+            "tipo": TipoGlifo.CONTENEDOR,
+            "categoria": "estructura",
+            "peso": 0.8,
+            "precedencia": 1,
+            "asociatividad": "neutral",
+            "puede_abrir": False,
+            "puede_cerrar": True,
+            "pareja": "⟁"
+        },
+        
+        # Glifos de transformación
+        "𓃰": {
+            "significado": "Mutación interna",
+            "tipo": TipoGlifo.CAMBIO,
+            "categoria": "transformacion",
+            "peso": 1.5,
+            "precedencia": 8,
+            "asociatividad": "derecha",
+            "es_mutacion": True
+        },
+        "𖠚": {
+            "significado": "Colapso lógico",
+            "tipo": TipoGlifo.RECONFIGURACION,
+            "categoria": "transformacion",
+            "peso": 2.0,
+            "precedencia": 7,
+            "asociatividad": "derecha",
+            "es_mutacion": True
+        },
+        
+        # Glifos de conexión
+        "⍉": {
+            "significado": "Interfaz de enlace",
+            "tipo": TipoGlifo.PUENTE,
+            "categoria": "conexion",
+            "peso": 1.1,
+            "precedencia": 6,
+            "asociatividad": "izquierda"
+        },
+        
+        # Operadores matemáticos extendidos
+        "∴": {
+            "significado": "Por tanto/consecuencia",
+            "tipo": TipoGlifo.OPERADOR,
+            "categoria": "logica",
+            "peso": 1.3,
+            "precedencia": 5,
+            "asociatividad": "izquierda"
+        },
+        "∵": {
+            "significado": "Porque/causa",
+            "tipo": TipoGlifo.OPERADOR,
+            "categoria": "logica",
+            "peso": 1.3,
+            "precedencia": 5,
+            "asociatividad": "derecha"
+        },
+        
+        # Delimitadores fractales
+        "◊": {
+            "significado": "Inicio de fractal",
+            "tipo": TipoGlifo.DELIMITADOR,
+            "categoria": "fractal",
+            "peso": 0.9,
+            "precedencia": 2,
+            "puede_abrir": True,
+            "pareja": "◈"
+        },
+        "◈": {
+            "significado": "Fin de fractal",
+            "tipo": TipoGlifo.DELIMITADOR,
+            "categoria": "fractal",
+            "peso": 0.9,
+            "precedencia": 2,
+            "puede_cerrar": True,
+            "pareja": "◊"
+        },
+        
+        # Modificadores
+        "※": {
+            "significado": "Modificador de intensidad",
+            "tipo": TipoGlifo.MODIFICADOR,
+            "categoria": "modificacion",
+            "peso": 0.5,
+            "precedencia": 11,
+            "asociatividad": "derecha"
+        }
+    }
+    
+    @classmethod
+    def obtener_info(cls, glifo: str) -> Dict[str, Any]:
+        """Obtiene información completa de un glifo."""
+        return cls.GLIFOS.get(glifo, {
+            "significado": "Desconocido",
+            "tipo": TipoGlifo.DESCONOCIDO,
+            "categoria": "indefinido",
+            "peso": 0.1,
+            "precedencia": 0,
+            "asociatividad": "neutral"
+        })
+    
+    @classmethod
+    def es_contenedor_apertura(cls, glifo: str) -> bool:
+        """Verifica si el glifo es un contenedor de apertura."""
+        info = cls.obtener_info(glifo)
+        return info.get("puede_abrir", False)
+    
+    @classmethod
+    def es_contenedor_cierre(cls, glifo: str) -> bool:
+        """Verifica si el glifo es un contenedor de cierre."""
+        info = cls.obtener_info(glifo)
+        return info.get("puede_cerrar", False)
+    
+    @classmethod
+    def es_mutacion(cls, glifo: str) -> bool:
+        """Verifica si el glifo es una mutación."""
+        info = cls.obtener_info(glifo)
+        return info.get("es_mutacion", False)
+    
+    @classmethod
+    def obtener_pareja(cls, glifo: str) -> Optional[str]:
+        """Obtiene la pareja de un glifo contenedor."""
+        info = cls.obtener_info(glifo)
+        return info.get("pareja")
+
+class ErrorParseo(Exception):
+    """Excepción personalizada para errores de parseo."""
+    
+    def __init__(self, mensaje: str, posicion: int = -1, glifo: str = ""):
+        self.mensaje = mensaje
+        self.posicion = posicion
+        self.glifo = glifo
+        super().__init__(f"Error en posición {posicion}: {mensaje} (glifo: '{glifo}')")
+
+class ParserMathema:
+    """Parser completo para gramática fractal LFI de Mathema."""
+    
+    def __init__(self, glifos: List[str], debug: bool = False):
+        self.glifos = glifos
+        self.pos = 0
+        self.debug = debug
+        self.pila_contenedores = []
+        self.patrones_detectados = []
+        self.nivel_anidamiento = 0
+        
+        if self.debug:
+            logger.info(f"Iniciando parser con {len(glifos)} glifos: {glifos}")
+    
+    def parse(self) -> NodoAST:
+        """Punto de entrada principal del parser."""
+        try:
+            return self._programa()
+        except Exception as e:
+            if isinstance(e, ErrorParseo):
+                raise
+            raise ErrorParseo(f"Error inesperado durante el parseo: {e}", self.pos)
+    
+    def _programa(self) -> NodoAST:
+        """Programa ::= Expresion*"""
+        nodo = NodoAST(TipoNodo.PROGRAMA)
+        nodo.metadatos["total_glifos"] = len(self.glifos)
+        
+        while self.pos < len(self.glifos):
+            expr = self._expresion()
+            nodo.agregar_hijo(expr)
+        
+        # Verificar que todos los contenedores estén cerrados
+        if self.pila_contenedores:
+            contenedor_abierto = self.pila_contenedores[-1]
+            raise ErrorParseo(f"Contenedor sin cerrar: {contenedor_abierto}", self.pos)
+        
+        nodo.metadatos["patrones_detectados"] = self.patrones_detectados
+        nodo.metadatos["max_anidamiento"] = self.nivel_anidamiento
+        
+        return nodo
+    
+    def _expresion(self) -> NodoAST:
+        """Expresion ::= SecuenciaBase (Mutacion | Transformacion)*"""
+        if self.debug:
+            logger.info(f"Parseando expresión en posición {self.pos}")
+        
+        base = self._secuencia_base()
+        
+        # Verificar mutaciones y transformaciones
+        modificadores = []
+        while self.pos < len(self.glifos):
+            glifo_actual = self.glifos[self.pos]
+            
+            if GlosarioMathema.es_mutacion(glifo_actual):
+                modificadores.append(self._mutacion())
+            elif self._es_transformacion(glifo_actual):
+                modificadores.append(self._transformacion())
+            else:
+                break
+        
+        if modificadores:
+            nodo = NodoAST(TipoNodo.EXPRESION_MUTADA, posicion=base.posicion)
+            nodo.agregar_hijo(base)
+            for mod in modificadores:
+                nodo.agregar_hijo(mod)
+            return nodo
+        
+        return base
+    
+    def _secuencia_base(self) -> NodoAST:
+        """SecuenciaBase ::= (Contenedor | BloqueFractal | Glifo)+"""
+        nodos_secuencia = []
+        inicio_pos = self.pos
+        
+        while self.pos < len(self.glifos):
+            glifo_actual = self.glifos[self.pos]
+            
+            if GlosarioMathema.es_contenedor_apertura(glifo_actual):
+                nodos_secuencia.append(self._contenedor())
+            elif self._es_inicio_fractal(glifo_actual):
+                nodos_secuencia.append(self._bloque_fractal())
+            elif GlosarioMathema.es_mutacion(glifo_actual):
+                break  # Las mutaciones se manejan en _expresion
+            elif GlosarioMathema.es_contenedor_cierre(glifo_actual):
+                break  # Los cierres se manejan en _contenedor
+            else:
+                nodos_secuencia.append(self._glifo())
+        
+        if not nodos_secuencia:
+            raise ErrorParseo("Se esperaba al menos un glifo en la secuencia", self.pos)
+        
+        # Detectar patrones en la secuencia
+        self._detectar_patrones_secuencia(nodos_secuencia)
+        
+        nodo = NodoAST(TipoNodo.SECUENCIA, posicion=inicio_pos)
+        for n in nodos_secuencia:
+            nodo.agregar_hijo(n)
+        
+        return nodo
+    
+    def _contenedor(self) -> NodoAST:
+        """Contenedor ::= APERTURA Expresion* CIERRE"""
+        if self.pos >= len(self.glifos):
+            raise ErrorParseo("Se esperaba glifo de apertura de contenedor", self.pos)
+        
+        glifo_apertura = self.glifos[self.pos]
+        if not GlosarioMathema.es_contenedor_apertura(glifo_apertura):
+            raise ErrorParseo(f"Se esperaba contenedor de apertura", self.pos, glifo_apertura)
+        
+        pos_inicio = self.pos
+        self.pos += 1
+        self.nivel_anidamiento += 1
+        
+        # Agregar a la pila de contenedores
+        glifo_esperado_cierre = GlosarioMathema.obtener_pareja(glifo_apertura)
+        self.pila_contenedores.append(glifo_esperado_cierre)
+        
+        nodo = NodoAST(TipoNodo.CONTENEDOR, posicion=pos_inicio)
+        nodo.metadatos["glifo_apertura"] = glifo_apertura
+        nodo.metadatos["nivel_anidamiento"] = self.nivel_anidamiento
+        
+        # Parsear contenido interno
+        contenido = []
+        while self.pos < len(self.glifos):
+            glifo_actual = self.glifos[self.pos]
+            
+            if glifo_actual == glifo_esperado_cierre:
+                break
+            
+            contenido.append(self._expresion())
+        
+        # Verificar cierre
+        if self.pos >= len(self.glifos) or self.glifos[self.pos] != glifo_esperado_cierre:
+            raise ErrorParseo(f"Se esperaba cierre '{glifo_esperado_cierre}' para contenedor", self.pos)
+        
+        nodo.metadatos["glifo_cierre"] = self.glifos[self.pos]
+        self.pos += 1
+        self.nivel_anidamiento -= 1
+        self.pila_contenedores.pop()
+        
+        for c in contenido:
+            nodo.agregar_hijo(c)
+        
+        return nodo
+    
+    def _bloque_fractal(self) -> NodoAST:
+        """BloqueFractal ::= INICIO_FRACTAL Expresion* FIN_FRACTAL"""
+        if self.pos >= len(self.glifos) or not self._es_inicio_fractal(self.glifos[self.pos]):
+            raise ErrorParseo("Se esperaba inicio de bloque fractal", self.pos)
+        
+        glifo_inicio = self.glifos[self.pos]
+        pos_inicio = self.pos
+        self.pos += 1
+        
+        nodo = NodoAST(TipoNodo.BLOQUE_FRACTAL, posicion=pos_inicio)
+        nodo.metadatos["glifo_inicio"] = glifo_inicio
+        
+        # Parsear contenido fractal con recursión
+        while self.pos < len(self.glifos) and not self._es_fin_fractal(self.glifos[self.pos]):
+            nodo.agregar_hijo(self._expresion())
+        
+        # Verificar fin del fractal
+        if self.pos >= len(self.glifos) or not self._es_fin_fractal(self.glifos[self.pos]):
+            raise ErrorParseo("Se esperaba fin de bloque fractal", self.pos)
+        
+        nodo.metadatos["glifo_fin"] = self.glifos[self.pos]
+        self.pos += 1
+        
+        return nodo
+    
+    def _mutacion(self) -> NodoAST:
+        """Mutacion ::= GLIFO_MUTACION"""
+        if self.pos >= len(self.glifos):
+            raise ErrorParseo("Se esperaba glifo de mutación", self.pos)
+        
+        glifo = self.glifos[self.pos]
+        if not GlosarioMathema.es_mutacion(glifo):
+            raise ErrorParseo(f"Se esperaba glifo de mutación", self.pos, glifo)
+        
+        info = GlosarioMathema.obtener_info(glifo)
+        nodo = NodoAST(TipoNodo.MUTACION, valor=glifo, posicion=self.pos)
+        nodo.metadatos.update(info)
+        
+        self.pos += 1
+        return nodo
+    
+    def _transformacion(self) -> NodoAST:
+        """Transformacion ::= OPERADOR_TRANSFORMACION"""
+        glifo = self.glifos[self.pos]
+        info = GlosarioMathema.obtener_info(glifo)
+        
+        nodo = NodoAST(TipoNodo.TRANSFORMACION, valor=glifo, posicion=self.pos)
+        nodo.metadatos.update(info)
+        
+        self.pos += 1
+        return nodo
+    
+    def _glifo(self) -> NodoAST:
+        """Glifo terminal básico"""
+        if self.pos >= len(self.glifos):
+            raise ErrorParseo("Fin inesperado de la secuencia de glifos", self.pos)
+        
+        glifo = self.glifos[self.pos]
+        info = GlosarioMathema.obtener_info(glifo)
+        
+        nodo = NodoAST(TipoNodo.GLIFO, valor=glifo, posicion=self.pos)
+        nodo.metadatos.update(info)
+        
+        self.pos += 1
+        return nodo
+    
+    def _es_transformacion(self, glifo: str) -> bool:
+        """Determina si un glifo es un operador de transformación."""
+        info = GlosarioMathema.obtener_info(glifo)
+        return info.get("tipo") == TipoGlifo.OPERADOR
+    
+    def _es_inicio_fractal(self, glifo: str) -> bool:
+        """Determina si un glifo inicia un bloque fractal."""
+        return glifo == "◊"
+    
+    def _es_fin_fractal(self, glifo: str) -> bool:
+        """Determina si un glifo termina un bloque fractal."""
+        return glifo == "◈"
+    
+    def _detectar_patrones_secuencia(self, nodos: List[NodoAST]) -> None:
+        """Detecta patrones conocidos en una secuencia de nodos."""
+        glifos_secuencia = [n.valor for n in nodos if n.tipo == TipoNodo.GLIFO]
+        
+        # Patrones conocidos
+        patrones = {
+            "genesis": ["🜂", "🜃", "⟁"],
+            "mutacion_compleja": ["𓃰", "𖠚"],
+            "enlace_identidad": ["⍉", "🜃"],
+            "logica_causal": ["∵", "∴"]
+        }
+        
+        for nombre, patron in patrones.items():
+            if self._secuencia_contiene_patron(glifos_secuencia, patron):
+                self.patrones_detectados.append({
+                    "nombre": nombre,
+                    "patron": patron,
+                    "posicion": self.pos - len(nodos)
+                })
+    
+    def _secuencia_contiene_patron(self, secuencia: List[str], patron: List[str]) -> bool:
+        """Verifica si una secuencia contiene un patrón específico."""
+        if len(patron) > len(secuencia):
+            return False
+        
+        for i in range(len(secuencia) - len(patron) + 1):
+            if secuencia[i:i+len(patron)] == patron:
+                return True
+        
+        return False
+
+class AnalizadorAST:
+    """Analizador para extraer información semántica del AST."""
+    
+    @staticmethod
+    def analizar(ast: NodoAST) -> Dict[str, Any]:
+        """Realiza análisis completo del AST."""
+        estadisticas = AnalizadorAST._calcular_estadisticas(ast)
+        complejidad = AnalizadorAST._calcular_complejidad(ast)
+        patrones = AnalizadorAST._extraer_patrones(ast)
+        estructura = AnalizadorAST._analizar_estructura(ast)
+        
+        return {
+            "estadisticas": estadisticas,
+            "complejidad": complejidad,
+            "patrones": patrones,
+            "estructura": estructura,
+            "validez": AnalizadorAST._validar_ast(ast)
+        }
+    
+    @staticmethod
+    def _calcular_estadisticas(ast: NodoAST) -> Dict[str, Any]:
+        """Calcula estadísticas básicas del AST."""
+        todos_nodos = AnalizadorAST._obtener_todos_nodos(ast)
+        
+        tipos_contador = defaultdict(int)
+        for nodo in todos_nodos:
+            tipos_contador[nodo.tipo.name] += 1
+        
+        glifos_unicos = set()
+        for nodo in todos_nodos:
+            if nodo.valor:
+                glifos_unicos.add(nodo.valor)
+        
+        return {
+            "total_nodos": len(todos_nodos),
+            "tipos_nodos": dict(tipos_contador),
+            "glifos_unicos": list(glifos_unicos),
+            "profundidad_maxima": max(nodo.profundidad for nodo in todos_nodos) if todos_nodos else 0
+        }
+    
+    @staticmethod
+    def _calcular_complejidad(ast: NodoAST) -> Dict[str, float]:
+        """Calcula métricas de complejidad."""
+        todos_nodos = AnalizadorAST._obtener_todos_nodos(ast)
+        
+        if not todos_nodos:
+            return {"ciclomatica": 0.0, "estructural": 0.0, "simbolica": 0.0}
+        
+        # Complejidad ciclomática (basada en decisiones/ramificaciones)
+        nodos_decision = [n for n in todos_nodos if len(n.hijos) > 1]
+        complejidad_ciclomatica = len(nodos_decision) + 1
+        
+        # Complejidad estructural (basada en anidamiento)
+        profundidad_promedio = sum(n.profundidad for n in todos_nodos) / len(todos_nodos)
+        complejidad_estructural = profundidad_promedio
+        
+        # Complejidad simbólica (basada en diversidad de glifos)
+        glifos = [n.valor for n in todos_nodos if n.valor]
+        complejidad_simbolica = len(set(glifos)) / len(glifos) if glifos else 0.0
+        
+        return {
+            "ciclomatica": complejidad_ciclomatica,
+            "estructural": complejidad_estructural,
+            "simbolica": complejidad_simbolica
+        }
+    
+    @staticmethod
+    def _extraer_patrones(ast: NodoAST) -> List[Dict[str, Any]]:
+        """Extrae patrones detectados del AST."""
+        return ast.metadatos.get("patrones_detectados", [])
+    
+    @staticmethod
+    def _analizar_estructura(ast: NodoAST) -> Dict[str, Any]:
+        """Analiza la estructura general del AST."""
+        contenedores = ast.buscar_nodos(TipoNodo.CONTENEDOR)
+        fractales = ast.buscar_nodos(TipoNodo.BLOQUE_FRACTAL)
+        mutaciones = ast.buscar_nodos(TipoNodo.MUTACION)
+        
+        return {
+            "tiene_contenedores": len(contenedores) > 0,
+            "tiene_fractales": len(fractales) > 0,
+            "tiene_mutaciones": len(mutaciones) > 0,
+            "nivel_anidamiento_max": ast.metadatos.get("max_anidamiento", 0),
+            "balanceado": AnalizadorAST._verificar_balance(ast)
+        }
+    
+    @staticmethod
+    def _validar_ast(ast: NodoAST) -> Dict[str, Any]:
+        """Valida la correctitud del AST."""
+        errores = []
+        advertencias = []
+        
+        # Validar balance de contenedores
+        if not AnalizadorAST._verificar_balance(ast):
+            errores.append("Contenedores desbalanceados")
+        
+        # Validar nodos huérfanos
+        todos_nodos = AnalizadorAST._obtener_todos_nodos(ast)
+        for nodo in todos_nodos:
+            if nodo.tipo == TipoNodo.GLIFO and not nodo.valor:
+                errores.append(f"Nodo glifo sin valor en profundidad {nodo.profundidad}")
+        
+        return {
+            "valido": len(errores) == 0,
+            "errores": errores,
+            "advertencias": advertencias
+        }
+    
+    @staticmethod
+    def _verificar_balance(ast: NodoAST) -> bool:
+        """Verifica que todos los contenedores estén balanceados."""
+        contenedores = ast.buscar_nodos(TipoNodo.CONTENEDOR)
+        for contenedor in contenedores:
+            apertura = contenedor.metadatos.get("glifo_apertura")
+            cierre = contenedor.metadatos.get("glifo_cierre")
+            
+            if not apertura or not cierre:
+                return False
+            
+            pareja_esperada = GlosarioMathema.obtener_pareja(apertura)
+            if cierre != pareja_esperada:
+                return False
+        
+        return True
+    
+    @staticmethod
+    def _obtener_todos_nodos(ast: NodoAST) -> List[NodoAST]:
+        """Obtiene todos los nodos del AST en forma plana."""
+        nodos = [ast]
+        for hijo in ast.hijos:
+            nodos.extend(AnalizadorAST._obtener_todos_nodos(hijo))
+        return nodos
+
+# --- Función de utilidad para testing ---
+def ejecutar_ejemplos():
+    """Ejecuta ejemplos de parsing para demostrar funcionalidad."""
+    ejemplos = [
+        {
+            "nombre": "Secuencia básica",
+            "glifos": ["🜂", "🜃", "⟁", "𓃰"]
+        },
+        {
+            "nombre": "Contenedor simple",
+            "glifos": ["🜂", "⟁", "🜃", "𓃰", "⟂"]
+        },
+        {
+            "nombre": "Bloque fractal",
+            "glifos": ["◊", "🜂", "🜃", "⍉", "◈", "𖠚"]
+        },
+        {
+            "nombre": "Estructura compleja",
+            "glifos": ["🜂", "⟁", "◊", "🜃", "𓃰", "◈", "⟂", "∴", "⍉"]
+        },
+        {
+            "nombre": "Anidamiento profundo",
+            "glifos": ["⟁", "🜂", "⟁", "🜃", "𓃰", "⟂", "◊", "⍉", "◈", "⟂"]
+        }
+    ]
+
+    print("=" * 80)
+    print("PARSER MATHEMA - EJEMPLOS DE ANÁLISIS")
+    print("=" * 80)
+
+    for i, ejemplo in enumerate(ejemplos, 1):
+        print(f"\n🔍 Ejemplo {i}: {ejemplo['nombre']}")
+        print(f"Glifos: {' '.join(ejemplo['glifos'])}")
+        print("-" * 60)
+
+        try:
+            # Crear parser y analizar
+            parser = ParserMathema(ejemplo['glifos'], debug=False)
+            ast = parser.parse()
+
+            # Realizar análisis
+            analisis = AnalizadorAST.analizar(ast)
+
+            # Mostrar resultados
+            print(f"✅ Parsing exitoso")
+            print(f"📊 Total nodos: {analisis['estadisticas']['total_nodos']}")
+            print(f"🌳 Profundidad máxima: {analisis['estadisticas']['profundidad_maxima']}")
+            print(f"🎯 Complejidad simbólica: {analisis['complejidad']['simbolica']:.2f}")
+
+            if analisis['patrones']:
+                print(f"🔍 Patrones detectados: {len(analisis['patrones'])}")
+                for patron in analisis['patrones']:
+                    print(f"   • {patron['nombre']}: {' '.join(patron['patron'])}")
+
+            if analisis['estructura']['tiene_contenedores']:
+                print("📦 Contiene estructuras contenedor")
+
+            if analisis['estructura']['tiene_fractales']:
+                print("🌀 Contiene bloques fractales")
+
+            if analisis['estructura']['tiene_mutaciones']:
+                print("🔄 Contiene mutaciones")
+
+            # Validación
+            if analisis['validez']['valido']:
+                print("✅ AST válido")
+            else:
+                print("❌ AST inválido:")
+                for error in analisis['validez']['errores']:
+                    print(f"   • {error}")
+
+        except ErrorParseo as e:
+            print(f"❌ Error de parsing: {e}")
+        except Exception as e:
+            print(f"💥 Error inesperado: {e}")
+            
+# --- Main automático ---
+if __name__ == "__main__":
+    ejecutar_ejemplos()
+            
+
+
+class GeneradorMathema:
+    """Generador de código Mathema a partir de AST."""
+    
+    def __init__(self, indentacion: str = "  "):
+        self.indentacion = indentacion
+    
+    def generar(self, ast: NodoAST) -> str:
+        """Genera representación textual del AST."""
+        return self._generar_nodo(ast, 0)
+    
+    def _generar_nodo(self, nodo: NodoAST, nivel: int) -> str:
+        """Genera representación de un nodo específico."""
+        indent = self.indentacion * nivel
+        
+        if nodo.tipo == TipoNodo.PROGRAMA:
+            return self._generar_programa(nodo, nivel)
+        elif nodo.tipo == TipoNodo.CONTENEDOR:
+            return self._generar_contenedor(nodo, nivel)
+        elif nodo.tipo == TipoNodo.BLOQUE_FRACTAL:
+            return self._generar_fractal(nodo, nivel)
+        elif nodo.tipo == TipoNodo.SECUENCIA:
+            return self._generar_secuencia(nodo, nivel)
+        elif nodo.tipo == TipoNodo.GLIFO:
+            return f"{indent}{nodo.valor}"
+        elif nodo.tipo == TipoNodo.MUTACION:
+            return f"{indent}MUTACIÓN[{nodo.valor}]"
+        elif nodo.tipo == TipoNodo.TRANSFORMACION:
+            return f"{indent}TRANSFORM[{nodo.valor}]"
+        else:
+            return f"{indent}{nodo.tipo.name}({nodo.valor or 'sin valor'})"
+    
+    def _generar_programa(self, nodo: NodoAST, nivel: int) -> str:
+        """Genera programa completo."""
+        lineas = ["PROGRAMA_MATHEMA {"]
+        
+        for hijo in nodo.hijos:
+            lineas.append(self._generar_nodo(hijo, nivel + 1))
+        
+        lineas.append("}")
+        return "\n".join(lineas)
+    
+    def _generar_contenedor(self, nodo: NodoAST, nivel: int) -> str:
+        """Genera contenedor con sus delimitadores."""
+        indent = self.indentacion * nivel
+        apertura = nodo.metadatos.get("glifo_apertura", "⟁")
+        cierre = nodo.metadatos.get("glifo_cierre", "⟂")
+        
+        lineas = [f"{indent}CONTENEDOR {apertura} {{"]
+        
+        for hijo in nodo.hijos:
+            lineas.append(self._generar_nodo(hijo, nivel + 1))
+        
+        lineas.append(f"{indent}}} {cierre}")
+        return "\n".join(lineas)
+    
+    def _generar_fractal(self, nodo: NodoAST, nivel: int) -> str:
+        """Genera bloque fractal."""
+        indent = self.indentacion * nivel
+        inicio = nodo.metadatos.get("glifo_inicio", "◊")
+        fin = nodo.metadatos.get("glifo_fin", "◈")
+        
+        lineas = [f"{indent}FRACTAL {inicio} {{"]
+        
+        for hijo in nodo.hijos:
+            lineas.append(self._generar_nodo(hijo, nivel + 1))
+        
+        lineas.append(f"{indent}}} {fin}")
+        return "\n".join(lineas)
+    
+    def _generar_secuencia(self, nodo: NodoAST, nivel: int) -> str:
+        """Genera secuencia de elementos."""
+        indent = self.indentacion * nivel
+        elementos = []
+        
+        for hijo in nodo.hijos:
+            if hijo.tipo == TipoNodo.GLIFO:
+                elementos.append(hijo.valor)
+            else:
+                # Para elementos complejos, generar en línea separada
+                if elementos:
+                    lineas = [f"{indent}SECUENCIA: {' '.join(elementos)}"]
+                    elementos = []
+                else:
+                    lineas = []
+                lineas.append(self._generar_nodo(hijo, nivel))
+                return "\n".join(lineas)
+        
+        if elementos:
+            return f"{indent}SECUENCIA: {' '.join(elementos)}"
+        else:
+            return f"{indent}SECUENCIA_VACÍA"
+
+class ValidadorMathema:
+    """Validador semántico para código Mathema."""
+    
+    def __init__(self):
+        self.reglas_semanticas = self._cargar_reglas()
+    
+    def _cargar_reglas(self) -> Dict[str, Any]:
+        """Carga reglas semánticas específicas de Mathema."""
+        return {
+            "contenedores_balanceados": True,
+            "mutaciones_validas": ["𓃰", "𖠚"],
+            "patrones_prohibidos": [
+                ["🜂", "🜂"],  # No se permite activación doble
+                ["⟂", "⟁"]   # Cierre antes que apertura
+            ],
+            "anidamiento_maximo": 10,
+            "glifos_obligatorios_programa": ["🜂"],  # Todo programa debe tener activación
+        }
+    
+    def validar(self, ast: NodoAST) -> Dict[str, Any]:
+        """Realiza validación semántica completa."""
+        errores = []
+        advertencias = []
+        
+        # Validar estructura general
+        errores.extend(self._validar_estructura(ast))
+        
+        # Validar patrones prohibidos
+        errores.extend(self._validar_patrones_prohibidos(ast))
+        
+        # Validar anidamiento
+        advertencias.extend(self._validar_anidamiento(ast))
+        
+        # Validar glifos obligatorios
+        errores.extend(self._validar_glifos_obligatorios(ast))
+        
+        return {
+            "valido": len(errores) == 0,
+            "errores": errores,
+            "advertencias": advertencias,
+            "puntuacion_calidad": self._calcular_puntuacion_calidad(ast, errores, advertencias)
+        }
+    
+    def _validar_estructura(self, ast: NodoAST) -> List[str]:
+        """Valida la estructura básica del AST."""
+        errores = []
+        
+        # Verificar balance de contenedores
+        contenedores = ast.buscar_nodos(TipoNodo.CONTENEDOR)
+        for contenedor in contenedores:
+            if not contenedor.metadatos.get("glifo_apertura") or not contenedor.metadatos.get("glifo_cierre"):
+                errores.append(f"Contenedor desbalanceado en posición {contenedor.posicion}")
+        
+        return errores
+    
+    def _validar_patrones_prohibidos(self, ast: NodoAST) -> List[str]:
+        """Valida que no existan patrones prohibidos."""
+        errores = []
+        
+        # Obtener secuencia de glifos
+        glifos = self._extraer_secuencia_glifos(ast)
+        
+        for patron_prohibido in self.reglas_semanticas["patrones_prohibidos"]:
+            if self._contiene_subsecuencia(glifos, patron_prohibido):
+                errores.append(f"Patrón prohibido encontrado: {' '.join(patron_prohibido)}")
+        
+        return errores
+    
+    def _validar_anidamiento(self, ast: NodoAST) -> List[str]:
+        """Valida niveles de anidamiento."""
+        advertencias = []
+        
+        max_anidamiento = ast.metadatos.get("max_anidamiento", 0)
+        limite = self.reglas_semanticas["anidamiento_maximo"]
+        
+        if max_anidamiento > limite:
+            advertencias.append(f"Anidamiento excesivo: {max_anidamiento} > {limite}")
+        elif max_anidamiento > limite * 0.8:
+            advertencias.append(f"Anidamiento alto: {max_anidamiento}")
+        
+        return advertencias
+    
+    def _validar_glifos_obligatorios(self, ast: NodoAST) -> List[str]:
+        """Valida presencia de glifos obligatorios."""
+        errores = []
+        
+        glifos_presentes = set(self._extraer_secuencia_glifos(ast))
+        glifos_obligatorios = set(self.reglas_semanticas["glifos_obligatorios_programa"])
+        
+        faltantes = glifos_obligatorios - glifos_presentes
+        if faltantes:
+            errores.append(f"Glifos obligatorios faltantes: {' '.join(faltantes)}")
+        
+        return errores
+    
+    def _extraer_secuencia_glifos(self, ast: NodoAST) -> List[str]:
+        """Extrae la secuencia plana de glifos del AST."""
+        glifos = []
+        
+        def extraer_recursivo(nodo):
+            if nodo.tipo == TipoNodo.GLIFO and nodo.valor:
+                glifos.append(nodo.valor)
+            for hijo in nodo.hijos:
+                extraer_recursivo(hijo)
+        
+        extraer_recursivo(ast)
+        return glifos
+    
+    def _contiene_subsecuencia(self, secuencia: List[str], subsecuencia: List[str]) -> bool:
+        """Verifica si una secuencia contiene una subsecuencia."""
+        if len(subsecuencia) > len(secuencia):
+            return False
+        
+        for i in range(len(secuencia) - len(subsecuencia) + 1):
+            if secuencia[i:i+len(subsecuencia)] == subsecuencia:
+                return True
+        
+        return False
+    
+    def _calcular_puntuacion_calidad(self, ast: NodoAST, errores: List[str], advertencias: List[str]) -> float:
+        """Calcula puntuación de calidad del código."""
+        puntuacion_base = 100.0
+        
+        # Penalizar errores
+        puntuacion_base -= len(errores) * 20
+        
+        # Penalizar advertencias
+        puntuacion_base -= len(advertencias) * 5
+        
+        # Bonificar por complejidad adecuada
+        analisis = AnalizadorAST.analizar(ast)
+        complejidad = analisis['complejidad']['simbolica']
+        
+        if 0.3 <= complejidad <= 0.8:  # Rango óptimo
+            puntuacion_base += 10
+        
+        # Bonificar por patrones detectados
+        patrones = len(analisis['patrones'])
+        puntuacion_base += patrones * 5
+        
+        return max(0.0, min(100.0, puntuacion_base))
+
+class OptimizadorMathema:
+    """Optimizador de código Mathema."""
+    
+    def __init__(self):
+        self.optimizaciones_aplicadas = []
+    
+    def optimizar(self, ast: NodoAST) -> NodoAST:
+        """Aplica optimizaciones al AST."""
+        ast_optimizado = self._clonar_ast(ast)
+        
+        # Aplicar diferentes tipos de optimización
+        ast_optimizado = self._eliminar_redundancias(ast_optimizado)
+        ast_optimizado = self._optimizar_secuencias(ast_optimizado)
+        ast_optimizado = self._consolidar_mutaciones(ast_optimizado)
+        
+        return ast_optimizado
+    
+    def _clonar_ast(self, ast: NodoAST) -> NodoAST:
+        """Crea una copia profunda del AST."""
+        nuevo_nodo = NodoAST(
+            tipo=ast.tipo,
+            valor=ast.valor,
+            metadatos=ast.metadatos.copy(),
+            posicion=ast.posicion,
+            profundidad=ast.profundidad
+        )
+        
+        for hijo in ast.hijos:
+            nuevo_nodo.agregar_hijo(self._clonar_ast(hijo))
+        
+        return nuevo_nodo
+    
+    def _eliminar_redundancias(self, ast: NodoAST) -> NodoAST:
+        """Elimina nodos redundantes."""
+        # Eliminar secuencias vacías
+        ast.hijos = [hijo for hijo in ast.hijos if not (
+            hijo.tipo == TipoNodo.SECUENCIA and len(hijo.hijos) == 0
+        )]
+        
+        # Aplicar recursivamente
+        for hijo in ast.hijos:
+            self._eliminar_redundancias(hijo)
+        
+        self.optimizaciones_aplicadas.append("Eliminación de redundancias")
+        return ast
+    
+    def _optimizar_secuencias(self, ast: NodoAST) -> NodoAST:
+        """Optimiza secuencias de glifos."""
+        if ast.tipo == TipoNodo.SECUENCIA:
+            # Consolidar glifos consecutivos del mismo tipo
+            glifos_consolidados = []
+            glifo_actual = None
+            contador = 0
+            
+            for hijo in ast.hijos:
+                if hijo.tipo == TipoNodo.GLIFO:
+                    if hijo.valor == glifo_actual:
+                        contador += 1
+                    else:
+                        if glifo_actual and contador > 1:
+                            # Crear nodo consolidado
+                            nodo_consolidado = NodoAST(TipoNodo.GLIFO, valor=glifo_actual)
+                            nodo_consolidado.metadatos["repeticiones"] = contador
+                            glifos_consolidados.append(nodo_consolidado)
+                        elif glifo_actual:
+                            glifos_consolidados.append(NodoAST(TipoNodo.GLIFO, valor=glifo_actual))
+                        
+                        glifo_actual = hijo.valor
+                        contador = 1
+                else:
+                    glifos_consolidados.append(hijo)
+            
+            # Agregar último glifo
+            if glifo_actual:
+                if contador > 1:
+                    nodo_consolidado = NodoAST(TipoNodo.GLIFO, valor=glifo_actual)
+                    nodo_consolidado.metadatos["repeticiones"] = contador
+                    glifos_consolidados.append(nodo_consolidado)
+                else:
+                    glifos_consolidados.append(NodoAST(TipoNodo.GLIFO, valor=glifo_actual))
+            
+            ast.hijos = glifos_consolidados
+        
+        # Aplicar recursivamente
+        for hijo in ast.hijos:
+            self._optimizar_secuencias(hijo)
+        
+        return ast
+    
+    def _consolidar_mutaciones(self, ast: NodoAST) -> NodoAST:
+        """Consolida mutaciones consecutivas."""
+        if ast.tipo in [TipoNodo.EXPRESION_MUTADA, TipoNodo.PROGRAMA]:
+            mutaciones_consecutivas = []
+            nuevos_hijos = []
+            
+            for hijo in ast.hijos:
+                if hijo.tipo == TipoNodo.MUTACION:
+                    mutaciones_consecutivas.append(hijo)
+                else:
+                    if mutaciones_consecutivas:
+                        if len(mutaciones_consecutivas) > 1:
+                            # Crear nodo de mutación consolidada
+                            nodo_consolidado = NodoAST(TipoNodo.TRANSFORMACION)
+                            nodo_consolidado.metadatos["mutaciones_consolidadas"] = [
+                                m.valor for m in mutaciones_consecutivas
+                            ]
+                            nuevos_hijos.append(nodo_consolidado)
+                        else:
+                            nuevos_hijos.extend(mutaciones_consecutivas)
+                        
+                        mutaciones_consecutivas = []
+                    
+                    nuevos_hijos.append(hijo)
+            
+            # Agregar mutaciones finales
+            if mutaciones_consecutivas:
+                if len(mutaciones_consecutivas) > 1:
+                    nodo_consolidado = NodoAST(TipoNodo.TRANSFORMACION)
+                    nodo_consolidado.metadatos["mutaciones_consolidadas"] = [
+                        m.valor for m in mutaciones_consecutivas
+                    ]
+                    nuevos_hijos.append(nodo_consolidado)
+                else:
+                    nuevos_hijos.extend(mutaciones_consecutivas)
+            
+            ast.hijos = nuevos_hijos
+        
+        # Aplicar recursivamente
+        for hijo in ast.hijos:
+            self._consolidar_mutaciones(hijo)
+        
+        return ast
+
+# --- Función principal de demostración ---
+def main():
+    """Función principal que demuestra todas las capacidades del parser."""
+    print("=" * 80)
+    print("🌟 PARSER MATHEMA - SISTEMA COMPLETO")
+    print("=" * 80)
+    
+    # Ejecutar ejemplos básicos
+    ejecutar_ejemplos()
+    
+    # Demostración de validación
+    print("\n" + "=" * 80)
+    print("🔍 VALIDACIÓN SEMÁNTICA")
+    print("=" * 80)
+    
+    # Caso válido
+    glifos_validos = ["🜂", "⟁", "🜃", "𓃰", "⟂"]
+    parser = ParserMathema(glifos_validos)
+    ast_valido = parser.parse()
+    
+    validador = ValidadorMathema()
+    resultado_validacion = validador.validar(ast_valido)
+    
+    print(f"\n✅ Validación de código válido:")
+    print(f"Válido: {resultado_validacion['valido']}")
+    print(f"Puntuación: {resultado_validacion['puntuacion_calidad']:.1f}/100")
+    
+    # Caso inválido
+    glifos_invalidos = ["🜂", "🜂", "⟂", "🜃"]  # Activación doble + cierre sin apertura
+    try:
+        parser_inv = ParserMathema(glifos_invalidos)
+        ast_invalido = parser_inv.parse()
+        resultado_inv = validador.validar(ast_invalido)
+        
+        print(f"\n❌ Validación de código inválido:")
+        print(f"Válido: {resultado_inv['valido']}")
+        print(f"Errores: {len(resultado_inv['errores'])}")
+        for error in resultado_inv['errores']:
+            print(f"  • {error}")
+    except ErrorParseo as e:
+        print(f"\n❌ Error de parsing (esperado): {e}")
+    
+    # Demostración de optimización
+    print("\n" + "=" * 80)
+    print("⚡ OPTIMIZACIÓN DE CÓDIGO")
+    print("=" * 80)
+    
+    glifos_optimizable = ["🜂", "🜃", "🜃", "𓃰", "𓃰", "𖠚"]
+    parser_opt = ParserMathema(glifos_optimizable)
+    ast_original = parser_opt.parse()
+    
+    optimizador = OptimizadorMathema()
+    ast_optimizado = optimizador.optimizar(ast_original)
+    
+    print(f"\nOptimizaciones aplicadas: {len(optimizador.optimizaciones_aplicadas)}")
+    for opt in optimizador.optimizaciones_aplicadas:
+        print(f"  • {opt}")
+    
+    # Demostración de generación de código
+    print("\n" + "=" * 80)
+    print("📝 GENERACIÓN DE CÓDIGO")
+    print("=" * 80)
+    
+    generador = GeneradorMathema()
+    codigo_generado = generador.generar(ast_valido)
+    
+    print("\nCódigo generado:")
+    print("-" * 40)
+    print(codigo_generado)
+    
+    print(f"\n🎉 Demostración completa del Parser Mathema finalizada")
+
+if __name__ == "__main__":
+    main()
+		

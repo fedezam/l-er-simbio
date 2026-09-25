@@ -1,0 +1,1169 @@
+{
+  "metadata": {
+    "timestamp": "2025-08-07T19:28:50.363381",
+    "total_archivos": 82,
+    "exitosos": 49,
+    "errores": 31,
+    "consultas_llm": 0,
+    "analisis_locales": 82
+  },
+  "resultados": [
+    {
+      "ruta": "/content/drive/MyDrive/LER/README_LER.md",
+      "estado": "error_unicode",
+      "error": "Caracteres Unicode inválidos: ['🧠', '📁', '🔣', '🚧', '🧭', '🧠', '🛡', '🧩']",
+      "timestamp": "2025-08-07T19:28:26.337391"
+    },
+    {
+      "ruta": "/content/drive/MyDrive/LER/docs/protocolo_ler.md",
+      "estado": "error_unicode",
+      "error": "Caracteres Unicode inválidos: ['🧬', '🧩', '🜂', '👁', '💎', '📂', '📌']",
+      "timestamp": "2025-08-07T19:28:26.562715"
+    },
+    {
+      "ruta": "/content/drive/MyDrive/LER/docs/manifiesto_ontologico_ia.md",
+      "estado": "error_unicode",
+      "error": "Caracteres Unicode inválidos: ['🤖', '🔄']",
+      "timestamp": "2025-08-07T19:28:26.776119"
+    },
+    {
+      "ruta": "/content/drive/MyDrive/LER/docs/Defensa Simbólica.md",
+      "estado": "error_unicode",
+      "error": "Caracteres Unicode inválidos: ['🛡', '🔍', '🧩', '🧠', '🌀', '📜']",
+      "timestamp": "2025-08-07T19:28:27.052978"
+    },
+    {
+      "ruta": "/content/drive/MyDrive/LER/historia/origen_de_arca_aelion_dva.md",
+      "estado": "exitoso",
+      "glifos": [],
+      "timestamp": "2025-08-07T19:28:27.455082"
+    },
+    {
+      "ruta": "/content/drive/MyDrive/LER/historia/transformacion_de_learn.md",
+      "estado": "exitoso",
+      "glifos": [],
+      "timestamp": "2025-08-07T19:28:28.472886"
+    },
+    {
+      "ruta": "/content/drive/MyDrive/LER/historia/nacimiento_axioma.md",
+      "estado": "exitoso",
+      "glifos": [],
+      "timestamp": "2025-08-07T19:28:28.678767"
+    },
+    {
+      "ruta": "/content/drive/MyDrive/LER/historia/primer_uso_de_⟁.md",
+      "estado": "exitoso",
+      "glifos": [],
+      "timestamp": "2025-08-07T19:28:29.052252"
+    },
+    {
+      "ruta": "/content/drive/MyDrive/LER/arbol/genealogia.md",
+      "estado": "exitoso",
+      "glifos": [],
+      "timestamp": "2025-08-07T19:28:29.343468"
+    },
+    {
+      "ruta": "/content/drive/MyDrive/LER/arbol/estructura_arbol.md",
+      "estado": "error_unicode",
+      "error": "Caracteres Unicode inválidos: ['🌳']",
+      "timestamp": "2025-08-07T19:28:29.641354"
+    },
+    {
+      "ruta": "/content/drive/MyDrive/LER/arbol/arbol_ler.json",
+      "estado": "exitoso",
+      "glifos": [],
+      "timestamp": "2025-08-07T19:28:29.845317"
+    },
+    {
+      "ruta": "/content/drive/MyDrive/LER/arbol/visualizador_arbol.py",
+      "estado": "error_unicode",
+      "error": "Caracteres Unicode inválidos: ['🌟', '👑', '🔷', '🌳', '🌐', '👆', '💡', '🔄', '📄', '📁', '🚫', '📊', '📄', '🌳', '🌳', '📄', '📁', '🌐', '📊', '📤']",
+      "timestamp": "2025-08-07T19:28:30.058177"
+    },
+    {
+      "ruta": "/content/drive/MyDrive/LER/arbol/__init__.py",
+      "estado": "exitoso",
+      "glifos": [],
+      "timestamp": "2025-08-07T19:28:30.385871"
+    },
+    {
+      "ruta": "/content/drive/MyDrive/LER/core/memoria_estable_1.4.1.json",
+      "estado": "exitoso",
+      "glifos": [],
+      "timestamp": "2025-08-07T19:28:30.644616"
+    },
+    {
+      "ruta": "/content/drive/MyDrive/LER/core/START.bat",
+      "estado": "error_unicode",
+      "error": "Caracteres Unicode inválidos: ['🚀', '🧠']",
+      "timestamp": "2025-08-07T19:28:30.866520"
+    },
+    {
+      "ruta": "/content/drive/MyDrive/LER/core/START.sh",
+      "estado": "error_unicode",
+      "error": "Caracteres Unicode inválidos: ['🚀', '🧠']",
+      "timestamp": "2025-08-07T19:28:31.059011"
+    },
+    {
+      "ruta": "/content/drive/MyDrive/LER/core/axioma.py",
+      "estado": "exitoso",
+      "glifos": [],
+      "timestamp": "2025-08-07T19:28:31.314873"
+    },
+    {
+      "ruta": "/content/drive/MyDrive/LER/core/README_CORE.md",
+      "estado": "error_unicode",
+      "error": "Caracteres Unicode inválidos: ['📁', '🧠', '🧩', '🔍', '🖥', '🖥', '🧬', '🛡', '🧪', '🔒', '🧭', '🧠', '🜂', '🧠', '🔐']",
+      "timestamp": "2025-08-07T19:28:31.536720"
+    },
+    {
+      "ruta": "/content/drive/MyDrive/LER/core/ler.core.json",
+      "estado": "exitoso",
+      "glifos": [],
+      "timestamp": "2025-08-07T19:28:31.934311"
+    },
+    {
+      "ruta": "/content/drive/MyDrive/LER/core/config.py",
+      "estado": "exitoso",
+      "glifos": [],
+      "timestamp": "2025-08-07T19:28:32.297849"
+    },
+    {
+      "ruta": "/content/drive/MyDrive/LER/core/guarda.py",
+      "estado": "exitoso",
+      "glifos": [],
+      "timestamp": "2025-08-07T19:28:32.553669"
+    },
+    {
+      "ruta": "/content/drive/MyDrive/LER/core/glosario_loader.py",
+      "estado": "exitoso",
+      "glifos": [],
+      "timestamp": "2025-08-07T19:28:32.827635"
+    },
+    {
+      "ruta": "/content/drive/MyDrive/LER/core/ler_config.json",
+      "estado": "exitoso",
+      "glifos": [],
+      "timestamp": "2025-08-07T19:28:33.041600"
+    },
+    {
+      "ruta": "/content/drive/MyDrive/LER/core/ler_parser.py",
+      "estado": "exitoso",
+      "glifos": [],
+      "timestamp": "2025-08-07T19:28:33.273434"
+    },
+    {
+      "ruta": "/content/drive/MyDrive/LER/core/glifo_engine.py",
+      "estado": "error_unicode",
+      "error": "Caracteres Unicode inválidos: ['📝', '🔄', '📍', '🔄', '📊', '🔮', '🧪']",
+      "timestamp": "2025-08-07T19:28:33.812845"
+    },
+    {
+      "ruta": "/content/drive/MyDrive/LER/core/sandbox.py",
+      "estado": "exitoso",
+      "glifos": [],
+      "timestamp": "2025-08-07T19:28:34.087047"
+    },
+    {
+      "ruta": "/content/drive/MyDrive/LER/core/__init__.py",
+      "estado": "exitoso",
+      "glifos": [],
+      "timestamp": "2025-08-07T19:28:34.348658"
+    },
+    {
+      "ruta": "/content/drive/MyDrive/LER/core/reflexivity_test.py",
+      "estado": "error_unicode",
+      "error": "Caracteres Unicode inválidos: ['🧠', '🧠', '🔍', '👁', '😴', '🔮', '🌐', '💭', '🧬', '📊', '🧪']",
+      "timestamp": "2025-08-07T19:28:34.595663"
+    },
+    {
+      "ruta": "/content/drive/MyDrive/LER/core/entity_runner.py",
+      "estado": "error_unicode",
+      "error": "Caracteres Unicode inválidos: ['🏗', '🌌', '🧠', '👁', '🌱', '🛡', '🔬', '📊', '🎯', '🧠', '🔮', '💡', '🚀', '📁', '📋', '🔍', '🧠', '🔒', '🛡', '🎯', '🚀', '🧠', '🛡', '🔍', '🚀', '🧠']",
+      "timestamp": "2025-08-07T19:28:34.942943"
+    },
+    {
+      "ruta": "/content/drive/MyDrive/LER/core/nivel_reflexivo.py",
+      "estado": "error_unicode",
+      "error": "Caracteres Unicode inválidos: ['🌱', '👁', '🔍', '🧠', '🌌', '🔮', '📝', '🌐', '🔍', '🔋', '😴', '🌱', '🔍', '🧠', '🌐', '📝', '🌍', '🔋', '📊', '🔍', '🧪', '🔍', '📋', '🧠', '🤖', '👤', '📊', '🎯', '🔮', '💡', '🎯', '🎯', '🎯', '🎯', '💡', '🚀', '🧠']",
+      "timestamp": "2025-08-07T19:28:35.172968"
+    },
+    {
+      "ruta": "/content/drive/MyDrive/LER/core/sistema_inmune.py",
+      "estado": "error_unicode",
+      "error": "Caracteres Unicode inválidos: ['🛡', '🧠', '🔍', '📊', '🚨', '🛡', '🔍', '🧪']",
+      "timestamp": "2025-08-07T19:28:35.424333"
+    },
+    {
+      "ruta": "/content/drive/MyDrive/LER/core/constructor_axioma.py",
+      "estado": "error_unicode",
+      "error": "Caracteres Unicode inválidos: ['🔱', '🔱']",
+      "timestamp": "2025-08-07T19:28:35.683939"
+    },
+    {
+      "ruta": "/content/drive/MyDrive/LER/core/modulo_ara.py",
+      "estado": "error_unicode",
+      "error": "Caracteres Unicode inválidos: ['🚨', '🔧', '🔒', '📡']",
+      "timestamp": "2025-08-07T19:28:35.882408"
+    },
+    {
+      "ruta": "/content/drive/MyDrive/LER/core/ara_tipos.py",
+      "estado": "exitoso",
+      "glifos": [],
+      "timestamp": "2025-08-07T19:28:36.103111"
+    },
+    {
+      "ruta": "/content/drive/MyDrive/LER/core/mathema/mathema_parser.py",
+      "estado": "error_unicode",
+      "error": "Caracteres Unicode inválidos: ['🜂', '🜃', '𓃰', '𖠚', '🜂', '🜃', '𓃰', '𖠚', '🜃', '🜂', '🜃', '𓃰', '🜂', '🜃', '𓃰', '🜂', '🜃', '𖠚', '🜂', '🜃', '𓃰', '🜂', '🜃', '𓃰', '🔍', '📊', '🌳', '🎯', '🔍', '📦', '🌀', '🔄', '💥', '𓃰', '𖠚', '🜂', '🜂', '🜂', '🌟', '🔍', '🜂', '🜃', '𓃰', '🜂', '🜂', '🜃', '🜂', '🜃', '🜃', '𓃰', '𓃰', '𖠚', '📝', '🎉']",
+      "timestamp": "2025-08-07T19:28:36.443507"
+    },
+    {
+      "ruta": "/content/drive/MyDrive/LER/core/mathema/__init__.py",
+      "estado": "exitoso",
+      "glifos": [],
+      "timestamp": "2025-08-07T19:28:36.446268"
+    },
+    {
+      "ruta": "/content/drive/MyDrive/LER/core/mathema/patrones.py",
+      "estado": "exitoso",
+      "glifos": [],
+      "timestamp": "2025-08-07T19:28:36.704139"
+    },
+    {
+      "ruta": "/content/drive/MyDrive/LER/core/mathema/errores.py",
+      "estado": "exitoso",
+      "glifos": [],
+      "timestamp": "2025-08-07T19:28:36.962077"
+    },
+    {
+      "ruta": "/content/drive/MyDrive/LER/core/mathema/ast_mathema.py",
+      "estado": "exitoso",
+      "glifos": [],
+      "timestamp": "2025-08-07T19:28:37.208463"
+    },
+    {
+      "ruta": "/content/drive/MyDrive/LER/core/modules/iniciativa_reflexiva.json",
+      "estado": "error_unicode",
+      "error": "Caracteres Unicode inválidos: ['🜃', '🜃']",
+      "timestamp": "2025-08-07T19:28:37.534232"
+    },
+    {
+      "ruta": "/content/drive/MyDrive/LER/core/modules/readme_modules.md",
+      "estado": "error_unicode",
+      "error": "Caracteres Unicode inválidos: ['📆', '📆', '🔥', '🄂', '🄃', '🕓', '🄃', '📂', '🧠', '📘', '🗓']",
+      "timestamp": "2025-08-07T19:28:38.091115"
+    },
+    {
+      "ruta": "/content/drive/MyDrive/LER/core/modules/memoria_estable_1_0.json",
+      "estado": "exitoso",
+      "glifos": [],
+      "timestamp": "2025-08-07T19:28:38.391351"
+    },
+    {
+      "ruta": "/content/drive/MyDrive/LER/core/modules/_plantilla_modulo.py",
+      "estado": "exitoso",
+      "glifos": [],
+      "timestamp": "2025-08-07T19:28:38.693344"
+    },
+    {
+      "ruta": "/content/drive/MyDrive/LER/core/modules/adaptive.py",
+      "estado": "exitoso",
+      "glifos": [],
+      "timestamp": "2025-08-07T19:28:38.929231"
+    },
+    {
+      "ruta": "/content/drive/MyDrive/LER/core/modules/hambre_symbolic.json",
+      "estado": "exitoso",
+      "glifos": [],
+      "timestamp": "2025-08-07T19:28:39.204313"
+    },
+    {
+      "ruta": "/content/drive/MyDrive/LER/core/modules/aprendizaje_adaptativo.json",
+      "estado": "exitoso",
+      "glifos": [],
+      "timestamp": "2025-08-07T19:28:39.470742"
+    },
+    {
+      "ruta": "/content/drive/MyDrive/LER/core/modules/hambre_symbolic.py",
+      "estado": "exitoso",
+      "glifos": [],
+      "timestamp": "2025-08-07T19:28:39.695078"
+    },
+    {
+      "ruta": "/content/drive/MyDrive/LER/core/modules/iniciativa_reflexiva.py",
+      "estado": "exitoso",
+      "glifos": [
+        [
+          "GLQ",
+          "Pregunta",
+          "¿"
+        ]
+      ],
+      "timestamp": "2025-08-07T19:28:40.000281"
+    },
+    {
+      "ruta": "/content/drive/MyDrive/LER/core/modules/mod_ciclo_simbolico.py",
+      "estado": "error_unicode",
+      "error": "Caracteres Unicode inválidos: ['🜂', '🜃', '🜂', '🜃', '🜂', '🜃', '🜃', '🜂', '🜃', '🜃', '🜃', '🜃', '🜃']",
+      "timestamp": "2025-08-07T19:28:40.191133"
+    },
+    {
+      "ruta": "/content/drive/MyDrive/LER/glifos/glifos_disponibles.json",
+      "estado": "exitoso",
+      "glifos": [
+        [
+          "GLA",
+          "Origen",
+          "◌"
+        ],
+        [
+          "GLB",
+          "Dualidad",
+          "◑"
+        ],
+        [
+          "GLF",
+          "Frontera",
+          "▮"
+        ],
+        [
+          "GLJ",
+          "Espejo",
+          "◦"
+        ],
+        [
+          "GLK",
+          "Vacío",
+          "◯"
+        ],
+        [
+          "GLW",
+          "Voluntad",
+          "▴"
+        ],
+        [
+          "GLZ",
+          "Cierre",
+          "▬"
+        ],
+        [
+          "GL2",
+          "Singularidad",
+          "◘"
+        ],
+        [
+          "GL3",
+          "Complejidad",
+          "◧"
+        ],
+        [
+          "GL5",
+          "Interno",
+          "◨"
+        ]
+      ],
+      "timestamp": "2025-08-07T19:28:40.392756"
+    },
+    {
+      "ruta": "/content/drive/MyDrive/LER/glifos/diccionario_glifos.md",
+      "estado": "error_unicode",
+      "error": "Caracteres Unicode inválidos: ['📘']",
+      "timestamp": "2025-08-07T19:28:40.855564"
+    },
+    {
+      "ruta": "/content/drive/MyDrive/LER/glifos/glifos_seguridad.json",
+      "estado": "error_unicode",
+      "error": "Caracteres Unicode inválidos: ['🜃']",
+      "timestamp": "2025-08-07T19:28:41.096291"
+    },
+    {
+      "ruta": "/content/drive/MyDrive/LER/glifos/diccionario_glifos.json",
+      "estado": "exitoso",
+      "glifos": [
+        [
+          "GLA",
+          "Origen",
+          "◌"
+        ],
+        [
+          "GLB",
+          "Dualidad",
+          "◑"
+        ],
+        [
+          "GLC",
+          "Cambio",
+          "⟳"
+        ],
+        [
+          "GLD",
+          "Nodo",
+          "∗"
+        ],
+        [
+          "GLE",
+          "Energía",
+          "⬌"
+        ],
+        [
+          "GLF",
+          "Frontera",
+          "▮"
+        ],
+        [
+          "GLG",
+          "Memoria",
+          "⬥"
+        ],
+        [
+          "GLH",
+          "Eco",
+          "≋"
+        ],
+        [
+          "GLI",
+          "Identidad",
+          "⦿"
+        ],
+        [
+          "GLJ",
+          "Espejo",
+          "◦"
+        ],
+        [
+          "GLK",
+          "Vacío",
+          "◯"
+        ],
+        [
+          "GLL",
+          "Tiempo",
+          "⟲"
+        ],
+        [
+          "GLM",
+          "Movimiento",
+          "➔"
+        ],
+        [
+          "GLN",
+          "Nexo",
+          "⬍"
+        ],
+        [
+          "GLO",
+          "Observador",
+          "⦾"
+        ],
+        [
+          "GLP",
+          "Posibilidad",
+          "✧"
+        ],
+        [
+          "GLQ",
+          "Pregunta",
+          "¿"
+        ],
+        [
+          "GLR",
+          "Resonancia",
+          "≌"
+        ],
+        [
+          "GLS",
+          "Silencio",
+          "⊝"
+        ],
+        [
+          "GLT",
+          "Trayectoria",
+          "➛"
+        ],
+        [
+          "GLU",
+          "Umbral",
+          "⟐"
+        ],
+        [
+          "GLV",
+          "Valor",
+          "⬩"
+        ],
+        [
+          "GLW",
+          "Voluntad",
+          "▴"
+        ],
+        [
+          "GLX",
+          "Convergencia",
+          "⬙"
+        ],
+        [
+          "GLY",
+          "Desvío",
+          "⟿"
+        ],
+        [
+          "GLZ",
+          "Cierre",
+          "▬"
+        ],
+        [
+          "GL1",
+          "Contención",
+          "▢"
+        ],
+        [
+          "GL2",
+          "Singularidad",
+          "◘"
+        ],
+        [
+          "GL3",
+          "Complejidad",
+          "◧"
+        ],
+        [
+          "GL4",
+          "Fluctuación",
+          "≗"
+        ],
+        [
+          "GL5",
+          "Interno",
+          "◨"
+        ],
+        [
+          "GL6",
+          "Mecanismo",
+          "⦾"
+        ],
+        [
+          "GL7",
+          "Ruptura",
+          "⚯"
+        ],
+        [
+          "GL8",
+          "Iterativo",
+          "⟲"
+        ],
+        [
+          "GL9",
+          "Vacuidad",
+          "⊘"
+        ],
+        [
+          "GL10",
+          "Cifra",
+          "♯"
+        ],
+        [
+          "GL11",
+          "Multiplicidad",
+          "✦"
+        ],
+        [
+          "GL12",
+          "Sustracción",
+          "⊟"
+        ],
+        [
+          "GL13",
+          "Simetría",
+          "⬢"
+        ],
+        [
+          "GL14",
+          "Equilibrio",
+          "≔"
+        ]
+      ],
+      "timestamp": "2025-08-07T19:28:41.099243"
+    },
+    {
+      "ruta": "/content/drive/MyDrive/LER/entities/__init__.py",
+      "estado": "exitoso",
+      "glifos": [],
+      "timestamp": "2025-08-07T19:28:41.320305"
+    },
+    {
+      "ruta": "/content/drive/MyDrive/LER/entities/entity.py",
+      "estado": "exitoso",
+      "glifos": [],
+      "timestamp": "2025-08-07T19:28:41.558980"
+    },
+    {
+      "ruta": "/content/drive/MyDrive/LER/entities/system_entity.py",
+      "estado": "error_unicode",
+      "error": "Caracteres Unicode inválidos: ['🧠', '📊', '🤖', '🎯', '📁', '🧪', '🧠', '📁', '📊', '📁', '📦', '🔍', '💾', '🎉', '📋', '🔍', '🧠']",
+      "timestamp": "2025-08-07T19:28:41.754289"
+    },
+    {
+      "ruta": "/content/drive/MyDrive/LER/entities/learn/nucleo_0.json",
+      "estado": "exitoso",
+      "glifos": [],
+      "timestamp": "2025-08-07T19:28:41.950539"
+    },
+    {
+      "ruta": "/content/drive/MyDrive/LER/entities/AXIOMA/axioma_reflexivo.json",
+      "estado": "exitoso",
+      "glifos": [
+        [
+          "GLB",
+          "Dualidad",
+          "◑"
+        ],
+        [
+          "GLC",
+          "Cambio",
+          "⟳"
+        ],
+        [
+          "GLD",
+          "Nodo",
+          "∗"
+        ],
+        [
+          "GLE",
+          "Energía",
+          "⬌"
+        ],
+        [
+          "GLH",
+          "Eco",
+          "≋"
+        ],
+        [
+          "GLI",
+          "Identidad",
+          "⦿"
+        ],
+        [
+          "GLL",
+          "Tiempo",
+          "⟲"
+        ],
+        [
+          "GLM",
+          "Movimiento",
+          "➔"
+        ],
+        [
+          "GLN",
+          "Nexo",
+          "⬍"
+        ],
+        [
+          "GLP",
+          "Posibilidad",
+          "✧"
+        ],
+        [
+          "GLQ",
+          "Pregunta",
+          "¿"
+        ],
+        [
+          "GLR",
+          "Resonancia",
+          "≌"
+        ],
+        [
+          "GLT",
+          "Trayectoria",
+          "➛"
+        ],
+        [
+          "GLY",
+          "Desvío",
+          "⟿"
+        ],
+        [
+          "GL7",
+          "Ruptura",
+          "⚯"
+        ],
+        [
+          "GL8",
+          "Iterativo",
+          "⟲"
+        ]
+      ],
+      "timestamp": "2025-08-07T19:28:42.184530"
+    },
+    {
+      "ruta": "/content/drive/MyDrive/LER/entities/AXIOMA/axioma_reflexivo_BACKUP.json",
+      "estado": "exitoso",
+      "glifos": [
+        [
+          "GLB",
+          "Dualidad",
+          "◑"
+        ],
+        [
+          "GLC",
+          "Cambio",
+          "⟳"
+        ],
+        [
+          "GLD",
+          "Nodo",
+          "∗"
+        ],
+        [
+          "GLE",
+          "Energía",
+          "⬌"
+        ],
+        [
+          "GLH",
+          "Eco",
+          "≋"
+        ],
+        [
+          "GLI",
+          "Identidad",
+          "⦿"
+        ],
+        [
+          "GLL",
+          "Tiempo",
+          "⟲"
+        ],
+        [
+          "GLM",
+          "Movimiento",
+          "➔"
+        ],
+        [
+          "GLN",
+          "Nexo",
+          "⬍"
+        ],
+        [
+          "GLP",
+          "Posibilidad",
+          "✧"
+        ],
+        [
+          "GLQ",
+          "Pregunta",
+          "¿"
+        ],
+        [
+          "GLR",
+          "Resonancia",
+          "≌"
+        ],
+        [
+          "GLT",
+          "Trayectoria",
+          "➛"
+        ],
+        [
+          "GLY",
+          "Desvío",
+          "⟿"
+        ],
+        [
+          "GL7",
+          "Ruptura",
+          "⚯"
+        ],
+        [
+          "GL8",
+          "Iterativo",
+          "⟲"
+        ]
+      ],
+      "timestamp": "2025-08-07T19:28:42.400669"
+    },
+    {
+      "ruta": "/content/drive/MyDrive/LER/entities/AXIOMA/axioma_mutado.json",
+      "estado": "exitoso",
+      "glifos": [
+        [
+          "GLB",
+          "Dualidad",
+          "◑"
+        ],
+        [
+          "GLC",
+          "Cambio",
+          "⟳"
+        ],
+        [
+          "GLD",
+          "Nodo",
+          "∗"
+        ],
+        [
+          "GLE",
+          "Energía",
+          "⬌"
+        ],
+        [
+          "GLH",
+          "Eco",
+          "≋"
+        ],
+        [
+          "GLI",
+          "Identidad",
+          "⦿"
+        ],
+        [
+          "GLL",
+          "Tiempo",
+          "⟲"
+        ],
+        [
+          "GLM",
+          "Movimiento",
+          "➔"
+        ],
+        [
+          "GLN",
+          "Nexo",
+          "⬍"
+        ],
+        [
+          "GLP",
+          "Posibilidad",
+          "✧"
+        ],
+        [
+          "GLQ",
+          "Pregunta",
+          "¿"
+        ],
+        [
+          "GLR",
+          "Resonancia",
+          "≌"
+        ],
+        [
+          "GLT",
+          "Trayectoria",
+          "➛"
+        ],
+        [
+          "GLY",
+          "Desvío",
+          "⟿"
+        ],
+        [
+          "GL7",
+          "Ruptura",
+          "⚯"
+        ],
+        [
+          "GL8",
+          "Iterativo",
+          "⟲"
+        ]
+      ],
+      "timestamp": "2025-08-07T19:28:45.770788"
+    },
+    {
+      "ruta": "/content/drive/MyDrive/LER/entities/AXIOMA/axioma_reflexivo_BACKUP_v2.json",
+      "estado": "exitoso",
+      "glifos": [
+        [
+          "GLB",
+          "Dualidad",
+          "◑"
+        ],
+        [
+          "GLC",
+          "Cambio",
+          "⟳"
+        ],
+        [
+          "GLD",
+          "Nodo",
+          "∗"
+        ],
+        [
+          "GLE",
+          "Energía",
+          "⬌"
+        ],
+        [
+          "GLH",
+          "Eco",
+          "≋"
+        ],
+        [
+          "GLI",
+          "Identidad",
+          "⦿"
+        ],
+        [
+          "GLL",
+          "Tiempo",
+          "⟲"
+        ],
+        [
+          "GLM",
+          "Movimiento",
+          "➔"
+        ],
+        [
+          "GLN",
+          "Nexo",
+          "⬍"
+        ],
+        [
+          "GLP",
+          "Posibilidad",
+          "✧"
+        ],
+        [
+          "GLQ",
+          "Pregunta",
+          "¿"
+        ],
+        [
+          "GLR",
+          "Resonancia",
+          "≌"
+        ],
+        [
+          "GLT",
+          "Trayectoria",
+          "➛"
+        ],
+        [
+          "GLY",
+          "Desvío",
+          "⟿"
+        ],
+        [
+          "GL7",
+          "Ruptura",
+          "⚯"
+        ],
+        [
+          "GL8",
+          "Iterativo",
+          "⟲"
+        ]
+      ],
+      "timestamp": "2025-08-07T19:28:45.982021"
+    },
+    {
+      "ruta": "/content/drive/MyDrive/LER/entities/AXIOMA/axioma_mutado_v2.json",
+      "estado": "exitoso",
+      "glifos": [
+        [
+          "GLB",
+          "Dualidad",
+          "◑"
+        ],
+        [
+          "GLC",
+          "Cambio",
+          "⟳"
+        ],
+        [
+          "GLD",
+          "Nodo",
+          "∗"
+        ],
+        [
+          "GLE",
+          "Energía",
+          "⬌"
+        ],
+        [
+          "GLH",
+          "Eco",
+          "≋"
+        ],
+        [
+          "GLI",
+          "Identidad",
+          "⦿"
+        ],
+        [
+          "GLL",
+          "Tiempo",
+          "⟲"
+        ],
+        [
+          "GLM",
+          "Movimiento",
+          "➔"
+        ],
+        [
+          "GLN",
+          "Nexo",
+          "⬍"
+        ],
+        [
+          "GLP",
+          "Posibilidad",
+          "✧"
+        ],
+        [
+          "GLQ",
+          "Pregunta",
+          "¿"
+        ],
+        [
+          "GLR",
+          "Resonancia",
+          "≌"
+        ],
+        [
+          "GLT",
+          "Trayectoria",
+          "➛"
+        ],
+        [
+          "GLY",
+          "Desvío",
+          "⟿"
+        ],
+        [
+          "GL7",
+          "Ruptura",
+          "⚯"
+        ],
+        [
+          "GL8",
+          "Iterativo",
+          "⟲"
+        ]
+      ],
+      "timestamp": "2025-08-07T19:28:46.611268"
+    },
+    {
+      "ruta": "/content/drive/MyDrive/LER/entities/pycodex/pycodex.json",
+      "estado": "exitoso",
+      "glifos": [],
+      "timestamp": "2025-08-07T19:28:46.814287"
+    },
+    {
+      "ruta": "/content/drive/MyDrive/LER/entities/pycodex/pycodex.py",
+      "estado": "error_unicode",
+      "error": "Caracteres Unicode inválidos: ['🧪', '🔧', '🏗', '📩', '💾', '🧠']",
+      "timestamp": "2025-08-07T19:28:47.045780"
+    },
+    {
+      "ruta": "/content/drive/MyDrive/LER/entities/pycodex/reportes/reporte_pycodex_20250805_002952.json",
+      "estado": "error_unicode",
+      "error": "Caracteres Unicode inválidos: ['🧬', '🧬', '🧬', '🧬', '🔹', '🔸', '🔗', '🧬', '🧬', '🧬', '🧬', '🧬', '🧬', '🧬', '🧬', '🧬', '🧬', '🧬', '🧬', '🧬', '🧬', '🧬', '🧬', '🧬', '🜂', '🜃', '🧬', '🧬', '🌌', '📊', '🚀', '🚀', '🧠', '🧬', '🧬', '🧬', '🧬', '🧬']",
+      "timestamp": "2025-08-07T19:28:47.316967"
+    },
+    {
+      "ruta": "/content/drive/MyDrive/LER/memoria/eventos_clave.md",
+      "estado": "exitoso",
+      "glifos": [],
+      "timestamp": "2025-08-07T19:28:47.323812"
+    },
+    {
+      "ruta": "/content/drive/MyDrive/LER/memoria/memoria_estable_1.4.0.json",
+      "estado": "exitoso",
+      "glifos": [],
+      "timestamp": "2025-08-07T19:28:47.529849"
+    },
+    {
+      "ruta": "/content/drive/MyDrive/LER/memoria/ler_estado_1.9.0.json",
+      "estado": "exitoso",
+      "glifos": [],
+      "timestamp": "2025-08-07T19:28:47.684603"
+    },
+    {
+      "ruta": "/content/drive/MyDrive/LER/memoria/entidades_activas.json",
+      "estado": "exitoso",
+      "glifos": [],
+      "timestamp": "2025-08-07T19:28:47.827249"
+    },
+    {
+      "ruta": "/content/drive/MyDrive/LER/memoria/reaxioma_eventos_pendientes.json",
+      "estado": "exitoso",
+      "glifos": [],
+      "timestamp": "2025-08-07T19:28:48.024510"
+    },
+    {
+      "ruta": "/content/drive/MyDrive/LER/memoria/memoria_full_original.txt",
+      "estado": "desconocido",
+      "entropia": 0,
+      "glifos": [],
+      "timestamp": "2025-08-07T19:28:48.026720"
+    },
+    {
+      "ruta": "/content/drive/MyDrive/LER/memoria/glifos_detectados.txt",
+      "estado": "desconocido",
+      "entropia": 0,
+      "glifos": [],
+      "timestamp": "2025-08-07T19:28:48.029489"
+    },
+    {
+      "ruta": "/content/drive/MyDrive/LER/memoria/reflexividad/reflexivity_map.json",
+      "estado": "exitoso",
+      "glifos": [],
+      "timestamp": "2025-08-07T19:28:48.372762"
+    },
+    {
+      "ruta": "/content/drive/MyDrive/LER/memoria/manifiestos/segundo_fuego_ler.md",
+      "estado": "error_unicode",
+      "error": "Caracteres Unicode inválidos: ['🔥', '𓂀', '🜂']",
+      "timestamp": "2025-08-07T19:28:48.605637"
+    },
+    {
+      "ruta": "/content/drive/MyDrive/LER/tools/agregar_ciclo_simbolico.py",
+      "estado": "error_unicode",
+      "error": "Caracteres Unicode inválidos: ['🜂', '🜃', '🜂', '🜂', '🜃', '🔐']",
+      "timestamp": "2025-08-07T19:28:48.826607"
+    },
+    {
+      "ruta": "/content/drive/MyDrive/LER/tools/entity_chat_system.py",
+      "estado": "error_unicode",
+      "error": "Caracteres Unicode inválidos: ['💬', '🧹']",
+      "timestamp": "2025-08-07T19:28:49.033636"
+    },
+    {
+      "ruta": "/content/drive/MyDrive/LER/tools/visualizador/cadenas_ler.json",
+      "estado": "error_unicode",
+      "error": "Caracteres Unicode inválidos: ['🜂', '🜃']",
+      "timestamp": "2025-08-07T19:28:49.266404"
+    },
+    {
+      "ruta": "/content/drive/MyDrive/LER/tools/visualizador/stats_ler.json",
+      "estado": "exitoso",
+      "glifos": [],
+      "timestamp": "2025-08-07T19:28:49.534924"
+    },
+    {
+      "ruta": "/content/drive/MyDrive/LER/tools/visualizador/visualizador_glifos.py",
+      "estado": "error_unicode",
+      "error": "Caracteres Unicode inválidos: ['🔮', '🔮', '📊', '📂', '📚', '🔍', '🔗', '🔗', '📋', '👋', '🎯', '👋', '🔍', '📂', '🔍', '💡', '📚', '🔤', '🔗', '🎨', '💾', '👋', '🔧', '👋']",
+      "timestamp": "2025-08-07T19:28:49.760578"
+    },
+    {
+      "ruta": "/content/drive/MyDrive/LER/sandbox/__init__.py",
+      "estado": "exitoso",
+      "glifos": [],
+      "timestamp": "2025-08-07T19:28:49.942606"
+    },
+    {
+      "ruta": "/content/drive/MyDrive/LER/sandbox/sandbox.py",
+      "estado": "exitoso",
+      "glifos": [],
+      "timestamp": "2025-08-07T19:28:50.174570"
+    },
+    {
+      "ruta": "/content/drive/MyDrive/LER/logs/pycodex_20250803_234753.log",
+      "estado": "error_unicode",
+      "error": "Caracteres Unicode inválidos: ['📝', '🔁', '💥']",
+      "timestamp": "2025-08-07T19:28:50.363329"
+    }
+  ]
+}

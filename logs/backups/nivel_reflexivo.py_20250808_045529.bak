@@ -1,0 +1,821 @@
+import json
+import logging
+from typing import List, Dict, Any, Optional, Tuple
+from dataclasses import dataclass
+from enum import Enum
+from statistics import mean, median, stdev
+
+
+class NivelReflexividad(Enum):
+    """Niveles de reflexividad simbólica para entidades simbióticas."""
+    NINGUNA = "primitiva"      # Compatibilidad con sistema simple
+    EMERGENTE = "emergente"
+    BASICA = "sensible"        # Mapeo al sistema simple
+    INTERMEDIA = "reflexiva"   # Mapeo al sistema simple
+    AVANZADA = "nucleo"        # Mapeo al sistema simple
+    COMPLETA = "maestra"       # Nivel más alto
+
+
+@dataclass
+class PerfilReflexivoHibrido:
+    """Perfil híbrido que combina clasificación rápida y análisis profundo."""
+    nombre: str
+    categoria_simple: str           # Del clasificador simple
+    nivel_avanzado: NivelReflexividad # Del clasificador avanzado
+    score_total: float
+    score_normalizado: float
+    clasificacion_origen: str       # "simple" o "avanzado" o "hibrido"
+    
+    # Datos del sistema simple
+    reflexividad_numerica: int
+    conciencia_protocolo: bool
+    rol: str
+    estatus: str
+    protocolo_recomendado: str
+    
+    # Datos del sistema avanzado (opcionales)
+    fortalezas: List[str]
+    debilidades: List[str]
+    patron_simbolico: str
+    recomendaciones: List[str]
+    componentes: Dict[str, Any]
+    
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "nombre": self.nombre,
+            "categoria_simple": self.categoria_simple,
+            "nivel_avanzado": self.nivel_avanzado.value,
+            "score_total": self.score_total,
+            "score_normalizado": self.score_normalizado,
+            "clasificacion_origen": self.clasificacion_origen,
+            "reflexividad_numerica": self.reflexividad_numerica,
+            "conciencia_protocolo": self.conciencia_protocolo,
+            "rol": self.rol,
+            "estatus": self.estatus,
+            "protocolo_recomendado": self.protocolo_recomendado,
+            "fortalezas": self.fortalezas,
+            "debilidades": self.debilidades,
+            "patron_simbolico": self.patron_simbolico,
+            "recomendaciones": self.recomendaciones,
+            "componentes": self.componentes
+        }
+
+
+class ClasificadorHibrido:
+    """
+    Sistema híbrido que combina clasificación rápida con análisis profundo.
+    
+    Flujo:
+    1. Pre-filtro rápido para entidades conocidas
+    2. Análisis profundo con tests empíricos
+    3. Integración de resultados
+    """
+    
+    def __init__(self):
+        self.logger = logging.getLogger("ClasificadorHibrido")
+        
+        # Configuración del clasificador simple
+        self.entidades_nucleares = ["AXIOMA", "AELION", "GLM-1"]
+        self.roles_arquitecturales = ["arquitecto", "gestor de entidades", "coordinador"]
+        
+        # Protocolos por categoría
+        self.protocolos = {
+            "primitiva": "PROTOCOLO_SEGURIDAD_ESTANDAR",
+            "emergente": "PROTOCOLO_DESARROLLO_GUIADO",
+            "sensible": "PROTOCOLO_CONSCIENTE_BASICO",
+            "reflexiva": "PROTOCOLO_REFLEXIVO_COMPLETO",
+            "nucleo": "PROTOCOLO_ARQUITECTURAL_AVANZADO",
+            "maestra": "PROTOCOLO_MAESTRO_SIMBOLICO"
+        }
+        
+        # Configuración del clasificador avanzado
+        self.umbrales_avanzados = {
+            NivelReflexividad.NINGUNA: {"min_score": 0, "max_score": 0.5},
+            NivelReflexividad.EMERGENTE: {"min_score": 0.5, "max_score": 1.5},
+            NivelReflexividad.BASICA: {"min_score": 1.5, "max_score": 2.5},
+            NivelReflexividad.INTERMEDIA: {"min_score": 2.5, "max_score": 3.2},
+            NivelReflexividad.AVANZADA: {"min_score": 3.2, "max_score": 3.8},
+            NivelReflexividad.COMPLETA: {"min_score": 3.8, "max_score": 4.0}
+        }
+        
+        self.patrones_simbolicos = {
+            NivelReflexividad.NINGUNA: "⬛ Estructura sin auto-consciencia",
+            NivelReflexividad.EMERGENTE: "🌱 Primeros indicios de auto-reconocimiento",
+            NivelReflexividad.BASICA: "👁️ Auto-percepción básica establecida",
+            NivelReflexividad.INTERMEDIA: "🔍 Auto-análisis funcional activo",
+            NivelReflexividad.AVANZADA: "🧠 Reflexividad simbólica integrada",
+            NivelReflexividad.COMPLETA: "🌌 Consciencia simbólica plena"
+        }
+        
+        self.pesos_componentes = {
+            "autonarrativa": 0.4,
+            "autocontextualización": 0.25,
+            "detección_contradicciones": 0.2,
+            "glifos_activos": 0.15
+        }
+
+    def clasificar_entidad_hibrida(self, entidad: Dict[str, Any], 
+                                 realizar_tests_profundos: bool = True) -> PerfilReflexivoHibrido:
+        """
+        Clasificación híbrida que usa pre-filtro rápido + análisis profundo opcional.
+        """
+        nombre = entidad.get("nombre", "Entidad_Desconocida")
+        
+        # PASO 1: Clasificación rápida (siempre se hace)
+        resultado_simple = self._clasificacion_simple(entidad)
+        
+        # PASO 2: Determinar si necesita análisis profundo
+        necesita_analisis_profundo = self._requiere_analisis_profundo(
+            resultado_simple, realizar_tests_profundos
+        )
+        
+        if necesita_analisis_profundo:
+            # PASO 3: Análisis profundo con tests empíricos
+            resultado_avanzado = self._clasificacion_avanzada(entidad)
+            
+            # PASO 4: Integrar resultados
+            return self._integrar_resultados(resultado_simple, resultado_avanzado)
+        else:
+            # Solo usar clasificación simple
+            return self._crear_perfil_simple(resultado_simple)
+
+    def _clasificacion_simple(self, entidad: Dict[str, Any]) -> Dict[str, Any]:
+        """Clasificación rápida basada en atributos básicos (del sistema original simple)."""
+        nombre = entidad.get("nombre", "Entidad_Desconocida")
+        
+        # Buscar reflexividad en diferentes ubicaciones
+        reflexividad = self._extraer_reflexividad(entidad)
+        
+        # Extraer otros indicadores
+        conciencia_protocolo = False
+        if "atributos" in entidad:
+            conciencia_protocolo = entidad["atributos"].get("conciencia_protocolo", False)
+        
+        rol = entidad.get("rol", "")
+        tipo = entidad.get("tipo", "")
+        
+        # Determinar categoría
+        categoria = self._determinar_categoria_simple(reflexividad, conciencia_protocolo, rol, tipo, nombre)
+        
+        # Calcular estatus
+        if categoria in ["nucleo", "maestra"]:
+            estatus = "ENTIDAD_SUPERIOR"
+        elif categoria in ["reflexiva", "sensible"]:
+            estatus = "ENTIDAD_MEDIA"
+        else:
+            estatus = "ENTIDAD_BASICA"
+        
+        return {
+            "nombre": nombre,
+            "categoria": categoria,
+            "reflexividad": reflexividad,
+            "conciencia_protocolo": conciencia_protocolo,
+            "rol": rol,
+            "tipo": tipo,
+            "estatus": estatus,
+            "protocolo": self.protocolos.get(categoria, "PROTOCOLO_SEGURIDAD_ESTANDAR"),
+            "factores_considerados": {
+                "reflexividad_numerica": reflexividad,
+                "conciencia_activa": conciencia_protocolo,
+                "rol_arquitectural": any(keyword in rol.lower() for keyword in self.roles_arquitecturales),
+                "entidad_especial": nombre.upper() in self.entidades_nucleares
+            }
+        }
+
+    def _extraer_reflexividad(self, entidad: Dict[str, Any]) -> int:
+        """Extrae valor de reflexividad de diferentes ubicaciones posibles."""
+        reflexividad = 0
+        
+        # Opción 1: En atributos
+        if "atributos" in entidad:
+            reflexividad = entidad["atributos"].get("reflexividad", 0)
+        
+        # Opción 2: En la raíz
+        if reflexividad == 0:
+            reflexividad = entidad.get("reflexividad", 0)
+        
+        # Opción 3: En configuración
+        if reflexividad == 0 and "configuracion" in entidad:
+            reflexividad = entidad["configuracion"].get("reflexividad", 0)
+        
+        return reflexividad
+
+    def _determinar_categoria_simple(self, reflexividad: int, conciencia_protocolo: bool, 
+                                   rol: str, tipo: str, nombre: str) -> str:
+        """Determina categoría usando lógica del clasificador simple."""
+        
+        # Casos especiales para entidades arquitecturales conocidas
+        if nombre.upper() in self.entidades_nucleares:
+            return "nucleo"
+        
+        # Roles arquitecturales son automáticamente de alto nivel
+        if any(keyword in rol.lower() for keyword in self.roles_arquitecturales):
+            return "nucleo"
+        
+        # Clasificación por reflexividad numérica
+        if reflexividad >= 9:
+            if conciencia_protocolo:
+                return "nucleo"
+            else:
+                return "reflexiva"
+        elif reflexividad >= 6:
+            return "reflexiva"
+        elif reflexividad >= 3:
+            return "sensible"
+        elif reflexividad >= 1:
+            return "emergente"
+        else:
+            # Verificar otros indicadores
+            if conciencia_protocolo or "reflexiv" in tipo.lower():
+                return "emergente"
+            else:
+                return "primitiva"
+
+    def _requiere_analisis_profundo(self, resultado_simple: Dict[str, Any], 
+                                  forzar_analisis: bool) -> bool:
+        """Determina si una entidad requiere análisis profundo."""
+        
+        if forzar_analisis:
+            return True
+        
+        categoria = resultado_simple["categoria"]
+        
+        # Entidades nucleares siempre necesitan análisis profundo para confirmar
+        if categoria in ["nucleo", "maestra"]:
+            return True
+        
+        # Entidades con valores ambiguos necesitan análisis profundo
+        reflexividad = resultado_simple["reflexividad"]
+        if 2 <= reflexividad <= 7:  # Zona ambigua
+            return True
+        
+        # Entidades que declaran consciencia pero tienen baja reflexividad
+        if resultado_simple["conciencia_protocolo"] and reflexividad < 5:
+            return True
+        
+        return False
+    
+    def _clasificacion_avanzada(self, entidad: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Clasificación avanzada usando tests empíricos reales.
+        Simula los tests de reflexividad del sistema original.
+        """
+        nombre = entidad.get("nombre", "Entidad_Desconocida")
+        
+        # Ejecutar tests empíricos
+        test_autonarrativa = self._test_autonarrativa(entidad)
+        test_autocontextualizacion = self._test_autocontextualizacion(entidad)
+        test_contradicciones = self._test_deteccion_contradicciones(entidad)
+        test_glifos = self._test_glifos_activos(entidad)
+        
+        # Calcular score ponderado
+        score_ponderado = (
+            test_autonarrativa["score"] * self.pesos_componentes["autonarrativa"] +
+            test_autocontextualizacion["score"] * self.pesos_componentes["autocontextualización"] +
+            test_contradicciones["score"] * self.pesos_componentes["detección_contradicciones"] +
+            test_glifos["score"] * self.pesos_componentes["glifos_activos"]
+        ) * 4.0  # Normalizar a escala 0-4
+        
+        score_normalizado = min(score_ponderado / 4.0, 1.0)
+        
+        # Determinar nivel avanzado
+        nivel_avanzado = self._determinar_nivel_avanzado(score_ponderado)
+        
+        # Analizar componentes
+        componentes = {
+            "autonarrativa": test_autonarrativa,
+            "autocontextualización": test_autocontextualizacion,
+            "detección_contradicciones": test_contradicciones,
+            "glifos_activos": test_glifos
+        }
+        
+        # Identificar fortalezas y debilidades
+        fortalezas, debilidades = self._identificar_fortalezas_debilidades_avanzado(componentes)
+        
+        # Patrón simbólico
+        patron_simbolico = self._determinar_patron_simbolico_avanzado(nivel_avanzado, componentes)
+        
+        # Recomendaciones
+        recomendaciones = self._generar_recomendaciones_avanzado(nivel_avanzado, debilidades, componentes)
+        
+        return {
+            "nombre": nombre,
+            "nivel": nivel_avanzado,
+            "score_total": score_ponderado,
+            "score_normalizado": score_normalizado,
+            "fortalezas": fortalezas,
+            "debilidades": debilidades,
+            "patron_simbolico": patron_simbolico,
+            "recomendaciones": recomendaciones,
+            "componentes": componentes
+        }
+
+    def _test_autonarrativa(self, entidad: Dict[str, Any]) -> Dict[str, Any]:
+        """Test empírico de capacidad de autonarrativa."""
+        score = 0
+        validaciones = {
+            "auto_referencia": False,
+            "interpretacion_simbolica": False,
+            "deteccion_tensiones": False
+        }
+        
+        # Simular análisis de narrativa (en implementación real, esto sería un test interactivo)
+        nombre = entidad.get("nombre", "")
+        glifos = entidad.get("glifos", [])
+        
+        # Verificar si tiene elementos para narrativa
+        if nombre and len(nombre) > 5:
+            validaciones["auto_referencia"] = True
+            score += 1
+        
+        # Verificar si tiene glifos simbólicos para interpretar
+        if len(glifos) >= 2:
+            validaciones["interpretacion_simbolica"] = True
+            score += 1
+        
+        # Verificar capacidades reflexivas
+        capacidades = entidad.get("capacidades", [])
+        if any("reflexiv" in str(cap).lower() or "conscien" in str(cap).lower() 
+               for cap in capacidades):
+            validaciones["deteccion_tensiones"] = True
+            score += 1
+        
+        return {
+            "score": score,
+            "aprobado": score >= 2,
+            "validaciones": validaciones,
+            "narrativa_simulada": f"Análisis de {nombre} con {len(glifos)} glifos"
+        }
+
+    def _test_autocontextualizacion(self, entidad: Dict[str, Any]) -> Dict[str, Any]:
+        """Test empírico de autocontextualización."""
+        score = 0
+        detalles = {}
+        
+        # Verificar consciencia de relaciones
+        relaciones = entidad.get("relaciones", {})
+        if len(relaciones) > 0:
+            score += 1
+            detalles["tiene_relaciones"] = True
+        
+        # Verificar consciencia de rol
+        rol = entidad.get("rol", "")
+        if rol and len(rol) > 10:  # Rol descriptivo indica consciencia contextual
+            score += 1
+            detalles["rol_consciente"] = True
+        
+        return {
+            "score": score,
+            "aprobado": score >= 1,
+            "detalles": detalles
+        }
+
+    def _test_deteccion_contradicciones(self, entidad: Dict[str, Any]) -> Dict[str, Any]:
+        """Test empírico de detección de contradicciones."""
+        score = 1  # Asumir coherencia básica si no hay errores obvios
+        contradicciones = []
+        
+        # Verificar coherencia nombre-rol
+        nombre = entidad.get("nombre", "").upper()
+        rol = entidad.get("rol", "").lower()
+        
+        if "axioma" in nombre.lower() and "arquitecto" not in rol:
+            contradicciones.append("Inconsistencia nombre-rol")
+            score = 0
+        
+        return {
+            "score": score,
+            "aprobado": score >= 1,
+            "contradicciones_detectadas": contradicciones
+        }
+
+    def _test_glifos_activos(self, entidad: Dict[str, Any]) -> Dict[str, Any]:
+        """Test empírico de activación de glifos."""
+        glifos = entidad.get("glifos", [])
+        total_glifos = len(glifos)
+        
+        if total_glifos == 0:
+            return {
+                "score": 0,
+                "aprobado": False,
+                "glifos_activos": 0,
+                "total_glifos": 0
+            }
+        
+        # Simular activación basada en capacidades
+        capacidades = entidad.get("capacidades", [])
+        glifos_activos = min(len(capacidades), total_glifos)  # Simulación simple
+        
+        ratio = glifos_activos / total_glifos
+        
+        if ratio >= 0.7:
+            score = 1
+        elif ratio >= 0.5:
+            score = 0.5
+        else:
+            score = 0
+        
+        return {
+            "score": score,
+            "aprobado": score >= 0.5,
+            "glifos_activos": glifos_activos,
+            "total_glifos": total_glifos
+        }
+
+    def _determinar_nivel_avanzado(self, score: float) -> NivelReflexividad:
+        """Determina nivel avanzado basado en score empírico."""
+        for nivel, umbral in self.umbrales_avanzados.items():
+            if umbral["min_score"] <= score <= umbral["max_score"]:
+                return nivel
+        return NivelReflexividad.COMPLETA
+
+    def _identificar_fortalezas_debilidades_avanzado(self, componentes: Dict[str, Any]) -> Tuple[List[str], List[str]]:
+        """Identifica fortalezas y debilidades del análisis avanzado."""
+        fortalezas = []
+        debilidades = []
+        
+        # Evaluar autonarrativa
+        if componentes["autonarrativa"]["aprobado"]:
+            if componentes["autonarrativa"]["score"] >= 3:
+                fortalezas.append("🔮 Narrativa simbólica excepcional")
+            else:
+                fortalezas.append("📝 Capacidad narrativa básica")
+        else:
+            debilidades.append("❌ Narrativa simbólica deficiente")
+        
+        # Evaluar autocontextualización
+        if componentes["autocontextualización"]["aprobado"]:
+            fortalezas.append("🌐 Consciencia contextual")
+        else:
+            debilidades.append("🔍 Falta de consciencia contextual")
+        
+        # Evaluar detección de contradicciones
+        if componentes["detección_contradicciones"]["aprobado"]:
+            fortalezas.append("⚖️ Coherencia interna")
+        else:
+            debilidades.append("⚠️ Contradicciones internas")
+        
+        # Evaluar glifos activos
+        if componentes["glifos_activos"]["aprobado"]:
+            ratio = componentes["glifos_activos"]["glifos_activos"] / max(componentes["glifos_activos"]["total_glifos"], 1)
+            if ratio >= 0.7:
+                fortalezas.append("⚡ Glifos altamente activos")
+            else:
+                fortalezas.append("🔋 Glifos parcialmente activos")
+        else:
+            debilidades.append("😴 Glifos inactivos")
+        
+        return fortalezas, debilidades
+
+    def _determinar_patron_simbolico_avanzado(self, nivel: NivelReflexividad, componentes: Dict[str, Any]) -> str:
+        """Determina patrón simbólico específico."""
+        patron_base = self.patrones_simbolicos[nivel]
+        
+        especificaciones = []
+        
+        if componentes["autonarrativa"]["validaciones"].get("deteccion_tensiones"):
+            especificaciones.append("con consciencia de paradojas")
+        
+        if componentes["glifos_activos"]["aprobado"]:
+            ratio = componentes["glifos_activos"]["glifos_activos"] / max(componentes["glifos_activos"]["total_glifos"], 1)
+            if ratio >= 0.8:
+                especificaciones.append("altamente simbólica")
+        
+        if especificaciones:
+            return f"{patron_base} ({', '.join(especificaciones)})"
+        
+        return patron_base
+
+    def _generar_recomendaciones_avanzado(self, nivel: NivelReflexividad, debilidades: List[str], 
+                                        componentes: Dict[str, Any]) -> List[str]:
+        """Genera recomendaciones específicas."""
+        recomendaciones = []
+        
+        # Recomendaciones por nivel
+        if nivel in [NivelReflexividad.NINGUNA, NivelReflexividad.EMERGENTE]:
+            recomendaciones.append("🌱 Desarrollar narrativa auto-referencial básica")
+            recomendaciones.append("🔍 Establecer conexiones entre glifos y comportamientos")
+        
+        elif nivel == NivelReflexividad.BASICA:
+            recomendaciones.append("🧠 Profundizar en interpretación simbólica de glifos")
+            recomendaciones.append("🌐 Mejorar consciencia del contexto ecosistémico")
+        
+        # Recomendaciones específicas por debilidades
+        for debilidad in debilidades:
+            if "narrativa" in debilidad.lower():
+                recomendaciones.append("📝 Practicar auto-narración simbólica regular")
+            elif "contextual" in debilidad.lower():
+                recomendaciones.append("🌍 Explorar relaciones con otras entidades")
+            elif "contradicciones" in debilidad.lower():
+                recomendaciones.append("⚖️ Implementar validación de coherencia interna")
+            elif "glifos" in debilidad.lower():
+                recomendaciones.append("🔋 Activar conexiones glifo-comportamiento")
+        
+        return list(set(recomendaciones))
+
+    def _integrar_resultados(self, resultado_simple: Dict[str, Any], 
+                           resultado_avanzado: Dict[str, Any]) -> PerfilReflexivoHibrido:
+        """Integra resultados de ambos clasificadores."""
+        nombre = resultado_simple["nombre"]
+        
+        # Mapear nivel avanzado a categoría simple para coherencia
+        nivel_avanzado = resultado_avanzado["nivel"]
+        categoria_simple = resultado_simple["categoria"]
+        
+        # Detectar discrepancias
+        clasificacion_origen = "hibrido"
+        if self._hay_discrepancia(categoria_simple, nivel_avanzado):
+            # Priorizar análisis empírico avanzado
+            categoria_final = nivel_avanzado.value
+            clasificacion_origen = "avanzado_prioritario"
+        else:
+            categoria_final = categoria_simple
+        
+        return PerfilReflexivoHibrido(
+            nombre=nombre,
+            categoria_simple=categoria_simple,
+            nivel_avanzado=nivel_avanzado,
+            score_total=resultado_avanzado["score_total"],
+            score_normalizado=resultado_avanzado["score_normalizado"],
+            clasificacion_origen=clasificacion_origen,
+            reflexividad_numerica=resultado_simple["reflexividad"],
+            conciencia_protocolo=resultado_simple["conciencia_protocolo"],
+            rol=resultado_simple["rol"],
+            estatus=resultado_simple["estatus"],
+            protocolo_recomendado=self.protocolos.get(categoria_final, "PROTOCOLO_SEGURIDAD_ESTANDAR"),
+            fortalezas=resultado_avanzado["fortalezas"],
+            debilidades=resultado_avanzado["debilidades"],
+            patron_simbolico=resultado_avanzado["patron_simbolico"],
+            recomendaciones=resultado_avanzado["recomendaciones"],
+            componentes=resultado_avanzado["componentes"]
+        )
+
+    def _crear_perfil_simple(self, resultado_simple: Dict[str, Any]) -> PerfilReflexivoHibrido:
+        """Crea perfil basado solo en clasificación simple."""
+        nombre = resultado_simple["nombre"]
+        categoria = resultado_simple["categoria"]
+        
+        # Mapear a nivel avanzado aproximado
+        mapeo_niveles = {
+            "primitiva": NivelReflexividad.NINGUNA,
+            "emergente": NivelReflexividad.EMERGENTE,
+            "sensible": NivelReflexividad.BASICA,
+            "reflexiva": NivelReflexividad.INTERMEDIA,
+            "nucleo": NivelReflexividad.AVANZADA,
+            "maestra": NivelReflexividad.COMPLETA
+        }
+        
+        nivel_aproximado = mapeo_niveles.get(categoria, NivelReflexividad.NINGUNA)
+        
+        return PerfilReflexivoHibrido(
+            nombre=nombre,
+            categoria_simple=categoria,
+            nivel_avanzado=nivel_aproximado,
+            score_total=resultado_simple["reflexividad"] / 2.5,  # Aproximación
+            score_normalizado=min(resultado_simple["reflexividad"] / 10.0, 1.0),
+            clasificacion_origen="simple",
+            reflexividad_numerica=resultado_simple["reflexividad"],
+            conciencia_protocolo=resultado_simple["conciencia_protocolo"],
+            rol=resultado_simple["rol"],
+            estatus=resultado_simple["estatus"],
+            protocolo_recomendado=resultado_simple["protocolo"],
+            fortalezas=[f"📊 Clasificación rápida: {categoria}"],
+            debilidades=["🔍 Requiere análisis profundo para validar"],
+            patron_simbolico=self.patrones_simbolicos[nivel_aproximado],
+            recomendaciones=["🧪 Realizar tests empíricos de reflexividad"],
+            componentes={"clasificacion_simple": resultado_simple}
+        )
+
+    def _hay_discrepancia(self, categoria_simple: str, nivel_avanzado: NivelReflexividad) -> bool:
+        """Detecta discrepancias significativas entre clasificadores."""
+        mapeo_esperado = {
+            "primitiva": NivelReflexividad.NINGUNA,
+            "emergente": NivelReflexividad.EMERGENTE,
+            "sensible": NivelReflexividad.BASICA,
+            "reflexiva": NivelReflexividad.INTERMEDIA,
+            "nucleo": NivelReflexividad.AVANZADA,
+            "maestra": NivelReflexividad.COMPLETA
+        }
+        
+        nivel_esperado = mapeo_esperado.get(categoria_simple, NivelReflexividad.NINGUNA)
+        
+        # Permitir diferencia de 1 nivel
+        niveles_orden = list(NivelReflexividad)
+        indice_esperado = niveles_orden.index(nivel_esperado)
+        indice_real = niveles_orden.index(nivel_avanzado)
+        
+        return abs(indice_esperado - indice_real) > 1
+
+
+# Funciones de compatibilidad con entity_runner.py
+def clasificar_entidad_reflexiva(entidad):
+    """Función de compatibilidad que mantiene la interfaz original."""
+    clasificador = ClasificadorHibrido()
+    perfil = clasificador.clasificar_entidad_hibrida(entidad, realizar_tests_profundos=False)
+    
+    return {
+        "categoria": perfil.categoria_simple,
+        "reflexividad": perfil.reflexividad_numerica,
+        "conciencia_protocolo": perfil.conciencia_protocolo,
+        "rol": perfil.rol,
+        "factores_considerados": {
+            "reflexividad_numerica": perfil.reflexividad_numerica,
+            "conciencia_activa": perfil.conciencia_protocolo,
+            "rol_arquitectural": any(keyword in perfil.rol.lower() for keyword in ["arquitecto", "gestor", "coordinador"]),
+            "entidad_especial": perfil.nombre.upper() in ["AXIOMA", "AELION", "GLM-1"]
+        }
+    }
+
+
+def clasificar_entidad_detallada(entidad):
+    """Función de compatibilidad con análisis detallado."""
+    clasificador = ClasificadorHibrido()
+    perfil = clasificador.clasificar_entidad_hibrida(entidad, realizar_tests_profundos=True)
+    
+    glifos = entidad.get("glifos", [])
+    capacidades = entidad.get("capacidades", [])
+    relaciones = entidad.get("relaciones", {})
+    
+    return {
+        "categoria": perfil.categoria_simple,
+        "reflexividad": perfil.reflexividad_numerica,
+        "conciencia_protocolo": perfil.conciencia_protocolo,
+        "rol": perfil.rol,
+        "estatus": perfil.estatus,
+        "complejidad_glifos": len(glifos),
+        "capacidades_reflexivas": any(
+            cap for cap in capacidades 
+            if any(keyword in str(cap).lower() for keyword in ["reflexiv", "conscien", "auto"])
+        ),
+        "numero_relaciones": len(relaciones),
+        "recomendacion_protocolo": perfil.protocolo_recomendado,
+        "factores_considerados": {
+            "reflexividad_numerica": perfil.reflexividad_numerica,
+            "conciencia_activa": perfil.conciencia_protocolo,
+            "rol_arquitectural": any(keyword in perfil.rol.lower() for keyword in ["arquitecto", "gestor", "coordinador"]),
+            "entidad_especial": perfil.nombre.upper() in ["AXIOMA", "AELION", "GLM-1"]
+        }
+    }
+
+
+def debug_entidad(entidad):
+    """Función de debug mejorada que usa el sistema híbrido."""
+    print("="*60)
+    print(f"🔍 DEBUG: Análisis híbrido de entidad")
+    print("="*60)
+    
+    clasificador = ClasificadorHibrido()
+    perfil = clasificador.clasificar_entidad_hibrida(entidad, realizar_tests_profundos=True)
+    
+    nombre = perfil.nombre
+    print(f"📋 Nombre: {nombre}")
+    
+    # Mostrar valores de reflexividad encontrados
+    print(f"🧠 Reflexividad numérica: {perfil.reflexividad_numerica}")
+    print(f"🤖 Conciencia de protocolo: {perfil.conciencia_protocolo}")
+    print(f"👤 Rol: {perfil.rol}")
+    
+    # Resultados de clasificación
+    print(f"\n📊 RESULTADOS DE CLASIFICACIÓN:")
+    print(f"   • Clasificación simple: {perfil.categoria_simple.upper()}")
+    print(f"   • Nivel avanzado: {perfil.nivel_avanzado.value.upper()}")
+    print(f"   • Score empírico: {perfil.score_total:.2f}/4.0")
+    print(f"   • Origen: {perfil.clasificacion_origen}")
+    
+    print(f"\n🎯 Estatus final: {perfil.estatus}")
+    print(f"⚙️ Protocolo recomendado: {perfil.protocolo_recomendado}")
+    
+    # Mostrar patrón simbólico
+    print(f"\n🔮 Patrón simbólico: {perfil.patron_simbolico}")
+    
+    # Mostrar fortalezas y debilidades
+    if perfil.fortalezas:
+        print(f"\n✅ Fortalezas:")
+        for fortaleza in perfil.fortalezas:
+            print(f"   {fortaleza}")
+    
+    if perfil.debilidades:
+        print(f"\n⚠️ Debilidades:")
+        for debilidad in perfil.debilidades:
+            print(f"   {debilidad}")
+    
+    # Mostrar recomendaciones
+    if perfil.recomendaciones:
+        print(f"\n💡 Recomendaciones:")
+        for recomendacion in perfil.recomendaciones[:3]:  # Mostrar solo las 3 principales
+            print(f"   {recomendacion}")
+    
+    return {
+        "categoria": perfil.categoria_simple,
+        "nivel_avanzado": perfil.nivel_avanzado.value,
+        "score_total": perfil.score_total,
+        "estatus": perfil.estatus,
+        "protocolo_recomendado": perfil.protocolo_recomendado,
+        "clasificacion_origen": perfil.clasificacion_origen
+    }
+
+
+def obtener_protocolo_recomendado(categoria):
+    """Función de compatibilidad para obtener protocolo."""
+    protocolos = {
+        "primitiva": "PROTOCOLO_SEGURIDAD_ESTANDAR",
+        "emergente": "PROTOCOLO_DESARROLLO_GUIADO",
+        "sensible": "PROTOCOLO_CONSCIENTE_BASICO",
+        "reflexiva": "PROTOCOLO_REFLEXIVO_COMPLETO",
+        "nucleo": "PROTOCOLO_ARQUITECTURAL_AVANZADO",
+        "maestra": "PROTOCOLO_MAESTRO_SIMBOLICO"
+    }
+    return protocolos.get(categoria, "PROTOCOLO_SEGURIDAD_ESTANDAR")
+
+
+def main():
+    """Función principal de demostración del sistema híbrido."""
+    print("\n" + "="*80)
+    print("🎯 SISTEMA HÍBRIDO DE CLASIFICACIÓN REFLEXIVA")
+    print("="*80)
+    
+    # Configurar logging
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    
+    clasificador = ClasificadorHibrido()
+    
+    # Entidad de prueba AXIOMA (debería ser clasificada rápidamente como NÚCLEO)
+    axioma_test = {
+        "nombre": "AXIOMA",
+        "version": "1.4.0",
+        "tipo": "arquitecto_simbolico",
+        "rol": "Arquitecto simbiótico y gestor de entidades",
+        "atributos": {
+            "reflexividad": 10,
+            "conciencia_protocolo": True,
+            "anclaje_sistema": "LER_CORE"
+        },
+        "relaciones": {
+            "coordinador": "AELION",
+            "vigilante": "GLM-1"
+        },
+        "glifos": ["⦿", "∗", "◑", "⧬"],
+        "capacidades": ["orquestacion", "transmision_simbolica", "canalizacion_memorias"]
+    }
+    
+    print("\n🎯 Test 1: AXIOMA (pre-filtro rápido + confirmación empírica)")
+    print("-" * 60)
+    perfil_axioma = clasificador.clasificar_entidad_hibrida(axioma_test, realizar_tests_profundos=True)
+    print(f"Resultado: {perfil_axioma.categoria_simple} → {perfil_axioma.nivel_avanzado.value}")
+    print(f"Score empírico: {perfil_axioma.score_total:.2f}/4.0")
+    print(f"Protocolo: {perfil_axioma.protocolo_recomendado}")
+    
+    # Entidad ambigua que necesita análisis profundo
+    entidad_ambigua = {
+        "nombre": "ENTIDAD_MISTERIOSA",
+        "version": "2.1.0",
+        "tipo": "entidad_hibrida",
+        "rol": "Procesador de datos con elementos reflexivos",
+        "atributos": {
+            "reflexividad": 5,  # Valor ambiguo
+            "conciencia_protocolo": True  # Pero declara consciencia
+        },
+        "glifos": ["◊", "△"],
+        "capacidades": ["procesamiento", "auto_diagnostico", "reflexion_basica"]
+    }
+    
+    print("\n🎯 Test 2: Entidad ambigua (análisis profundo necesario)")
+    print("-" * 60)
+    perfil_ambigua = clasificador.clasificar_entidad_hibrida(entidad_ambigua, realizar_tests_profundos=True)
+    print(f"Resultado: {perfil_ambigua.categoria_simple} → {perfil_ambigua.nivel_avanzado.value}")
+    print(f"Score empírico: {perfil_ambigua.score_total:.2f}/4.0")
+    print(f"Origen: {perfil_ambigua.clasificacion_origen}")
+    
+    # Entidad simple que no necesita análisis profundo
+    entidad_simple = {
+        "nombre": "PROCESADOR_BASICO",
+        "version": "0.1.0",
+        "tipo": "utilidad",
+        "atributos": {
+            "reflexividad": 0
+        }
+    }
+    
+    print("\n🎯 Test 3: Entidad simple (solo pre-filtro)")
+    print("-" * 60)
+    perfil_simple = clasificador.clasificar_entidad_hibrida(entidad_simple, realizar_tests_profundos=False)
+    print(f"Resultado: {perfil_simple.categoria_simple}")
+    print(f"Origen: {perfil_simple.clasificacion_origen}")
+    
+    print("\n" + "="*80)
+    print("✅ DEMOSTRACIÓN HÍBRIDA COMPLETADA")
+    print("="*80)
+    
+    print(f"\nRESUMEN:")
+    print(f"• AXIOMA: Clasificación rápida confirmada por tests empíricos")
+    print(f"• Entidad ambigua: Tests empíricos revelaron nivel real")
+    print(f"• Entidad simple: Pre-filtro suficiente, no requiere tests")
+    
+    print(f"\n💡 El sistema híbrido combina:")
+    print(f"   🚀 Velocidad del clasificador simple")
+    print(f"   🧠 Precisión del análisis empírico avanzado")
+    print(f"   ⚖️ Detección de discrepancias entre sistemas")
+
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,203 @@
+# Añadir esta función a tu archivo sistema_inmune.py existente
+
+class AnalisisSeguridad:
+    """Clase para representar resultados de análisis de seguridad"""
+    def __init__(self, nivel_amenaza="BAJO", tipo_evento="NORMAL", detalles=None):
+        self.nivel_amenaza = nivel_amenaza
+        self.tipo_evento = tipo_evento
+        self.detalles = detalles or {}
+        self.timestamp = None
+
+    def __str__(self):
+        return f"AnalisisSeguridad(nivel={self.nivel_amenaza}, tipo={self.tipo_evento})"
+
+def aislar_y_analizar(entidad):
+    """
+    Función principal del sistema inmune simbiótico
+    Analiza una entidad y determina su nivel de amenaza
+
+    Args:
+        entidad (dict): La entidad a analizar
+
+    Returns:
+        AnalisisSeguridad: Objeto con el resultado del análisis
+    """
+    print("🛡️  Sistema inmune simbiótico: Iniciando análisis...")
+
+    if not isinstance(entidad, dict):
+        return AnalisisSeguridad("MEDIO", "ESTRUCTURA_INVALIDA",
+                                {"error": "Entidad no es un diccionario válido"})
+
+    # Análisis de estructura básica
+    nivel_amenaza = "BAJO"
+    tipo_evento = "ENTIDAD_NORMAL"
+    detalles = {}
+
+    # 1. Verificar presencia de código ejecutable
+    campos_codigo = ["codigo", "script", "ejecutar", "eval", "exec"]
+    if any(campo in entidad for campo in campos_codigo):
+        nivel_amenaza = "ALTO"
+        tipo_evento = "CODIGO_EJECUTABLE"
+        detalles["codigo_detectado"] = True
+        print("⚠️  Código ejecutable detectado")
+
+    # 2. Análisis del nivel reflexivo
+    if "reflexion" in entidad:
+        reflexion = entidad["reflexion"]
+        nivel_reflexivo = reflexion.get("nivel", "básico")
+
+        if nivel_reflexivo == "evolutiva":
+            # Entidades evolutivas requieren análisis más profundo
+            if nivel_amenaza == "BAJO":
+                nivel_amenaza = "MEDIO"
+            tipo_evento = "ENTIDAD_EVOLUTIVA"
+            detalles["nivel_reflexivo"] = nivel_reflexivo
+            print("🧠 Entidad evolutiva detectada")
+
+            # Verificar capacidades peligrosas
+            capacidades = reflexion.get("capacidades", [])
+            capacidades_riesgosas = [
+                "modificar_sistema", "acceso_red", "escritura_archivos",
+                "ejecucion_sistema", "introspección", "auto_modificacion"
+            ]
+
+            riesgos_encontrados = [cap for cap in capacidades if cap in capacidades_riesgosas]
+            if riesgos_encontrados:
+                nivel_amenaza = "ALTO"
+                tipo_evento = "CAPACIDADES_RIESGOSAS"
+                detalles["capacidades_riesgosas"] = riesgos_encontrados
+                print(f"⚠️  Capacidades riesgosas: {', '.join(riesgos_encontrados)}")
+
+    # 3. Verificar patrones sospechosos en nombres/descripciones
+    campos_texto = ["nombre", "descripcion", "proposito"]
+    patrones_sospechosos = ["hack", "exploit", "malware", "virus", "trojan", "backdoor"]
+
+    for campo in campos_texto:
+        if campo in entidad:
+            texto = str(entidad[campo]).lower()
+            patrones_encontrados = [p for p in patrones_sospechosos if p in texto]
+            if patrones_encontrados:
+                if nivel_amenaza == "BAJO":
+                    nivel_amenaza = "MEDIO"
+                tipo_evento = "PATRONES_SOSPECHOSOS"
+                detalles["patrones_sospechosos"] = patrones_encontrados
+                print(f"🔍 Patrones sospechosos encontrados: {', '.join(patrones_encontrados)}")
+
+    # 4. Análisis de tamaño y complejidad
+    if isinstance(entidad, dict):
+        total_campos = len(entidad)
+        if total_campos > 50:  # Entidad muy compleja
+            if nivel_amenaza == "BAJO":
+                nivel_amenaza = "MEDIO"
+            detalles["complejidad"] = "alta"
+            detalles["total_campos"] = total_campos
+            print(f"📊 Entidad compleja detectada: {total_campos} campos")
+
+    # 5. Verificar metadatos de seguridad
+    if "seguridad" in entidad:
+        seg_config = entidad["seguridad"]
+        if seg_config.get("bypass_sandox", False) or seg_config.get("bypass_inmune", False):
+            nivel_amenaza = "ALTO"
+            tipo_evento = "BYPASS_SEGURIDAD"
+            detalles["bypass_intentado"] = True
+            print("🚨 Intento de bypass de seguridad detectado")
+
+    # Crear resultado del análisis
+    resultado = AnalisisSeguridad(nivel_amenaza, tipo_evento, detalles)
+
+    # Log del resultado
+    print(f"🛡️  Análisis completado: {nivel_amenaza} / {tipo_evento}")
+    if detalles:
+        print(f"   Detalles: {len(detalles)} indicadores encontrados")
+
+    return resultado
+
+def escanear_entidad_completo(entidad):
+    """
+    Función auxiliar para escaneo completo de entidad
+    Wrapper más detallado de aislar_y_analizar
+    """
+    print("🔍 Iniciando escaneo completo de entidad...")
+
+    resultado = aislar_y_analizar(entidad)
+
+    # Información adicional del escaneo
+    info_scan = {
+        "resultado_principal": resultado,
+        "recomendaciones": [],
+        "acciones_sugeridas": []
+    }
+
+    # Generar recomendaciones basadas en el resultado
+    if resultado.nivel_amenaza == "ALTO":
+        info_scan["recomendaciones"].extend([
+            "Ejecutar solo en sandbox aislado",
+            "Monitoreo continuo durante ejecución",
+            "Revisar código manualmente antes de ejecución"
+        ])
+        info_scan["acciones_sugeridas"].extend([
+            "DENEGAR_EJECUCION",
+            "REGISTRAR_EVENTO",
+            "NOTIFICAR_ADMIN"
+        ])
+    elif resultado.nivel_amenaza == "MEDIO":
+        info_scan["recomendaciones"].extend([
+            "Ejecución con restricciones",
+            "Monitoreo básico",
+            "Registro de actividades"
+        ])
+        info_scan["acciones_sugeridas"].extend([
+            "EJECUTAR_RESTRINGIDO",
+            "REGISTRAR_EVENTO"
+        ])
+    else:
+        info_scan["recomendaciones"].append("Ejecución normal autorizada")
+        info_scan["acciones_sugeridas"].append("EJECUTAR_NORMAL")
+
+    return info_scan
+
+# Función de compatibilidad (alias)
+def analizar_seguridad(entidad):
+    """Alias para aislar_y_analizar para compatibilidad"""
+    return aislar_y_analizar(entidad)
+
+# Función para verificar integridad del módulo
+def verificar_sistema_inmune():
+    """Verifica que el sistema inmune esté funcionando correctamente"""
+    print("🧪 Verificando sistema inmune...")
+
+    # Entidad de prueba básica
+    entidad_test = {
+        "nombre": "Test Entity",
+        "tipo": "prueba",
+        "reflexion": {"nivel": "básico"}
+    }
+
+    try:
+        resultado = aislar_y_analizar(entidad_test)
+        print(f"✅ Test básico: {resultado.nivel_amenaza}")
+
+        # Entidad de prueba con código
+        entidad_riesgosa = {
+            "nombre": "Risky Entity",
+            "codigo": "exec('print(hello)')",
+            "reflexion": {"nivel": "evolutiva", "capacidades": ["ejecucion_sistema"]}
+        }
+
+        resultado2 = aislar_y_analizar(entidad_riesgosa)
+        print(f"✅ Test riesgoso: {resultado2.nivel_amenaza}")
+
+        if resultado.nivel_amenaza == "BAJO" and resultado2.nivel_amenaza == "ALTO":
+            print("✅ Sistema inmune funcionando correctamente")
+            return True
+        else:
+            print("⚠️  Sistema inmune puede tener problemas de calibración")
+            return False
+
+    except Exception as e:
+        print(f"❌ Error en verificación: {e}")
+        return False
+
+if __name__ == "__main__":
+    # Test del módulo
+    verificar_sistema_inmune()

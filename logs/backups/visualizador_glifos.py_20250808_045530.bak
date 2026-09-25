@@ -1,0 +1,710 @@
+#!/usr/bin/env python3
+"""
+Visualizador de glifos LER en terminal (mejorado).
+Características: colores, animaciones, persistencia, estadísticas.
+"""
+import json
+import os
+import sys
+import time
+import random
+from datetime import datetime
+from collections import Counter
+from pathlib import Path
+
+# === CONFIGURACIÓN ===
+CONFIG = {
+    "usar_colores": True,
+    "animaciones": True,
+    "archivo_cadenas": "cadenas_ler.json",
+    "archivo_stats": "stats_ler.json"
+}
+
+# === GLOSARIO EXPANDIDO ===
+GLOSARIO = {
+    "GLA": {"glifo": "●", "nombre": "Origen", "categoria": "fundamental", "descripcion": "Punto de inicio, semilla primordial", "unicode": "U+25CF"},
+    "GLB": {"glifo": "◐", "nombre": "Dualidad", "categoria": "estructura", "descripcion": "Reflejo de sí mismo, polaridades", "unicode": "U+25D0"},
+    "GLC": {"glifo": "↻", "nombre": "Cambio", "categoria": "proceso", "descripcion": "Iteración activa, transformación", "unicode": "U+21BB"},
+    "GLD": {"glifo": "✱", "nombre": "Nodo", "categoria": "conexion", "descripcion": "Punto de convergencia múltiple", "unicode": "U+2731"},
+    "GLE": {"glifo": "⚡", "nombre": "Energía", "categoria": "fuerza", "descripcion": "Impulso simbólico dinámico", "unicode": "U+26A1"},
+    "GLF": {"glifo": "■", "nombre": "Frontera", "categoria": "limite", "descripcion": "Límite del sistema, contención", "unicode": "U+25A0"},
+    "GLG": {"glifo": "◆", "nombre": "Memoria", "categoria": "estado", "descripcion": "Registro persistente temporal", "unicode": "U+25C6"},
+    "GLH": {"glifo": "≈", "nombre": "Eco", "categoria": "resonancia", "descripcion": "Réplica difusa, reverberación", "unicode": "U+2248"},
+    "GLI": {"glifo": "△", "nombre": "Ascenso", "categoria": "direccion", "descripcion": "Movimiento hacia lo superior", "unicode": "U+25B3"},
+    "GLJ": {"glifo": "▽", "nombre": "Descenso", "categoria": "direccion", "descripcion": "Movimiento hacia lo profundo", "unicode": "U+25BD"},
+    "GLK": {"glifo": "○", "nombre": "Ciclo", "categoria": "tiempo", "descripcion": "Retorno eterno, completitud", "unicode": "U+25CB"},
+    "GLL": {"glifo": "◇", "nombre": "Vacío", "categoria": "espacio", "descripcion": "Potencial no manifestado", "unicode": "U+25C7"},
+    "GLM": {"glifo": "※", "nombre": "Atención", "categoria": "percepcion", "descripcion": "Foco de consciencia activa", "unicode": "U+203B"},
+    "GLN": {"glifo": "⟐", "nombre": "Portal", "categoria": "transicion", "descripcion": "Pasaje entre estados", "unicode": "U+27D0"},
+    "GLO": {"glifo": "◉", "nombre": "Centro", "categoria": "estructura", "descripcion": "Núcleo, equilibrio central", "unicode": "U+25C9"},
+}
+
+# === COLORES ANSI ===
+class Colores:
+    RESET = '\033[0m'
+    BOLD = '\033[1m'
+    DIM = '\033[2m'
+    ITALIC = '\033[3m'
+    UNDERLINE = '\033[4m'
+    
+    # Colores básicos
+    NEGRO = '\033[30m'
+    ROJO = '\033[31m'
+    VERDE = '\033[32m'
+    AMARILLO = '\033[33m'
+    AZUL = '\033[34m'
+    MAGENTA = '\033[35m'
+    CYAN = '\033[36m'
+    BLANCO = '\033[37m'
+    
+    # Colores brillantes
+    ROJO_BRILLANTE = '\033[91m'
+    VERDE_BRILLANTE = '\033[92m'
+    AMARILLO_BRILLANTE = '\033[93m'
+    AZUL_BRILLANTE = '\033[94m'
+    MAGENTA_BRILLANTE = '\033[95m'
+    CYAN_BRILLANTE = '\033[96m'
+    BLANCO_BRILLANTE = '\033[97m'
+    
+    # Fondos
+    BG_NEGRO = '\033[40m'
+    BG_ROJO = '\033[41m'
+    BG_VERDE = '\033[42m'
+    BG_AMARILLO = '\033[43m'
+    BG_AZUL = '\033[44m'
+    BG_MAGENTA = '\033[45m'
+    BG_CYAN = '\033[46m'
+    BG_BLANCO = '\033[47m'
+
+# Mapeo de categorías a colores
+COLORES_CATEGORIA = {
+    "fundamental": Colores.ROJO_BRILLANTE,
+    "estructura": Colores.AZUL_BRILLANTE,
+    "proceso": Colores.VERDE_BRILLANTE,
+    "conexion": Colores.AMARILLO_BRILLANTE,
+    "fuerza": Colores.MAGENTA_BRILLANTE,
+    "limite": Colores.CYAN_BRILLANTE,
+    "estado": Colores.BLANCO_BRILLANTE,
+    "resonancia": Colores.MAGENTA,
+    "direccion": Colores.VERDE,
+    "tiempo": Colores.AZUL,
+    "espacio": Colores.CYAN,
+    "percepcion": Colores.AMARILLO,
+    "transicion": Colores.ROJO,
+}
+
+def colorear(texto, color="", negrita=False, cursiva=False):
+    """Aplica colores y estilos al texto si están habilitados."""
+    if not CONFIG["usar_colores"]:
+        return texto
+    
+    estilo = ""
+    if negrita: estilo += Colores.BOLD
+    if cursiva: estilo += Colores.ITALIC
+    
+    return f"{estilo}{color}{texto}{Colores.RESET}"
+
+def clear():
+    """Limpia la terminal."""
+    os.system('cls' if os.name == 'nt' else 'clear')
+
+def animacion_escritura(texto, delay=0.03):
+    """Efecto de escritura progresiva."""
+    if not CONFIG["animaciones"]:
+        print(texto)
+        return
+    
+    for char in texto:
+        print(char, end='', flush=True)
+        time.sleep(delay)
+    print()
+
+def mostrar_banner():
+    """Muestra el banner principal con estilo."""
+    clear()
+    banner = """
+╔═══════════════════════════════════════════════════════════════════════════════╗
+║                                                                               ║
+║    ██╗     ███████╗██████╗     ██╗   ██╗██╗███████╗██╗   ██╗ █████╗ ██╗      ║
+║    ██║     ██╔════╝██╔══██╗    ██║   ██║██║██╔════╝██║   ██║██╔══██╗██║      ║
+║    ██║     █████╗  ██████╔╝    ██║   ██║██║███████╗██║   ██║███████║██║      ║
+║    ██║     ██╔══╝  ██╔══██╗    ╚██╗ ██╔╝██║╚════██║██║   ██║██╔══██║██║      ║
+║    ███████╗███████╗██║  ██║     ╚████╔╝ ██║███████║╚██████╔╝██║  ██║███████╗ ║
+║    ╚══════╝╚══════╝╚═╝  ╚═╝      ╚═══╝  ╚═╝╚══════╝ ╚═════╝ ╚═╝  ╚═╝╚══════╝ ║
+║                                                                               ║
+║                        🔮 Sistema de Glifos Simbólicos 🔮                    ║
+║                                                                               ║
+╚═══════════════════════════════════════════════════════════════════════════════╝
+"""
+    print(colorear(banner, Colores.CYAN_BRILLANTE, negrita=True))
+
+def mostrar_estadisticas_globales():
+    """Muestra estadísticas de uso del sistema."""
+    try:
+        with open(CONFIG["archivo_stats"], 'r', encoding='utf-8') as f:
+            stats = json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        stats = {"glifos_utilizados": {}, "cadenas_creadas": 0, "sesiones": 0}
+    
+    print(colorear("📊 ESTADÍSTICAS GLOBALES", Colores.AMARILLO_BRILLANTE, negrita=True))
+    print(f"  Sesiones: {stats.get('sesiones', 0)}")
+    print(f"  Cadenas creadas: {stats.get('cadenas_creadas', 0)}")
+    
+    if stats.get("glifos_utilizados"):
+        print("  Glifos más utilizados:")
+        counter = Counter(stats["glifos_utilizados"])
+        for glifo, count in counter.most_common(3):
+            if glifo in [v["glifo"] for v in GLOSARIO.values()]:
+                nombre = next((v["nombre"] for v in GLOSARIO.values() if v["glifo"] == glifo), "Desconocido")
+                print(f"    {glifo} {nombre}: {count} veces")
+
+def actualizar_estadisticas(glifo_usado=None, cadena_creada=False):
+    """Actualiza las estadísticas de uso."""
+    try:
+        with open(CONFIG["archivo_stats"], 'r', encoding='utf-8') as f:
+            stats = json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        stats = {"glifos_utilizados": {}, "cadenas_creadas": 0, "sesiones": 0}
+    
+    if glifo_usado:
+        stats["glifos_utilizados"][glifo_usado] = stats["glifos_utilizados"].get(glifo_usado, 0) + 1
+    
+    if cadena_creada:
+        stats["cadenas_creadas"] += 1
+    
+    with open(CONFIG["archivo_stats"], 'w', encoding='utf-8') as f:
+        json.dump(stats, f, ensure_ascii=False, indent=2)
+
+def listar_glifos(categoria=None, filtro="", mostrar_detalle=False):
+    """Lista glifos con formato mejorado y colores."""
+    count = 0
+    print()
+    
+    if categoria:
+        titulo = f"GLIFOS DE CATEGORÍA: {categoria.upper()}"
+        color = COLORES_CATEGORIA.get(categoria, Colores.BLANCO)
+        print(colorear(titulo, color, negrita=True))
+    else:
+        print(colorear("TODOS LOS GLIFOS DISPONIBLES", Colores.CYAN_BRILLANTE, negrita=True))
+    
+    print("─" * 70)
+    
+    for codigo, datos in sorted(GLOSARIO.items()):
+        if categoria and datos["categoria"] != categoria:
+            continue
+        if filtro and filtro.lower() not in datos["nombre"].lower() and filtro not in datos["glifo"]:
+            continue
+        
+        count += 1
+        color_cat = COLORES_CATEGORIA.get(datos["categoria"], Colores.BLANCO)
+        
+        if mostrar_detalle:
+             print(f"{colorear(datos['glifo'], color_cat, negrita=True)}  "
+                   f"{colorear(datos['nombre'], Colores.BLANCO_BRILLANTE, negrita=True)} "
+                   f"({colorear(datos['categoria'], color_cat)})")
+             print(f"   {colorear(datos['descripcion'], Colores.DIM)}")
+             texto_codigo = f"Código: {codigo} | Unicode: {datos.get('unicode', 'N/A')}"
+             print(f"   {colorear(texto_codigo, Colores.DIM)}")
+             print()
+
+        else:
+            print(f"{colorear(datos['glifo'], color_cat, negrita=True)}  "
+                  f"{datos['nombre']:<15} "
+                  f"({colorear(datos['categoria'], color_cat)})")
+    
+    if count == 0:
+        print(colorear("No se encontraron glifos que coincidan con los criterios.", Colores.ROJO))
+    else:
+        print("─" * 70)
+        print(colorear(f"Total: {count} glifos", Colores.AMARILLO))
+
+def ver_detalle(glifo):
+    """Muestra información detallada de un glifo específico."""
+    for codigo, datos in GLOSARIO.items():
+        if datos["glifo"] == glifo or datos["nombre"].lower() == glifo.lower() or codigo == glifo.upper():
+            color_cat = COLORES_CATEGORIA.get(datos["categoria"], Colores.BLANCO)
+            
+            print("\n" + "═" * 60)
+            print(f"   {colorear(datos['glifo'], color_cat, negrita=True)}   {colorear(datos['nombre'].upper(), Colores.BLANCO_BRILLANTE, negrita=True)}")
+            print("═" * 60)
+            print(f"Código      : {colorear(codigo, Colores.AMARILLO)}")
+            print(f"Unicode     : {colorear(datos.get('unicode', 'N/A'), Colores.CYAN)}")
+            print(f"Categoría   : {colorear(datos['categoria'], color_cat)}")
+            print(f"Descripción : {colorear(datos['descripcion'], Colores.BLANCO)}")
+            print("═" * 60)
+            return True
+    
+    print(colorear("❌ Glifo no encontrado. Intente con el símbolo, nombre o código.", Colores.ROJO))
+    return False
+
+def guardar_cadena(cadena, nombre):
+    """Guarda una cadena simbólica en archivo."""
+    try:
+        with open(CONFIG["archivo_cadenas"], 'r', encoding='utf-8') as f:
+            cadenas = json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        cadenas = {}
+    
+    cadenas[nombre] = {
+        "glifos": cadena[:],
+        "fecha_creacion": datetime.now().isoformat(),
+        "longitud": len(cadena)
+    }
+    
+    with open(CONFIG["archivo_cadenas"], 'w', encoding='utf-8') as f:
+        json.dump(cadenas, f, ensure_ascii=False, indent=2)
+    
+    print(colorear(f"✅ Cadena '{nombre}' guardada exitosamente.", Colores.VERDE))
+
+def cargar_cadenas():
+    """Carga cadenas guardadas."""
+    try:
+        with open(CONFIG["archivo_cadenas"], 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        return {}
+
+def mostrar_cadenas_guardadas():
+    """Muestra todas las cadenas guardadas."""
+    cadenas = cargar_cadenas()
+    
+    if not cadenas:
+        print(colorear("📂 No hay cadenas guardadas.", Colores.AMARILLO))
+        return
+    
+    print(colorear("📚 CADENAS GUARDADAS", Colores.CYAN_BRILLANTE, negrita=True))
+    print("─" * 60)
+    
+    for nombre, datos in cadenas.items():
+        fecha = datetime.fromisoformat(datos["fecha_creacion"]).strftime("%d/%m/%Y %H:%M")
+        print(f"{colorear(nombre, Colores.BLANCO_BRILLANTE, negrita=True)}")
+        print(f"  Cadena: {' '.join(datos['glifos'])}")
+        print(f"  Longitud: {datos['longitud']} | Fecha: {colorear(fecha, Colores.DIM)}")
+        print()
+
+def analizar_cadena(cadena):
+    """Analiza patrones en una cadena simbólica."""
+    if not cadena:
+        return
+    
+    # Estadísticas básicas
+    categorias = []
+    glifos_info = []
+    
+    for glifo in cadena:
+        for datos in GLOSARIO.values():
+            if datos["glifo"] == glifo:
+                categorias.append(datos["categoria"])
+                glifos_info.append(datos)
+                break
+    
+    # Análisis
+    print(colorear("🔍 ANÁLISIS DE CADENA", Colores.MAGENTA_BRILLANTE, negrita=True))
+    print(f"Longitud total: {len(cadena)}")
+    print(f"Glifos únicos: {len(set(cadena))}")
+    
+    if categorias:
+        counter_cat = Counter(categorias)
+        print("Distribución por categorías:")
+        for cat, count in counter_cat.most_common():
+            color = COLORES_CATEGORIA.get(cat, Colores.BLANCO)
+            print(f"  {colorear(cat, color)}: {count}")
+    
+    # Patrones
+    if len(cadena) > 1:
+        repeticiones = [cadena[i] for i in range(len(cadena)-1) if cadena[i] == cadena[i+1]]
+        if repeticiones:
+            print(f"Repeticiones consecutivas: {set(repeticiones)}")
+
+def cadena_interactiva():
+    """Interfaz interactiva para crear cadenas simbólicas."""
+    cadena = []
+    
+    while True:
+        clear()
+        mostrar_banner()
+        
+        # Mostrar cadena actual
+        if cadena:
+            print(colorear("🔗 CADENA ACTUAL:", Colores.CYAN_BRILLANTE, negrita=True))
+            cadena_visual = " → ".join(cadena)
+            print(f"   {cadena_visual}")
+            print(f"   Longitud: {colorear(str(len(cadena)), Colores.AMARILLO)}")
+        else:
+            print(colorear("🔗 CADENA VACÍA", Colores.DIM))
+        
+        print("\n" + "─" * 60)
+        print(colorear("OPCIONES:", Colores.BLANCO_BRILLANTE, negrita=True))
+        print("1️⃣  Agregar glifo")
+        print("2️⃣  Ver detalle de glifo")
+        print("3️⃣  Eliminar último glifo")
+        print("4️⃣  Limpiar cadena")
+        print("5️⃣  Analizar cadena")
+        print("6️⃣  Guardar cadena")
+        print("7️⃣  Cargar cadena")
+        print("8️⃣  Generar cadena aleatoria")
+        print("0️⃣  Salir")
+        print("─" * 60)
+        
+        try:
+            opcion = input(colorear("Seleccione opción: ", Colores.AMARILLO)).strip()
+            
+            if opcion == "0":
+                if cadena:
+                    actualizar_estadisticas(cadena_creada=True)
+                break
+                
+            elif opcion == "1":
+                # Agregar glifo
+                print(colorear("\n📋 Glifos disponibles:", Colores.CYAN))
+                listar_glifos(mostrar_detalle=False)
+                glifo = input(colorear("\nGlifo a agregar (símbolo, nombre o código): ", Colores.AMARILLO)).strip()
+                
+                # Buscar glifo
+                glifo_encontrado = None
+                for datos in GLOSARIO.values():
+                    if (datos["glifo"] == glifo or 
+                        datos["nombre"].lower() == glifo.lower() or
+                        any(codigo.upper() == glifo.upper() for codigo in GLOSARIO.keys() if GLOSARIO[codigo] == datos)):
+                        glifo_encontrado = datos["glifo"]
+                        break
+                
+                if glifo_encontrado:
+                    cadena.append(glifo_encontrado)
+                    actualizar_estadisticas(glifo_usado=glifo_encontrado)
+                    print(colorear(f"✅ Glifo '{glifo_encontrado}' agregado.", Colores.VERDE))
+                else:
+                    print(colorear("❌ Glifo no encontrado.", Colores.ROJO))
+                input("\nPresione Enter para continuar...")
+                
+            elif opcion == "2":
+                # Ver detalle
+                glifo = input(colorear("Glifo a detallar: ", Colores.AMARILLO)).strip()
+                ver_detalle(glifo)
+                input(colorear("\nPresione Enter para continuar...", Colores.DIM))
+                
+            elif opcion == "3":
+                # Eliminar último
+                if cadena:
+                    eliminado = cadena.pop()
+                    print(colorear(f"✅ Eliminado '{eliminado}' de la cadena.", Colores.VERDE))
+                else:
+                    print(colorear("❌ La cadena está vacía.", Colores.ROJO))
+                input("\nPresione Enter para continuar...")
+                
+            elif opcion == "4":
+                # Limpiar cadena
+                if cadena:
+                    cadena.clear()
+                    print(colorear("✅ Cadena limpiada.", Colores.VERDE))
+                else:
+                    print(colorear("❌ La cadena ya está vacía.", Colores.AMARILLO))
+                input("\nPresione Enter para continuar...")
+                
+            elif opcion == "5":
+                # Analizar cadena
+                if cadena:
+                    analizar_cadena(cadena)
+                else:
+                    print(colorear("❌ No hay cadena para analizar.", Colores.ROJO))
+                input(colorear("\nPresione Enter para continuar...", Colores.DIM))
+                
+            elif opcion == "6":
+                # Guardar cadena
+                if cadena:
+                    nombre = input(colorear("Nombre para la cadena: ", Colores.AMARILLO)).strip()
+                    if nombre:
+                        guardar_cadena(cadena, nombre)
+                    else:
+                        print(colorear("❌ Nombre no válido.", Colores.ROJO))
+                else:
+                    print(colorear("❌ No hay cadena para guardar.", Colores.ROJO))
+                input("\nPresione Enter para continuar...")
+                
+            elif opcion == "7":
+                # Cargar cadena
+                mostrar_cadenas_guardadas()
+                cadenas_guardadas = cargar_cadenas()
+                if cadenas_guardadas:
+                    nombre = input(colorear("Nombre de cadena a cargar: ", Colores.AMARILLO)).strip()
+                    if nombre in cadenas_guardadas:
+                        cadena = cadenas_guardadas[nombre]["glifos"][:]
+                        print(colorear(f"✅ Cadena '{nombre}' cargada.", Colores.VERDE))
+                    else:
+                        print(colorear("❌ Cadena no encontrada.", Colores.ROJO))
+                input("\nPresione Enter para continuar...")
+                
+            elif opcion == "8":
+                # Generar cadena aleatoria
+                longitud = input(colorear("Longitud de cadena aleatoria (3-10): ", Colores.AMARILLO)).strip()
+                try:
+                    longitud = int(longitud)
+                    if 3 <= longitud <= 10:
+                        cadena = [random.choice(list(GLOSARIO.values()))["glifo"] for _ in range(longitud)]
+                        print(colorear(f"✅ Cadena aleatoria de {longitud} glifos generada.", Colores.VERDE))
+                    else:
+                        print(colorear("❌ Longitud debe estar entre 3 y 10.", Colores.ROJO))
+                except ValueError:
+                    print(colorear("❌ Valor no válido.", Colores.ROJO))
+                input("\nPresione Enter para continuar...")
+                
+        except KeyboardInterrupt:
+            print(colorear("\n\n👋 Saliendo...", Colores.AMARILLO))
+            break
+
+def menu_principal():
+    """Menú principal con opciones expandidas."""
+    categorias = sorted(set(v["categoria"] for v in GLOSARIO.values()))
+    
+    # Actualizar contador de sesiones
+    try:
+        with open(CONFIG["archivo_stats"], 'r', encoding='utf-8') as f:
+            stats = json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        stats = {"glifos_utilizados": {}, "cadenas_creadas": 0, "sesiones": 0}
+    
+    stats["sesiones"] += 1
+    with open(CONFIG["archivo_stats"], 'w', encoding='utf-8') as f:
+        json.dump(stats, f, ensure_ascii=False, indent=2)
+    
+    while True:
+        mostrar_banner()
+        mostrar_estadisticas_globales()
+        
+        print(colorear("\n🎯 MENÚ PRINCIPAL", Colores.BLANCO_BRILLANTE, negrita=True))
+        print("─" * 50)
+        print("1️⃣  Listar todos los glifos")
+        print("2️⃣  Buscar glifos")
+        print("3️⃣  Explorar por categorías")
+        print("4️⃣  Ver detalle de glifo específico")
+        print("5️⃣  Crear/Editar cadena simbólica")
+        print("6️⃣  Gestionar cadenas guardadas")
+        print("7️⃣  Configuración")
+        print("8️⃣  Ayuda")
+        print("0️⃣  Salir")
+        print("─" * 50)
+        
+        try:
+            opcion = input(colorear("Seleccione opción: ", Colores.AMARILLO)).strip()
+            
+            if opcion == "0":
+                animacion_escritura(colorear("👋 ¡Gracias por usar el Visualizador LER!", Colores.CYAN_BRILLANTE))
+                break
+                
+            elif opcion == "1":
+                clear()
+                listar_glifos(mostrar_detalle=True)
+                input(colorear("\nPresione Enter para continuar...", Colores.DIM))
+                
+            elif opcion == "2":
+                clear()
+                filtro = input(colorear("🔍 Buscar (nombre, categoría, símbolo): ", Colores.AMARILLO)).strip()
+                listar_glifos(filtro=filtro, mostrar_detalle=True)
+                input(colorear("\nPresione Enter para continuar...", Colores.DIM))
+                
+            elif opcion == "3":
+                clear()
+                print(colorear("📂 CATEGORÍAS DISPONIBLES", Colores.CYAN_BRILLANTE, negrita=True))
+                for i, categoria in enumerate(categorias, 1):
+                    color = COLORES_CATEGORIA.get(categoria, Colores.BLANCO)
+                    print(f"{i}️⃣  {colorear(categoria.capitalize(), color)}")
+                
+                try:
+                    cat_opcion = int(input(colorear("\nSeleccione categoría: ", Colores.AMARILLO)))
+                    if 1 <= cat_opcion <= len(categorias):
+                        clear()
+                        listar_glifos(categoria=categorias[cat_opcion-1], mostrar_detalle=True)
+                        input(colorear("\nPresione Enter para continuar...", Colores.DIM))
+                except ValueError:
+                    print(colorear("❌ Opción no válida.", Colores.ROJO))
+                    time.sleep(1)
+                    
+            elif opcion == "4":
+                clear()
+                glifo = input(colorear("🔍 Glifo a detallar (símbolo, nombre o código): ", Colores.AMARILLO)).strip()
+                if not ver_detalle(glifo):
+                    print(colorear("💡 Tip: Pruebe listando todos los glifos primero (opción 1)", Colores.CYAN))
+                input(colorear("\nPresione Enter para continuar...", Colores.DIM))
+                
+            elif opcion == "5":
+                cadena_interactiva()
+                
+            elif opcion == "6":
+                clear()
+                mostrar_cadenas_guardadas()
+                input(colorear("\nPresione Enter para continuar...", Colores.DIM))
+                
+            elif opcion == "7":
+                # Configuración
+                clear()
+                print(colorear("⚙️  CONFIGURACIÓN", Colores.MAGENTA_BRILLANTE, negrita=True))
+                print(f"Colores: {'✅' if CONFIG['usar_colores'] else '❌'}")
+                print(f"Animaciones: {'✅' if CONFIG['animaciones'] else '❌'}")
+                print("\n1. Alternar colores")
+                print("2. Alternar animaciones")
+                print("0. Volver")
+                
+                config_opcion = input(colorear("Opción: ", Colores.AMARILLO)).strip()
+                if config_opcion == "1":
+                    CONFIG["usar_colores"] = not CONFIG["usar_colores"]
+                elif config_opcion == "2":
+                    CONFIG["animaciones"] = not CONFIG["animaciones"]
+                    
+            elif opcion == "8":
+                clear()
+                print(colorear("📚 AYUDA Y GUÍA DE USO", Colores.VERDE_BRILLANTE, negrita=True))
+                print("─" * 60)
+                print(colorear("🔤 BÚSQUEDA:", Colores.AMARILLO, negrita=True))
+                print("  • Puede buscar por símbolo: ●")
+                print("  • Por nombre: Origen")
+                print("  • Por código: GLA")
+                print("  • Por categoría: fundamental")
+                
+                print(colorear("\n🔗 CADENAS SIMBÓLICAS:", Colores.AMARILLO, negrita=True))
+                print("  • Combine glifos para crear secuencias significativas")
+                print("  • Use el análisis para entender patrones")
+                print("  • Guarde cadenas importantes para reutilizar")
+                
+                print(colorear("\n🎨 CATEGORÍAS:", Colores.AMARILLO, negrita=True))
+                for cat, color in COLORES_CATEGORIA.items():
+                    print(f"  • {colorear(cat, color)}: {sum(1 for v in GLOSARIO.values() if v['categoria'] == cat)} glifos")
+                
+                print(colorear("\n⌨️  ATAJOS:", Colores.AMARILLO, negrita=True))
+                print("  • Ctrl+C: Salir en cualquier momento")
+                print("  • Enter: Continuar en pausas")
+                print("  • 0: Volver al menú anterior")
+                
+                print(colorear("\n💾 PERSISTENCIA:", Colores.AMARILLO, negrita=True))
+                print(f"  • Cadenas guardadas en: {CONFIG['archivo_cadenas']}")
+                print(f"  • Estadísticas en: {CONFIG['archivo_stats']}")
+                
+                input(colorear("\nPresione Enter para continuar...", Colores.DIM))
+                
+        except KeyboardInterrupt:
+            print(colorear("\n\n👋 Saliendo del visualizador...", Colores.AMARILLO))
+            break
+        except Exception as e:
+            print(colorear(f"❌ Error: {str(e)}", Colores.ROJO))
+            input(colorear("Presione Enter para continuar...", Colores.DIM))
+
+def modo_comando():
+    """Modo de línea de comandos para uso avanzado."""
+    import argparse
+    
+    parser = argparse.ArgumentParser(description='Visualizador LER - Glifos Simbólicos')
+    parser.add_argument('--listar', '-l', action='store_true', help='Listar todos los glifos')
+    parser.add_argument('--categoria', '-c', help='Filtrar por categoría')
+    parser.add_argument('--buscar', '-b', help='Buscar glifos')
+    parser.add_argument('--detalle', '-d', help='Ver detalle de un glifo')
+    parser.add_argument('--cadena', action='store_true', help='Modo cadena interactiva')
+    parser.add_argument('--stats', action='store_true', help='Mostrar estadísticas')
+    parser.add_argument('--sin-color', action='store_true', help='Desactivar colores')
+    parser.add_argument('--sin-animacion', action='store_true', help='Desactivar animaciones')
+    parser.add_argument('--exportar', help='Exportar glosario a JSON')
+    parser.add_argument('--generar', type=int, help='Generar cadena aleatoria de N glifos')
+    
+    args = parser.parse_args()
+    
+    # Configurar opciones
+    if args.sin_color:
+        CONFIG["usar_colores"] = False
+    if args.sin_animacion:
+        CONFIG["animaciones"] = False
+    
+    # Ejecutar comandos
+    if args.stats:
+        mostrar_estadisticas_globales()
+        return
+    
+    if args.exportar:
+        with open(args.exportar, 'w', encoding='utf-8') as f:
+            json.dump(GLOSARIO, f, ensure_ascii=False, indent=2)
+        print(f"Glosario exportado a {args.exportar}")
+        return
+    
+    if args.generar:
+        if 1 <= args.generar <= 20:
+            cadena = [random.choice(list(GLOSARIO.values()))["glifo"] for _ in range(args.generar)]
+            print("Cadena generada:", " → ".join(cadena))
+        else:
+            print("Error: La longitud debe estar entre 1 y 20")
+        return
+    
+    if args.listar:
+        listar_glifos(categoria=args.categoria, filtro=args.buscar or "", mostrar_detalle=True)
+        return
+    
+    if args.detalle:
+        ver_detalle(args.detalle)
+        return
+    
+    if args.cadena:
+        cadena_interactiva()
+        return
+    
+    if args.buscar:
+        listar_glifos(filtro=args.buscar, mostrar_detalle=True)
+        return
+    
+    if args.categoria:
+        listar_glifos(categoria=args.categoria, mostrar_detalle=True)
+        return
+    
+    # Si no hay argumentos, mostrar menú
+    menu_principal()
+
+def validar_entorno():
+    """Valida que el entorno soporte las características necesarias."""
+    problemas = []
+    
+    # Verificar soporte de Unicode
+    try:
+        print("●◐↻✱⚡■◆≈", end='')
+        print("\r" + " " * 20 + "\r", end='')  # Limpiar línea
+    except UnicodeEncodeError:
+        problemas.append("⚠️  Terminal no soporta Unicode completamente")
+        CONFIG["usar_colores"] = False
+    
+    # Verificar soporte de colores ANSI
+    if os.getenv('TERM') == 'dumb':
+        problemas.append("⚠️  Terminal básico detectado, desactivando colores")
+        CONFIG["usar_colores"] = False
+    
+    # Verificar permisos de escritura
+    try:
+        test_file = Path("test_write.tmp")
+        test_file.touch()
+        test_file.unlink()
+    except PermissionError:
+        problemas.append("⚠️  Sin permisos de escritura, funciones de guardado deshabilitadas")
+    
+    if problemas:
+        print("🔧 ADVERTENCIAS DEL SISTEMA:")
+        for problema in problemas:
+            print(f"   {problema}")
+        print()
+        time.sleep(2)
+
+def main():
+    """Función principal del programa."""
+    try:
+        # Validar entorno
+        validar_entorno()
+        
+        # Verificar argumentos de línea de comandos
+        if len(sys.argv) > 1:
+            modo_comando()
+        else:
+            menu_principal()
+            
+    except KeyboardInterrupt:
+        print(colorear("\n\n👋 ¡Hasta la vista!", Colores.CYAN_BRILLANTE))
+    except Exception as e:
+        print(colorear(f"\n❌ Error crítico: {str(e)}", Colores.ROJO_BRILLANTE))
+        print(colorear("Por favor, reporte este error si persiste.", Colores.AMARILLO))
+    finally:
+        # Limpieza final
+        print(colorear("", Colores.RESET), end='')
+
+if __name__ == "__main__":
+    main()

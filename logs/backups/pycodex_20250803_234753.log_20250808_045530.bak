@@ -1,0 +1,4 @@
+2025-08-03 23:47:53,747 - INFO - 📝 Log guardado en: /content/drive/MyDrive/LER/logs/pycodex_20250803_234753.log
+2025-08-03 23:47:53,750 - INFO - 🔁 Iniciando Pycodex Reflexivo LER...
+2025-08-03 23:47:53,754 - ERROR - ❌ No se encontró ZHIPU_API_KEY en Secrets ni entorno
+2025-08-03 23:47:53,755 - ERROR - 💥 Error crítico en main: Configura ZHIPU_API_KEY en Colab Secrets

@@ -1,0 +1,11 @@
+{
+  "glifos_seguridad": {
+    "HALT": "\u25A0",     
+    "PURGE": "\u2718",     
+    "ISOLATE": "\u2612",  
+    "AUDIT": "\u2611",    
+    "KILL": "\u2620"    
+  },
+  "_firma_guardada_por": "GUARDA",
+  "_hash_hmac": "🜃c8fa-37fd-982e-lercore-glifosseguridad-1.0"
+}
