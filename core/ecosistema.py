@@ -24,6 +24,7 @@ from pathlib import Path
 from typing import Dict, List, Optional
 
 from core.llm.base import Sustrato
+from core.lenguaje import canales_legales, expresar_propuesta, TraductorPropuestas
 from core.soma import Propuesta, Soma
 
 if False:  # solo tipos; avoid circular import at runtime
@@ -63,9 +64,18 @@ class Plano:
     soma: Optional[Soma] = None       # tejido editable; None = genoma fijo del autor
     juez: Optional["Juez"] = None     # fitness semantico; None = proxy sintactico
     muestreo_juez: float = 1.0        # proporcion de hidrataciones que se juzgan
+    lenguaje_propuestas: bool = False # propuestas somaticas habladas→traducidas por el juez
+    costo_pensar: float = 0.02        # energia que consume hidratarse a si mismo (introspeccion)
     _fitness_antes: Dict[str, float] = field(default_factory=dict)
+    _deriva_refleja: bool = True      # fallback refleja solo con sustrato determinista
 
     def __post_init__(self):
+        # con un sustrato real (no determinista) el habla es la UNICA fuente de
+        # propuestas: si el organismo no lo dice, no existe. El reflejo del autor
+        # queda solo para experimentos offline/reproducibles.
+        from core.llm.base import SustratoDeterminista
+        if not isinstance(self.sustrato, SustratoDeterminista):
+            self._deriva_refleja = False
         if self.soma is None:
             return
         # el plano lee sus parametros VIVOS desde el soma (defaults = genoma)
@@ -182,11 +192,17 @@ class Plano:
     def _proponer(self, vivos: List[Cuerpo]) -> List[tuple]:
         """Las entidades con especialidad emiten propuestas sobre el soma.
 
-        No es inteligencia programada: cada especialista deriva su propuesta
-        de SU estado medido (fitness, energía, ruido histórico). La guarda
-        (whitelist + rangos) filtra; la verificación post-tick revierte si la
-        mutación somática derrumba el fitness global. Si una propuesta ayuda,
-        los linajes que la heredan prosperan: selección sobre la maquinaria.
+        Dos vias, una jerarquia:
+          a) LENGUAJE (si `lenguaje_propuestas`): el especialista hidrata un
+             prompt introspectivo y ESCRIBE su propuesta en lenguaje natural;
+             el juez la TRADUCE a un canal legal. El pensamiento precede a la
+             accion, y puede fallar (NADA = no actuar es valido).
+          b) REFLEJO (fallback / genoma): `_derivar_propuesta` deriva canal y
+             valor del estado medido. Barato, determinista, sin habla.
+
+        En ambos casos la guarda (whitelist + rangos) filtra y la verificacion
+        post-tick revierte si la mutacion somatica derrumba el fitness global.
+        Ninguna via toca codigo fuente: solo late el soma.
         """
         eventos: List[tuple] = []
         if self.soma is None:
@@ -206,10 +222,27 @@ class Plano:
                 p._aplicada_en = None  # consolidada: ya no se re-juzga
                 eventos.append(("consolidacion", p.canal, p.valor))
 
+        traductor = None
+        canales = canales_legales()
+        if self.lenguaje_propuestas:
+            traductor = TraductorPropuestas(self.juez, canales)
+
         for c in vivos:
             if not c.especialidad or c.energia < 0.3:
                 continue  # proponer cuesta: solo organismos con excedente
-            canal, valor, por_que = self._derivar_propuesta(c)
+            canal = valor = por_que = None
+            hablada = False
+            if traductor is not None:
+                texto = expresar_propuesta(self.sustrato, c, self._snapshot_soma())
+                if texto:
+                    c.energia = max(0.0, c.energia - self.costo_pensar)  # pensar cuesta
+                    cp = traductor.traducir(texto)
+                    if cp is not None:
+                        canal, valor = cp.canal, cp.valor
+                        por_que = texto.strip()[:400]      # la justificacion ES el habla
+                        hablada = True
+            if canal is None and self._deriva_refleja:
+                canal, valor, por_que = self._derivar_propuesta(c)
             if canal is None:
                 continue
             activa = self.soma.activas.get(canal)
@@ -223,10 +256,21 @@ class Plano:
                 if activada:
                     prop._aplicada_en = self.tick
                     self._fitness_antes[canal] = self._fitness_global()
-                    eventos.append(("propuesta_somatica", c.id, canal, prop.valor))
+                    eventos.append(("propuesta_somatica", c.id, canal, prop.valor,
+                                    "hablada" if hablada else "refleja"))
                 else:
                     eventos.append(("propuesta_rechazada", c.id, canal))
         return eventos
+
+    def _snapshot_soma(self) -> dict:
+        """Lo que el cuerpo percibe de la maquinaria que habita."""
+        base = ["umbral_coherencia", "epsilon_mutacion", "costo_hidratacion"]
+        snap = {k: self._param(k, getattr(self, k, 0.0)) for k in base}
+        if self.soma:
+            for k in self.soma.defaults:
+                if k.startswith("prioridad:"):
+                    snap[k] = self.soma.get(k)
+        return snap
 
     def _derivar_propuesta(self, c: Cuerpo):
         """La propuesta emerge del estado medido del cuerpo, no de un guión."""

@@ -1,0 +1,8 @@
+{"evento": "activacion", "canal": "umbral_coherencia", "de": 0.5, "a": 0.55, "proponente": "ghost"}
+{"evento": "activacion", "canal": "umbral_coherencia", "de": 0.55, "a": 0.6000000000000001, "proponente": "ghost"}
+{"evento": "activacion", "canal": "umbral_coherencia", "de": 0.6000000000000001, "a": 0.6500000000000001, "proponente": "ghost"}
+{"evento": "activacion", "canal": "umbral_coherencia", "de": 0.6500000000000001, "a": 0.7000000000000002, "proponente": "ghost"}
+{"evento": "activacion", "canal": "umbral_coherencia", "de": 0.7000000000000002, "a": 0.7500000000000002, "proponente": "ghost"}
+{"evento": "activacion", "canal": "umbral_coherencia", "de": 0.7500000000000002, "a": 0.8000000000000003, "proponente": "ghost"}
+{"evento": "activacion", "canal": "umbral_coherencia", "de": 0.8000000000000003, "a": 0.8500000000000003, "proponente": "ghost"}
+{"evento": "activacion", "canal": "umbral_coherencia", "de": 0.8500000000000003, "a": 0.9, "proponente": "ghost"}

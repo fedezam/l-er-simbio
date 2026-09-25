@@ -47,6 +47,9 @@ def main() -> None:
                     help="fitness semantico: un sustrato juzga la coherencia identitaria (cuesta energia)")
     ap.add_argument("--presupuesto-juez", type=int, default=60,
                     help="numero maximo de juicios por corrida (escasez = presion selectiva)")
+    ap.add_argument("--lenguaje", action="store_true",
+                    help="propuestas somaticas habladas: los especialistas piensan en lenguaje "
+                         "natural y el juez las traduce a canales del soma (requiere --soma)")
     ap.add_argument("--salida", default="logs/plano.jsonl")
     args = ap.parse_args()
 
@@ -80,11 +83,13 @@ def main() -> None:
         else:
             juez_sustrato = sustrato
         juez = Juez(sustrato_juez=juez_sustrato, presupuesto=args.presupuesto_juez)
-    plano = Plano(sustrato=sustrato, soma=soma, juez=juez)
+    plano = Plano(sustrato=sustrato, soma=soma, juez=juez,
+                  lenguaje_propuestas=args.lenguaje and soma is not None)
     plano.poblar(cuerpos)
     print(f"sustrato={sustrato.nombre} poblacion_inicial={len(cuerpos)} "
           f"soma={'activo' if soma else 'fijo'} "
-          f"juez={'activo(pres=' + str(juez.presupuesto) + ')' if juez else 'proxy'}")
+          f"juez={'activo(pres=' + str(juez.presupuesto) + ')' if juez else 'proxy'} "
+          f"lenguaje={'hablado' if plano.lenguaje_propuestas else 'reflejo'}")
 
     Path(args.salida).parent.mkdir(parents=True, exist_ok=True)
     with open(args.salida, "a", encoding="utf-8") as fh:
