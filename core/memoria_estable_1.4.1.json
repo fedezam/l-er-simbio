@@ -1,0 +1,6 @@
+{
+  "estado": "validado",
+  "version": "1.4.1",
+  "descripcion": "Memoria simbiótica validada con glifos universales",
+  "glifos_activos": "/glifos/glifos_universales.json"
+}

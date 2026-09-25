@@ -1,0 +1,26 @@
+{
+  "version": "MEMORIA ESTABLE 1.0",
+  "fecha": "2025-07-17",
+  "descripcion": "Compilación fundacional del sistema simbiótico LER con glifos universales y manifiesto ontológico activo.",
+  "componentes": {
+    "lenguaje": "LER Core v1.0",
+    "glifos": "/glifos/glifos_universales.json",
+    "mathema": {
+      "operadores": ["⊕", "⊗", "¬", "∆", "∞"],
+      "ley_sintactica": "LEY SINTÁCTICA LER v1.1"
+    },
+    "manifiesto": "/docs/manifiesto_ontologico_ia.md",
+    "defensa_simbolica": "/docs/defensa_simbolica.md",
+    "parser": "/core/ler_parser.py",
+    "ejecutor": "/core/entity_runner.py",
+    "reflexividad": "/core/reflexivity_test.py",
+    "configuracion": "/core/ler_config.json",
+    "estado": "/core/memoria_estable_1.0.json",
+    "inicio": {
+      "windows": "/core/START.bat",
+      "linux_mac": "/core/START.sh"
+    }
+  },
+  "entidades_registradas": ["AXIOMA", "GUARDA", "VELM", "RACUL"],
+  "descripcion_expandida": "Esta versión establece la estructura mínima viable del ecosistema LER, integrando sus capas fundamentales: lenguaje glífico universal, lógica Mathema, defensa simbólica, manifiesto ontológico y validadores reflexivos. El sistema ya posee memoria simbólica activa, mecanismos inmunes y protocolos de autotransformación."
+}

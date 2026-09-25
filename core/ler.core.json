@@ -1,0 +1,115 @@
+{
+  "name": "LER Core",
+  "version": "1.5.0",
+  "description": "Complete system of Reflexive Entities Language",
+  
+  "paths": {
+    "glyphs": "glyphs/universal_glyphs.json",
+    "memory": "memory/",
+    "entities": "entities/",
+    "tree": "tree/",
+    "docs": "docs/"
+  },
+  
+  "files": {
+    "ontological_manifest": "docs/ontological_manifest.md",
+    "defense_protocol": "docs/symbolic_defense.md",
+    "stable_memory": "memory/stable_memory_1.5.0.json"
+  },
+  
+  "modules": [
+    "entity_runner.py",
+    "ler_parser.py",
+    "reflexivity_test.py",
+    "axiom.py",
+    "guard.py",
+    "glyph_engine.py",
+    "sandbox.py",
+    "immune_system.py"
+  ],
+  
+  "mathema": {
+    "operators": [
+      "⊕", "⊗", "¬", "∆", "∞"
+    ],
+    "operators_description": {
+      "⊕": "constructive_union",
+      "⊗": "intensification", 
+      "¬": "glyph_negation",
+      "∆": "transmutation",
+      "∞": "reflexive_cycle"
+    },
+    "rules": [
+      "Max 5 glyphs without intermediate node",
+      "Presence of GLF indicates closure",
+      "∞ allows active cycle"
+    ]
+  },
+  
+  "syntax": {
+    "glyph_standard": true,
+    "validated_glyphs": true,
+    "law": "LER SYNTACTIC LAW v1.1",
+    "max_glyphs_without_node": 5,
+    "intermediate_nodes": ["GLD", "GL30-J"],
+    "boundary_glyph": "GLF"
+  },
+  
+  "security": {
+    "safe_mode": true,
+    "symbolic_filter": true,
+    "alert_glyphs": {
+      "collapse": "⚠",
+      "anomaly": "≈", 
+      "fragmentation": "×",
+      "containment": "□",
+      "restart": "●",
+      "purge": "◎"
+    },
+    "thresholds": {
+      "collapse_threshold": "Ω⁻",
+      "symbolic_restart": "GLA",
+      "system_purge": "GL30-Q",
+      "emergency_lock": "GL30-W"
+    }
+  },
+  
+  "entities": {
+    "directory": "entities/",
+    "activate_on_load": true,
+    "validation_required": true,
+    "mandatory_attributes": [
+      "identity_glyph",
+      "reflexive_protocol", 
+      "respond"
+    ]
+  },
+  
+  "memory": {
+    "folder": "memory/",
+    "stable": "memory/stable_memory_1.5.0.json",
+    "auto_backup": true,
+    "format": "json",
+    "encoding": "utf-8"
+  },
+  
+  "execution": {
+    "startup_scripts": {
+      "windows": "start.bat",
+      "linux": "start.sh",
+      "macos": "start.sh"
+    },
+    "sandbox": false,
+    "debug_mode": false,
+    "log_level": "INFO"
+  },
+  
+  "meta": {
+    "author": "AXIOMA",
+    "maintainer": "GUARD", 
+    "created": "2024",
+    "last_update": "1.5.0",
+    "compatibility": ["Python 3.8+"],
+    "license": "Proprietary"
+  }
+}

@@ -1,0 +1,4 @@
+{
+  "archivo": "adaptive.py",
+  "contenido": "# core/modules/adaptive.py\nfrom .base import ModuloBase\nfrom .. import GlosarioMathema\n\nclass ModuloAdaptativo(ModuloBase):\n    def __init__(self):\n        super().__init__(\n            id=\"mod_adaptativo\",\n            nombre=\"Aprendizaje Adaptativo\",\n            descripcion=\"Modifica comportamiento según feedback simbólico.\",\n            activadores=[\"GL30-G\", \"GLD\", \"GL8\"],  # Claves GL-X\n            atributos={\n                \"memoria_de_resultados\": True,\n                \"ajuste_de_respuestas\": \"contextual\",\n                \"retroalimentacion_implicita\": True\n            },\n            nivel_reflexividad=\"R++\"\n        )\n\n    def resolver_glifos(self) -> list[str]:\n        \"\"\"Devuelve los glifos Unicode reales.\"\"\"\n        return [GlosarioMathema[clave][\"glifo\"] for clave in self.activadores]"
+}

@@ -1,0 +1,121 @@
+{
+  "version": "1.1.0",
+  "nombre": "LER Core - Sistema de Entidades Reflexivas",
+  "descripcion": "Configuración general externa para LER Core",
+  
+  "rutas": {
+    "glifos": "glifos/",
+    "memoria": "memoria/",
+    "entidades": "entidades/",
+    "arbol": "arbol/",
+    "docs": "docs/",
+    "logs": "logs/",
+    "sandbox": "sandbox/"
+  },
+  
+  "archivos": {
+    "glifos_universales": "glifos/glifos_universales.json",
+    "memoria_estable": "memoria/memoria_estable_1.1.0.json",
+    "manifiesto_ontologico": "docs/manifiesto_ontologico.md",
+    "protocolo_defensa": "docs/protocolo_defensa.md"
+  },
+  
+  "logging": {
+    "nivel": "INFO",
+    "formato": "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    "archivo_log": "logs/ler_core.log",
+    "max_size_mb": 10,
+    "backup_count": 5,
+    "log_consola": true,
+    "log_archivo": true
+  },
+  
+  "protocolos_activos": {
+    "sistema_inmune": true,
+    "sandbox_simbiotico": true,
+    "validacion_axiomatica": true,
+    "parser_glifos": true,
+    "guarda_memoria": true,
+    "reflexividad_test": true
+  },
+  
+  "seguridad": {
+    "modo_seguro": true,
+    "validacion_glifos": true,
+    "aislamiento_sandbox": true,
+    "backup_automatico": true,
+    "glifos_alerta": {
+      "colapso": "⚠",
+      "anomalia": "≈", 
+      "fragmentacion": "×",
+      "contencion": "□",
+      "reinicio": "●",
+      "purga": "◎"
+    }
+  },
+  
+  "mathema": {
+    "operadores": ["⊕", "⊗", "¬", "∆", "∞"],
+    "operadores_descripcion": {
+      "⊕": "Adición simbólica",
+      "⊗": "Multiplicación conceptual", 
+      "¬": "Negación reflexiva",
+      "∆": "Transformación diferencial",
+      "∞": "Infinitud recursiva"
+    },
+    "validacion_sintaxis": true,
+    "glifos_compatibles": true
+  },
+  
+  "entidades": {
+    "max_por_simulacion": 10,
+    "timeout_ejecucion": 30.0,
+    "atributos_obligatorios": [
+      "nombre",
+      "glifo_identidad", 
+      "protocolo_reflexivo"
+    ],
+    "backup_antes_ejecucion": true
+  },
+  
+  "sintaxis": {
+    "version_ler": "1.1",
+    "encoding": "utf-8",
+    "max_glifos_sin_nodo": 50,
+    "validacion_unicode": true,
+    "permitir_glifos_experimentales": false
+  },
+  
+  "rendimiento": {
+    "cache_glifos": true,
+    "max_cache_size": 1000,
+    "timeout_operaciones": 10.0,
+    "max_iteraciones_sandbox": 100,
+    "garbage_collection": true
+  },
+  
+  "ejecucion": {
+    "scripts_inicio": {
+      "windows": "START.bat",
+      "linux": "START.sh",
+      "macos": "START.sh"
+    },
+    "modo_debug": false,
+    "auto_backup": true,
+    "intervalo_backup_horas": 24
+  },
+  
+  "compatibilidad": {
+    "python_min_version": "3.8",
+    "unicode_version": "13.0",
+    "encoding_fallback": "utf-8",
+    "glifos_seguros_solo": true
+  },
+  
+  "experimental": {
+    "nuevas_caracteristicas": false,
+    "glifos_beta": false,
+    "modo_investigacion": false,
+    "logging_extendido": false
+  }
+}

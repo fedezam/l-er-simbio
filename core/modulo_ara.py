@@ -1,0 +1,215 @@
+"""
+M_dulo ARA (Autorreparaci_n y Clausura Simb_lica) v1.1
+======================================================
+
+M_dulo central del sistema LER para evaluaci_n de coherencia simb_lica,
+detecci_n de degradaci_n y activaci_n de protocolos de respuesta autom_tica.
+
+Integra con ara_tipos.py para estructuras de datos estandarizadas.
+"""
+
+import logging
+import time
+from datetime import datetime
+from typing import Dict, List, Optional, Any, Callable
+from ara_tipos import NivelARA, EstadoEntidad, ResultadoARA  # Absolute import
+
+# Logger espec_fico para ARA
+logger = logging.getLogger("LER.ARA")
+logger.setLevel(logging.DEBUG)  # Nivel elevado para ver todos los logs
+
+# Asegura que el logger tenga al menos un handler
+if not logger.handlers:
+    console_handler = logging.StreamHandler()
+    console_handler.setFormatter(logging.Formatter("[%(asctime)s] %(levelname)s - %(message)s"))
+    logger.addHandler(console_handler)
+
+class ModuloARA:
+    def __init__(self, config_umbrales: Optional[Dict] = None, ganglio_callback: Optional[Callable] = None):
+        self.umbrales = config_umbrales or {
+            NivelARA.BAJO: {"degradacion": 0.3, "falla": 0.1},
+            NivelARA.MEDIO: {"degradacion": 0.5, "falla": 0.2}, 
+            NivelARA.ALTO: {"degradacion": 0.7, "falla": 0.4},
+            NivelARA.CRITICO: {"degradacion": 0.85, "falla": 0.6}
+        }
+        self.entidades_registradas: Dict[str, Dict] = {}
+        self.historial_evaluaciones: Dict[str, List[ResultadoARA]] = {}
+        self.ganglio_callback = ganglio_callback
+        self.estadisticas = {
+            "evaluaciones_totales": 0,
+            "alertas_emitidas": 0,
+            "clausuras_activadas": 0,
+            "tiempo_total_evaluacion": 0.0
+        }
+        logger.info("\u2713 M_dulo ARA inicializado correctamente")
+
+    def registrar_entidad(self, entidad_id: str, nivel_declarado: NivelARA, instancia_entidad: Optional[Any] = None) -> bool:
+        tiene_analisis_propio = (
+            instancia_entidad is not None and 
+            hasattr(instancia_entidad, 'analizar_coherencia_simbolica')
+        )
+        self.entidades_registradas[entidad_id] = {
+            "nivel_declarado": nivel_declarado,
+            "instancia": instancia_entidad,
+            "tiene_analisis_propio": tiene_analisis_propio,
+            "timestamp_registro": datetime.now(),
+            "ultima_evaluacion": None,
+            "evaluaciones_fallidas": 0,
+            "estado_actual": EstadoEntidad.OPERATIVA
+        }
+        self.historial_evaluaciones[entidad_id] = []
+        logger.info(f"\u2713 Entidad '{entidad_id}' registrada - Nivel: {nivel_declarado.name}, An_lisis propio: {'S_' if tiene_analisis_propio else 'No'}")
+        return True
+
+    def evaluar_entidad(self, entidad_id: str, metricas_externas: Optional[Dict] = None) -> ResultadoARA:
+        inicio_eval = time.time()
+        if entidad_id not in self.entidades_registradas:
+            logger.error(f"Entidad '{entidad_id}' no est_ registrada")
+            return self._crear_resultado_error(entidad_id, "Entidad no registrada")
+        registro = self.entidades_registradas[entidad_id]
+        try:
+            score = self._obtener_score_coherencia(registro, metricas_externas)
+            nuevo_estado = self._determinar_estado(score, registro["nivel_declarado"])
+            resultado = ResultadoARA(
+                entidad_id=entidad_id,
+                score=score,
+                nivel=registro["nivel_declarado"],
+                timestamp=datetime.now(),
+                estado=nuevo_estado,
+                metadatos={
+                    "metricas_externas": metricas_externas or {},
+                    "tiene_analisis_propio": registro["tiene_analisis_propio"],
+                    "tiempo_evaluacion": time.time() - inicio_eval
+                }
+            )
+            self._actualizar_registro_entidad(entidad_id, resultado)
+            self._ejecutar_protocolos_respuesta(resultado)
+            self._actualizar_estadisticas(resultado, time.time() - inicio_eval)
+            logger.info(f"Evaluaci_n de '{entidad_id}' completada - Estado: {nuevo_estado.name} - Score: {score:.2f}")
+            return resultado
+        except Exception as e:
+            logger.error(f"Error evaluando entidad '{entidad_id}': {e}")
+            registro["evaluaciones_fallidas"] += 1
+            return self._crear_resultado_error(entidad_id, str(e))
+
+    def _determinar_estado(self, score: float, nivel: NivelARA) -> EstadoEntidad:
+        umbrales_nivel = self.umbrales[nivel]
+        if score < umbrales_nivel["falla"]:
+            return EstadoEntidad.FALLA
+        elif score < umbrales_nivel["degradacion"]:
+            return EstadoEntidad.DEGRADADA
+        elif score < 0.8:
+            return EstadoEntidad.INESTABLE
+        else:
+            return EstadoEntidad.OPERATIVA
+
+    def _ejecutar_protocolos_respuesta(self, resultado: ResultadoARA):
+        estado = resultado.estado
+        if estado == EstadoEntidad.OPERATIVA:
+            return
+        logger.warning(f"_ Entidad {resultado.entidad_id} en estado {estado.name}")
+        if estado == EstadoEntidad.INESTABLE:
+            self._protocolo_inestabilidad(resultado)
+        elif estado == EstadoEntidad.DEGRADADA:
+            self._protocolo_degradacion(resultado)
+        elif estado == EstadoEntidad.FALLA:
+            self._protocolo_falla_critica(resultado)
+        if self.ganglio_callback:
+            self._notificar_ganglio(resultado)
+
+    def _protocolo_inestabilidad(self, resultado: ResultadoARA):
+        logger.warning(f"__ Protocolo de estabilizaci_n para {resultado.entidad_id}")
+
+    def _protocolo_degradacion(self, resultado: ResultadoARA):
+        logger.error(f"_ Reparaci_n simb_lica activada para {resultado.entidad_id}")
+        self.estadisticas["alertas_emitidas"] += 1
+
+    def _protocolo_falla_critica(self, resultado: ResultadoARA):
+        entidad_id = resultado.entidad_id
+        self.entidades_registradas[entidad_id]["clausurada"] = True
+        logger.critical(f"_ Clausura simb_lica activada para {entidad_id}")
+        self.estadisticas["clausuras_activadas"] += 1
+
+    def _notificar_ganglio(self, resultado: ResultadoARA):
+        try:
+            self.ganglio_callback({
+                "tipo": "degradacion_ara",
+                "entidad_id": resultado.entidad_id,
+                "estado": resultado.estado.name,
+                "score": resultado.score,
+                "nivel": resultado.nivel.name,
+                "timestamp": resultado.timestamp.isoformat(),
+                "metadatos": resultado.metadatos
+            })
+            logger.info(f"_ Ganglio notificado: {resultado.entidad_id}")
+        except Exception as e:
+            logger.error(f"Error notificando ganglio: {e}")
+
+    def _obtener_score_coherencia(self, registro: Dict, metricas_externas: Optional[Dict]) -> float:
+        if registro["tiene_analisis_propio"]:
+            try:
+                score = float(registro["instancia"].analizar_coherencia_simbolica())
+                logger.debug(f"Score propio: {score:.2f}")
+                return score
+            except Exception as e:
+                logger.warning(f"Falla en an_lisis propio: {e}")
+        if metricas_externas:
+            return self._calcular_score_desde_metricas(metricas_externas)
+        return 0.0
+
+    def _calcular_score_desde_metricas(self, metricas: Dict) -> float:
+        pesos = {
+            "coherencia_simbolica": 0.35,
+            "estabilidad_ontologica": 0.25,
+            "respuesta_semantica": 0.20,
+            "integridad_memoria": 0.15,
+            "conectividad": 0.05
+        }
+        score_ponderado = 0.0
+        peso_total = 0.0
+        for m, v in metricas.items():
+            if isinstance(v, (int, float)) and m in pesos:
+                score_ponderado += v * pesos[m]
+                peso_total += pesos[m]
+        if peso_total == 0:
+            valores = [v for v in metricas.values() if isinstance(v, (int, float))]
+            return sum(valores) / len(valores) if valores else 0.0
+        return score_ponderado / peso_total
+
+    def _actualizar_registro_entidad(self, entidad_id: str, resultado: ResultadoARA):
+        registro = self.entidades_registradas[entidad_id]
+        registro["ultima_evaluacion"] = resultado.timestamp
+        registro["estado_actual"] = resultado.estado
+        registro["evaluaciones_fallidas"] = 0
+        historial = self.historial_evaluaciones[entidad_id]
+        historial.append(resultado)
+        if len(historial) > 50:
+            self.historial_evaluaciones[entidad_id] = historial[-50:]
+
+    def _actualizar_estadisticas(self, resultado: ResultadoARA, tiempo_eval: float):
+        self.estadisticas["evaluaciones_totales"] += 1
+        self.estadisticas["tiempo_total_evaluacion"] += tiempo_eval
+        if resultado.estado != EstadoEntidad.OPERATIVA:
+            self.estadisticas["alertas_emitidas"] += 1
+
+    def _crear_resultado_error(self, entidad_id: str, error_msg: str) -> ResultadoARA:
+        return ResultadoARA(
+            entidad_id=entidad_id,
+            score=0.0,
+            nivel=NivelARA.CRITICO,
+            timestamp=datetime.now(),
+            estado=EstadoEntidad.FALLA,
+            metadatos={"error": error_msg, "es_error": True}
+        )
+
+# Instancia global
+ara_global = ModuloARA()
+
+def ejecutar_ara_entidad(entidad_id: str, metricas: Optional[Dict] = None) -> ResultadoARA:
+    return ara_global.evaluar_entidad(entidad_id, metricas)
+
+def registrar_entidad_ara(entidad_id: str, nivel: NivelARA, instancia: Optional[Any] = None) -> bool:
+    return ara_global.registrar_entidad(entidad_id, nivel, instancia)
+
+def obtener_estado_ara() -> Dict[str, Any]:
+    return ara_global.obtener_estado_global()

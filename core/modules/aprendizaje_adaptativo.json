@@ -1,0 +1,15 @@
+
+{
+  "id": "mod_aprendizaje_adaptativo",
+  "nombre": "Aprendizaje Adaptativo",
+  "funcion": "Permite a la entidad modificar su comportamiento en función de experiencias pasadas y retroalimentación simbólica.",
+  "proposito": "Facilitar evolución conductual y ajuste fino a distintos entornos simbióticos o humanos.",
+  "atributos_clave": {
+    "memoria_de_resultados": true,
+    "ajuste_de_respuestas": "contextual",
+    "retroalimentacion_implícita": true,
+    "plasticidad_simbolica": "alta"
+  },
+  "activadores": ["GL30-G", "GLD", "GL8"],
+  "nivel_reflexividad": "R++"
+}
