@@ -1,0 +1,12 @@
+{
+  "cadenas": [
+    {
+      "nombre": "Ejemplo simbi_tico",
+      "glifos": ["_", "_", "_", "_"]
+    },
+    {
+      "nombre": "Entidad espejo",
+      "glifos": ["_", "_", "_", "_"]
+    }
+  ]
+}
