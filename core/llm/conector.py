@@ -72,6 +72,17 @@ class ConectorUniversal(Sustrato):
         return c.sano
 
     # ---- contrato Sustrato --------------------------------------------- #
+    @property
+    def es_llm_real(self) -> bool:
+        """Real si algún candidato no-determinista sigue en carrera.
+
+        Cuando todos los LLM caen y el conector delega en el mock, el sistema
+        degrada honestamente a modo inerte (heurísticas offline), sin fingir
+        que hay un modelo juzgando.
+        """
+        return any(not isinstance(c.sustrato, SustratoDeterminista)
+                   for c in self.candidatos)
+
     def hidratar(self, prompt: str, temperatura: float = 0.7) -> str:
         excluidos: set[int] = set()
         ultima_exc: Optional[Exception] = None

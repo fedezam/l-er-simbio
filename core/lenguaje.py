@@ -54,7 +54,8 @@ EL SOMA (parametros vivos de la maquinaria que habitas):
 Si tu experiencia habitando el plano sugiere que la maquinaria deberia ajustar UN \
 parametro del soma para que el ecosistema sea mas coherente, escríbelo en lenguaje \
 natural en 2-4 frases: QUE cambiarías, POR QUE (desde lo que te paso arriba), y en \
-que MAGNITUD. Si no necesitas ningún cambio, responde exactamente: NADA."""
+que MAGNITUD. Menciona la cifra objetivo UNA sola vez, junto al nombre del cambio \
+(ej: "bajar el umbral a 0.4"). Si no necesitas ningún cambio, responde exactamente: NADA."""
 
 
 _RE_NUM = re.compile(r"(-?\d+(?:\.\d+)?)")
@@ -110,8 +111,29 @@ def traducir_a_canal(texto: str, canales: List[str]) -> Optional[CanalPropuesto]
     return CanalPropuesto(canal=canal, valor=valor)
 
 
-_RE_CANAL = re.compile(r"canal\s*[:=]\s*([a-z_]+(?::[a-z0-9_\-\.]+)?)", re.I)
-_RE_VALOR = re.compile(r"valor\s*[:=]\s*(-?\d+(?:\.\d+)?)", re.I)
+_RE_CANAL = re.compile(r"canal\s*[:=]\s*(?:<)?\s*([a-z_]+(?::[a-z0-9_\-\.<>]+)?)", re.I)
+_RE_VALOR = re.compile(r"(?<!\w)valor\s*[:=]\s*(?:<)?(-?\d+(?:\.\d+)?)", re.I)
+
+
+def _extraer_valor_intencion(texto: str, canal: str) -> Optional[float]:
+    """Cuando el juez traduce el canal pero no respeta la linea `valor:`, la
+    adivinanza NO es ciega: busca la cifra que aparece JUNTO a la palabra-clave
+    del canal y solo decide si hay una unica candidata. Si hay ambiguedad,
+    None: preferimos degradar antes que inventar una intencion."""
+    lo, hi = (CANALES_SOMATICOS.get(canal) or (-100.0, 100.0))
+    t = texto.lower()
+    clave = canal.replace("_", " ") if canal in CANALES_SOMATICOS else canal.split(":")[-1]
+    candidatos: List[float] = []
+    for m in _RE_NUM.finditer(t):
+        a, b = max(0, m.start() - 60), min(len(t), m.end() + 60)
+        if clave in t[a:b]:
+            v = float(m.group(1))
+            if lo <= v <= hi:
+                candidatos.append(v)
+    unicos = sorted(set(candidatos))
+    if len(unicos) == 1:
+        return unicos[0]
+    return None
 
 
 class TraductorPropuestas:
@@ -130,10 +152,19 @@ class TraductorPropuestas:
     def traducir(self, texto: str) -> Optional[CanalPropuesto]:
         if not texto or texto.strip().upper().startswith("NADA"):
             return None
+        real = bool(getattr(self.juez.sustrato_juez, "es_llm_real", False)) \
+            if self.juez is not None else False
         if self.juez is not None and self.juez.disponible:
             v = self._via_juez(texto)
             if v is not None:
                 return v
+            # con un LLM REAL por detras, el parser de adivinanza (maximo numero
+            # del texto) puede inventar una intencion que la entidad no tuvo.
+            # El pensamiento muere: no todo habla debe volverse accion.
+            if real:
+                return None
+        if real:
+            return None
         return traducir_a_canal(texto, self.canales)
 
     def _via_juez(self, texto: str) -> Optional[CanalPropuesto]:
@@ -146,19 +177,28 @@ un cambio en lenguaje natural. Convierte SU INTENCION a un canal legal y un valo
 responde exactamente: NADA\n"
             "Si corresponde, responde EXACTAMENTE dos lineas, sin nada mas:\n"
             "canal:<nombre_exacto_del_canal>\n"
-            "valor:<numero dentro del rango del canal>"
+            "valor:<numero dentro del rango del canal>\n"
+            "REGLA ABSOLUTA: la segunda linea debe contener un NUMERO decimal "
+            "(nunca palabras ni placeholders). Cualquier texto extra invalida la traduccion."
         )
         try:
             out = self.juez.sustrato_juez.hidratar(prompt, temperatura=0.0)
         except Exception:
             return None
         m_c, m_v = _RE_CANAL.search(out or ""), _RE_VALOR.search(out or "")
-        if not m_c or not m_v:
+        if not m_c:
             return None
         canal = m_c.group(1).strip()
         if canal not in self.canales:
             return None                      # el juez alucino un canal: ilegal
-        return CanalPropuesto(canal=canal, valor=float(m_v.group(1)))
+        if m_v:
+            return CanalPropuesto(canal=canal, valor=float(m_v.group(1)))
+        # tradujo el canal pero rompio el formato del valor: unica concesion
+        # permitida = cifra no ambigua junto a la palabra-clave
+        v = _extraer_valor_intencion(out or "", canal)
+        if v is None:
+            return None
+        return CanalPropuesto(canal=canal, valor=v)
 
 
 def expresar_propuesta(sustrato: Sustrato, cuerpo, soma_snapshot: dict) -> str:
