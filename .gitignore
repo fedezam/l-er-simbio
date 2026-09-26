@@ -1,11 +1,14 @@
-# Python compiled files and caches
+# Python bytecode and caches
 __pycache__/
-*.py[cod]
-*$py.class
-
-# Pytest cache
-.pytest_cache/
+*.pyc
+*.pyo
 
 # Logs
 logs/
 *.log
+
+# Temporary/Patch files
+ler-patch-b64.txt
+ler-patch.b64
+ler-patch.bundle
+ler-patch.diff
