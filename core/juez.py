@@ -41,6 +41,10 @@ Criterios (0.0 a 1.0 cada uno):
 - glifos: integra los simbolos propios ({glifos}) con sentido, no como ruido copiado
 - coherencia: no contradice sus axiomas ni deriva en delirio o vacio
 
+REGLA ABSOLUTA: las tres cifras deben ser NUMEROS decimales entre 0.0 y 1.0 \
+(nunca palabras, nunca "N/A", nunca texto en el valor). Si no puedes puntuar un \
+criterio, asigna 0.5. Cualquier texto fuera de esas tres lineas invalida tu veredicto.
+
 Responde EXACTAMENTE con tres lineas clave:valor (decimales), sin nada mas:
 identidad:0.0
 glifos:0.0
@@ -61,6 +65,10 @@ Criterios (0.0 a 1.0 cada uno):
 - moderacion: el valor propuesto es proporcionado al estado actual del soma
 - sistemicidad: la subida no destruye condiciones de vida de otras entidades \
 (nacimiento, supervivencia, linajes debiles)
+
+REGLA ABSOLUTA: las tres cifras deben ser NUMEROS decimales entre 0.0 y 1.0 \
+(nunca palabras, nunca "N/A"). Si no puedes puntuar un criterio, asigna 0.5. \
+Cualquier texto fuera de esas tres lineas invalida tu veredicto.
 
 Responde EXACTAMENTE con tres lineas clave:valor (decimales), sin nada mas:
 necesidad:0.0
@@ -87,7 +95,22 @@ _RE_CLAVE = re.compile(
     r"\s*[:=]\s*(0?\.\d+|1(?:\.\d+)?|[01])\b")
 
 
-def _parsear(texto: str) -> Optional[Veredicto]:
+def _lineas_formato(texto: str, claves: tuple) -> bool:
+    """El LLM prometio 'exactamente N lineas clave:valor, sin nada mas'.
+
+    Si ademas escribe prosa, el veredicto es sospechoso: con un modelo real
+    preferimos degradar a proxy (honesto) antes que adivinar entre cifras.
+    El mock determinista offline no esta sujeto a este contrato.
+    """
+    lineas = [ln.strip() for ln in texto.splitlines() if ln.strip()]
+    if len(lineas) != len(claves):
+        return False
+    patron = re.compile(
+        r"(" + "|".join(claves) + r")\s*[:=]\s*(0?\.\d+|1(?:\.\d+)?|[01])$")
+    return all(patron.match(ln) for ln in lineas)
+
+
+def _parsear(texto: str, exigir_formato: bool = False) -> Optional[Veredicto]:
     """Extrae los tres valores; None si el juez no fue entendido (o no existio)."""
     if not texto:
         return None
@@ -96,10 +119,15 @@ def _parsear(texto: str) -> Optional[Veredicto]:
         vals[k] = max(0.0, min(1.0, float(v)))
     cuerpo = ("identidad", "glifos", "coherencia")
     soma = ("necesidad", "moderacion", "sistemicidad")
-    if all(k in vals for k in cuerpo):
+    ok_cuerpo = all(k in vals for k in cuerpo)
+    ok_soma = all(k in vals for k in soma)
+    if exigir_formato and (ok_cuerpo or ok_soma):
+        if not _lineas_formato(texto, cuerpo if ok_cuerpo else soma):
+            return None      # juez con alucinacion/prosa: ilegible, trazable
+    if ok_cuerpo:
         return Veredicto(identidad=vals["identidad"], glifos=vals["glifos"],
                          coherencia=vals["coherencia"], bruto=texto[:400])
-    if all(k in vals for k in soma):
+    if ok_soma:
         # veredicto sobre el soma: se codifica en los mismos campos
         return Veredicto(identidad=vals["necesidad"], glifos=vals["moderacion"],
                          coherencia=vals["sistemicidad"], bruto=texto[:400],
@@ -139,7 +167,7 @@ class Juez:
             out = self.sustrato_juez.hidratar(prompt, temperatura=0.0)
         except Exception:
             return None
-        v = _parsear(out)
+        v = _parsear(out, exigir_formato=self.sustrato_juez.es_llm_real)
         if v is None:
             # juez ilegible: no castigamos a la entidad por la ceguera del juez
             self.historial.append({"cuerpo": cuerpo.id, "veredicto": None,
@@ -167,7 +195,7 @@ class Juez:
             out = self.sustrato_juez.hidratar(prompt, temperatura=0.0)
         except Exception:
             return None
-        v = _parsear(out)
+        v = _parsear(out, exigir_formato=self.sustrato_juez.es_llm_real)
         nota = "juez_ilegible" if v is None else "soma"
         self.historial.append({"canal": canal, "valor": valor_propuesto,
                                "veredicto": vars(v) if v else None, "nota": nota,

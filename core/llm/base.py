@@ -25,6 +25,17 @@ class Sustrato(ABC):
     def nombre(self) -> str:
         return self.__class__.__name__
 
+    @property
+    def es_llm_real(self) -> bool:
+        """Si este sustrato delega en un modelo real (no un mock determinista).
+
+        Los componentes semánticos (juez, traductor) usan esta bandera para
+        exigir salida formatada estricta: con un LLM real puede fallar, y ese
+        fallo debe ser visible (degradación trazable), no disfrazado por
+        heurísticas de adivinanza.
+        """
+        return False
+
 
 class SustratoDeterminista(Sustrato):
     """Mock juguetón pero útil: deriva salida del hash del glifo+prompt.
@@ -69,7 +80,11 @@ class SustratoDeterminista(Sustrato):
 
 
 class SustratoOpenAICompat(Sustrato):
-    """Cubre OpenAI, Moonshot, Ollama (/v1), LM Studio, etc. vía base_url."""
+    """Cubre OpenAI, Moonshot, Ollama (/v1), LM Studio, OpenRouter, etc. vía base_url."""
+
+    @property
+    def es_llm_real(self) -> bool:
+        return True
 
     def __init__(self, base_url: str, api_key: str, model: str, timeout: int = 60):
         self.base_url = base_url.rstrip("/")

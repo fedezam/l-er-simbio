@@ -1,0 +1,425 @@
+diff --git a/.gitignore b/.gitignore
+index 5292519..f101997 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -1 +1,11 @@
+-logs/
+\ No newline at end of file
++# Python compiled files and caches
++__pycache__/
++*.py[cod]
++*$py.class
++
++# Pytest cache
++.pytest_cache/
++
++# Logs
++logs/
++*.log
+\ No newline at end of file
+diff --git a/core/ecosistema.py b/core/ecosistema.py
+index 7d17e3a..0b90c7b 100644
+--- a/core/ecosistema.py
++++ b/core/ecosistema.py
+@@ -68,6 +68,10 @@ class Plano:
+     costo_pensar: float = 0.02        # energia que consume hidratarse a si mismo (introspeccion)
+     _fitness_antes: Dict[str, float] = field(default_factory=dict)
+     _deriva_refleja: bool = True      # fallback refleja solo con sustrato determinista
++    # dolor somatico: limites de escalada por (proponente, canal)
++    ventana_escalada: int = 15        # ticks que tarda el tejido en "desinflamar"
++    max_escaladas: int = 2            # subidas permitidas por canal y ventana
++    _escalas: Dict[tuple, List[int]] = field(default_factory=dict)
+ 
+     def __post_init__(self):
+         # con un sustrato real (no determinista) el habla es la UNICA fuente de
+@@ -248,6 +252,31 @@ class Plano:
+             activa = self.soma.activas.get(canal)
+             if activa is not None and abs(activa.valor - valor) < 1e-9:
+                 continue  # el soma ya expresa esta voluntad: no spam de propuestas
++            # --- dolor somatico: una escalada repetida del mismo canal duele ---
++            # El reflejo del autor (y cualquier habla) propone subir canales ya
++            # inflamados. Un tejido solo puede escalar `max_escaladas` veces por
++            # `ventana_escalada` ticks; despues, la propuesta se BLOQUEA y en su
++            # lugar se hidrata al juez sobre el soma: el modelo decide si esa
++            # politica tiene sentido. Entre tanto, o el sistema inmunologico
++            # revierte (dolor real), o el fitness demuestra lo contrario.
++            if self._es_escalada(canal, valor):
++                hist = [t for t in self._escalas.get((c.id, canal), [])
++                        if self.tick - t <= self.ventana_escalada]
++                if len(hist) >= self.max_escaladas:
++                    eventos.append(("escalada_bloqueada", c.id, canal, valor))
++                    legitima = False
++                    if self.juez is not None and self.juez.disponible:
++                        v = self.juez.juzgar_soma(canal, valor, self._snapshot_soma())
++                        # el juez puede LEGITIMAR la escalada (score>=0.6):
++                        # se relaja el umbral de dolor para este tejido inflamado
++                        if v is not None and v.score >= 0.6:
++                            legitima = True
++                            self.max_escaladas += 1
++                            eventos.append(("dolor_aprendido", c.id, canal, v.score))
++                    if not legitima:
++                        continue  # dolor: no se postula otra subida hasta que duela menos
++                hist.append(self.tick)
++                self._escalas[(c.id, canal)] = hist
+             prop = Propuesta(id=f"{c.id}@{self.tick}", proponente=c.id,
+                              canal=canal, valor=valor, justificacion=por_que)
+             prop = self.soma.postular(prop)
+@@ -272,6 +301,20 @@ class Plano:
+                     snap[k] = self.soma.get(k)
+         return snap
+ 
++    def _es_escalada(self, canal: str, valor: float) -> bool:
++        """¿Esta propuesta SUBE un canal por encima del genoma del autor?
++
++        Solo las subidas acumulan dolor; bajar (o mantener) siempre es legal:
++        el tejido puede relajarse sin limite.
++        """
++        if not self.soma:
++            return False
++        base = self.soma.defaults.get(canal)
++        if base is None:
++            return False
++        actual = self._param(canal, base)
++        return valor > actual + 1e-9 and valor > base
++
+     def _derivar_propuesta(self, c: Cuerpo):
+         """La propuesta emerge del estado medido del cuerpo, no de un guión."""
+         umbral = self._param("umbral_coherencia", self.umbral_coherencia)
+diff --git a/core/juez.py b/core/juez.py
+index 5e266f1..05dfef5 100644
+--- a/core/juez.py
++++ b/core/juez.py
+@@ -17,6 +17,7 @@ Principios:
+ """
+ from __future__ import annotations
+ 
++import json
+ import re
+ from dataclasses import dataclass, field
+ from typing import List, Optional
+@@ -40,12 +41,41 @@ Criterios (0.0 a 1.0 cada uno):
+ - glifos: integra los simbolos propios ({glifos}) con sentido, no como ruido copiado
+ - coherencia: no contradice sus axiomas ni deriva en delirio o vacio
+ 
++REGLA ABSOLUTA: las tres cifras deben ser NUMEROS decimales entre 0.0 y 1.0 \
++(nunca palabras, nunca "N/A", nunca texto en el valor). Si no puedes puntuar un \
++criterio, asigna 0.5. Cualquier texto fuera de esas tres lineas invalida tu veredicto.
++
+ Responde EXACTAMENTE con tres lineas clave:valor (decimales), sin nada mas:
+ identidad:0.0
+ glifos:0.0
+ coherencia:0.0"""
+ 
+ 
++PROMPT_JUEZ_SOMA = """Eres el JUEZ DEL SOMA de un ecosistema de entidades reflexivas.
++Una entidad especialista propuso subir el parametro `{canal}` del plano hasta \
++`{valor_propuesto}`, porque percibe ruido/incoherencia en su entorno. El tejido \
++ya acumula dolor por escaladas repetidas de este canal, asi que la propuesta fue \
++BLOQUEADA y se te consulta a ti: el modelo que habita las entidades decide.
++
++ESTADO ACTUAL DEL SOMA (parametros vivos):
++{soma}
++
++Criterios (0.0 a 1.0 cada uno):
++- necesidad: el dolor descrito justifica subir ESTE canal, o es sintoma de otra cosa
++- moderacion: el valor propuesto es proporcionado al estado actual del soma
++- sistemicidad: la subida no destruye condiciones de vida de otras entidades \
++(nacimiento, supervivencia, linajes debiles)
++
++REGLA ABSOLUTA: las tres cifras deben ser NUMEROS decimales entre 0.0 y 1.0 \
++(nunca palabras, nunca "N/A"). Si no puedes puntuar un criterio, asigna 0.5. \
++Cualquier texto fuera de esas tres lineas invalida tu veredicto.
++
++Responde EXACTAMENTE con tres lineas clave:valor (decimales), sin nada mas:
++necesidad:0.0
++moderacion:0.0
++sistemicidad:0.0"""
++
++
+ @dataclass
+ class Veredicto:
+     identidad: float
+@@ -60,20 +90,49 @@ class Veredicto:
+         return round(0.4 * self.identidad + 0.2 * self.glifos + 0.4 * self.coherencia, 4)
+ 
+ 
+-_RE_CLAVE = re.compile(r"(identidad|glifos|coherencia)\s*[:=]\s*(0?\.\d+|1(?:\.0+)?|[01])\b")
++_RE_CLAVE = re.compile(
++    r"(identidad|glifos|coherencia|necesidad|moderacion|sistemicidad)"
++    r"\s*[:=]\s*(0?\.\d+|1(?:\.\d+)?|[01])\b")
++
++
++def _lineas_formato(texto: str, claves: tuple) -> bool:
++    """El LLM prometio 'exactamente N lineas clave:valor, sin nada mas'.
++
++    Si ademas escribe prosa, el veredicto es sospechoso: con un modelo real
++    preferimos degradar a proxy (honesto) antes que adivinar entre cifras.
++    El mock determinista offline no esta sujeto a este contrato.
++    """
++    lineas = [ln.strip() for ln in texto.splitlines() if ln.strip()]
++    if len(lineas) != len(claves):
++        return False
++    patron = re.compile(
++        r"(" + "|".join(claves) + r")\s*[:=]\s*(0?\.\d+|1(?:\.\d+)?|[01])$")
++    return all(patron.match(ln) for ln in lineas)
+ 
+ 
+-def _parsear(texto: str) -> Optional[Veredicto]:
++def _parsear(texto: str, exigir_formato: bool = False) -> Optional[Veredicto]:
+     """Extrae los tres valores; None si el juez no fue entendido (o no existio)."""
+     if not texto:
+         return None
+     vals = {}
+     for k, v in _RE_CLAVE.findall(texto):
+         vals[k] = max(0.0, min(1.0, float(v)))
+-    if len(vals) < 3:
+-        return None
+-    return Veredicto(identidad=vals["identidad"], glifos=vals["glifos"],
+-                     coherencia=vals["coherencia"], bruto=texto[:400])
++    cuerpo = ("identidad", "glifos", "coherencia")
++    soma = ("necesidad", "moderacion", "sistemicidad")
++    ok_cuerpo = all(k in vals for k in cuerpo)
++    ok_soma = all(k in vals for k in soma)
++    if exigir_formato and (ok_cuerpo or ok_soma):
++        if not _lineas_formato(texto, cuerpo if ok_cuerpo else soma):
++            return None      # juez con alucinacion/prosa: ilegible, trazable
++    if ok_cuerpo:
++        return Veredicto(identidad=vals["identidad"], glifos=vals["glifos"],
++                         coherencia=vals["coherencia"], bruto=texto[:400])
++    if ok_soma:
++        # veredicto sobre el soma: se codifica en los mismos campos
++        return Veredicto(identidad=vals["necesidad"], glifos=vals["moderacion"],
++                         coherencia=vals["sistemicidad"], bruto=texto[:400],
++                         fuente="juez_soma")
++    return None
+ 
+ 
+ @dataclass
+@@ -108,7 +167,7 @@ class Juez:
+             out = self.sustrato_juez.hidratar(prompt, temperatura=0.0)
+         except Exception:
+             return None
+-        v = _parsear(out)
++        v = _parsear(out, exigir_formato=self.sustrato_juez.es_llm_real)
+         if v is None:
+             # juez ilegible: no castigamos a la entidad por la ceguera del juez
+             self.historial.append({"cuerpo": cuerpo.id, "veredicto": None,
+@@ -116,3 +175,29 @@ class Juez:
+             return None
+         self.historial.append({"cuerpo": cuerpo.id, **vars(v)})
+         return v
++
++    def juzgar_soma(self, canal: str, valor_propuesto: float, soma: dict) -> Optional[Veredicto]:
++        """Consulta semantica cuando el tejido bloquea una escalada (dolor somatico).
++
++        No sustituye al sistema inmunologico: lo COMPLEMENTA. El fitness mide;
++        el juez interpreta. Si esta de acuerdo con la politica (score alto),
++        se relaja el limite de escaladas para ese canal: el dolor se convierte
++        en aprendizaje del propio umbral de dolor.
++        """
++        if not self.disponible:
++            return None
++        self.usados += 1
++        prompt = PROMPT_JUEZ_SOMA.format(
++            canal=canal, valor_propuesto=valor_propuesto,
++            soma=json.dumps(soma, ensure_ascii=False, default=str)[:800],
++        )
++        try:
++            out = self.sustrato_juez.hidratar(prompt, temperatura=0.0)
++        except Exception:
++            return None
++        v = _parsear(out, exigir_formato=self.sustrato_juez.es_llm_real)
++        nota = "juez_ilegible" if v is None else "soma"
++        self.historial.append({"canal": canal, "valor": valor_propuesto,
++                               "veredicto": vars(v) if v else None, "nota": nota,
++                               "bruto": (out or "")[:200]})
++        return v
+diff --git a/core/lenguaje.py b/core/lenguaje.py
+index 4c5f58f..d809312 100644
+--- a/core/lenguaje.py
++++ b/core/lenguaje.py
+@@ -54,7 +54,8 @@ EL SOMA (parametros vivos de la maquinaria que habitas):
+ Si tu experiencia habitando el plano sugiere que la maquinaria deberia ajustar UN \
+ parametro del soma para que el ecosistema sea mas coherente, escríbelo en lenguaje \
+ natural en 2-4 frases: QUE cambiarías, POR QUE (desde lo que te paso arriba), y en \
+-que MAGNITUD. Si no necesitas ningún cambio, responde exactamente: NADA."""
++que MAGNITUD. Menciona la cifra objetivo UNA sola vez, junto al nombre del cambio \
++(ej: "bajar el umbral a 0.4"). Si no necesitas ningún cambio, responde exactamente: NADA."""
+ 
+ 
+ _RE_NUM = re.compile(r"(-?\d+(?:\.\d+)?)")
+@@ -110,8 +111,29 @@ def traducir_a_canal(texto: str, canales: List[str]) -> Optional[CanalPropuesto]
+     return CanalPropuesto(canal=canal, valor=valor)
+ 
+ 
+-_RE_CANAL = re.compile(r"canal\s*[:=]\s*([a-z_]+(?::[a-z0-9_\-\.]+)?)", re.I)
+-_RE_VALOR = re.compile(r"valor\s*[:=]\s*(-?\d+(?:\.\d+)?)", re.I)
++_RE_CANAL = re.compile(r"canal\s*[:=]\s*(?:<)?\s*([a-z_]+(?::[a-z0-9_\-\.<>]+)?)", re.I)
++_RE_VALOR = re.compile(r"(?<!\w)valor\s*[:=]\s*(?:<)?(-?\d+(?:\.\d+)?)", re.I)
++
++
++def _extraer_valor_intencion(texto: str, canal: str) -> Optional[float]:
++    """Cuando el juez traduce el canal pero no respeta la linea `valor:`, la
++    adivinanza NO es ciega: busca la cifra que aparece JUNTO a la palabra-clave
++    del canal y solo decide si hay una unica candidata. Si hay ambiguedad,
++    None: preferimos degradar antes que inventar una intencion."""
++    lo, hi = (CANALES_SOMATICOS.get(canal) or (-100.0, 100.0))
++    t = texto.lower()
++    clave = canal.replace("_", " ") if canal in CANALES_SOMATICOS else canal.split(":")[-1]
++    candidatos: List[float] = []
++    for m in _RE_NUM.finditer(t):
++        a, b = max(0, m.start() - 60), min(len(t), m.end() + 60)
++        if clave in t[a:b]:
++            v = float(m.group(1))
++            if lo <= v <= hi:
++                candidatos.append(v)
++    unicos = sorted(set(candidatos))
++    if len(unicos) == 1:
++        return unicos[0]
++    return None
+ 
+ 
+ class TraductorPropuestas:
+@@ -130,10 +152,19 @@ class TraductorPropuestas:
+     def traducir(self, texto: str) -> Optional[CanalPropuesto]:
+         if not texto or texto.strip().upper().startswith("NADA"):
+             return None
++        real = bool(getattr(self.juez.sustrato_juez, "es_llm_real", False)) \
++            if self.juez is not None else False
+         if self.juez is not None and self.juez.disponible:
+             v = self._via_juez(texto)
+             if v is not None:
+                 return v
++            # con un LLM REAL por detras, el parser de adivinanza (maximo numero
++            # del texto) puede inventar una intencion que la entidad no tuvo.
++            # El pensamiento muere: no todo habla debe volverse accion.
++            if real:
++                return None
++        if real:
++            return None
+         return traducir_a_canal(texto, self.canales)
+ 
+     def _via_juez(self, texto: str) -> Optional[CanalPropuesto]:
+@@ -146,19 +177,28 @@ un cambio en lenguaje natural. Convierte SU INTENCION a un canal legal y un valo
+ responde exactamente: NADA\n"
+             "Si corresponde, responde EXACTAMENTE dos lineas, sin nada mas:\n"
+             "canal:<nombre_exacto_del_canal>\n"
+-            "valor:<numero dentro del rango del canal>"
++            "valor:<numero dentro del rango del canal>\n"
++            "REGLA ABSOLUTA: la segunda linea debe contener un NUMERO decimal "
++            "(nunca palabras ni placeholders). Cualquier texto extra invalida la traduccion."
+         )
+         try:
+             out = self.juez.sustrato_juez.hidratar(prompt, temperatura=0.0)
+         except Exception:
+             return None
+         m_c, m_v = _RE_CANAL.search(out or ""), _RE_VALOR.search(out or "")
+-        if not m_c or not m_v:
++        if not m_c:
+             return None
+         canal = m_c.group(1).strip()
+         if canal not in self.canales:
+             return None                      # el juez alucino un canal: ilegal
+-        return CanalPropuesto(canal=canal, valor=float(m_v.group(1)))
++        if m_v:
++            return CanalPropuesto(canal=canal, valor=float(m_v.group(1)))
++        # tradujo el canal pero rompio el formato del valor: unica concesion
++        # permitida = cifra no ambigua junto a la palabra-clave
++        v = _extraer_valor_intencion(out or "", canal)
++        if v is None:
++            return None
++        return CanalPropuesto(canal=canal, valor=v)
+ 
+ 
+ def expresar_propuesta(sustrato: Sustrato, cuerpo, soma_snapshot: dict) -> str:
+diff --git a/core/llm/base.py b/core/llm/base.py
+index f701995..36d4c1b 100644
+--- a/core/llm/base.py
++++ b/core/llm/base.py
+@@ -25,6 +25,17 @@ class Sustrato(ABC):
+     def nombre(self) -> str:
+         return self.__class__.__name__
+ 
++    @property
++    def es_llm_real(self) -> bool:
++        """Si este sustrato delega en un modelo real (no un mock determinista).
++
++        Los componentes semánticos (juez, traductor) usan esta bandera para
++        exigir salida formatada estricta: con un LLM real puede fallar, y ese
++        fallo debe ser visible (degradación trazable), no disfrazado por
++        heurísticas de adivinanza.
++        """
++        return False
++
+ 
+ class SustratoDeterminista(Sustrato):
+     """Mock juguetón pero útil: deriva salida del hash del glifo+prompt.
+@@ -36,17 +47,44 @@ class SustratoDeterminista(Sustrato):
+     """
+ 
+     def hidratar(self, prompt: str, temperatura: float = 0.7) -> str:
++        # reflejos del mock: como un organismo trivial, responde a los prompts
++        # que reconocen sus formas (juez y traductor). Sin esto, el plano offline
++        # se queda sin semantica y todo degrada a proxy.
++        if "JUEZ DE COHERENCIA" in prompt or "JUEZ DEL SOMA" in prompt:
++            h = int(hashlib.sha256(prompt.encode("utf-8")).hexdigest()[:8], 16) % 31
++            a, b, c = (h % 10) / 10, ((h // 10) % 10) / 10, ((h // 3) % 10) / 10
++            if "identidad" in prompt:
++                return f"identidad:{a:.1f}\nglifos:{b:.1f}\ncoherencia:{c:.1f}"
++            return f"necesidad:{a:.1f}\nmoderacion:{b:.1f}\nsistemicidad:{c:.1f}"
++        if "TRADUCTOR" in prompt or ("canal" in prompt and "valor" in prompt):
++            for w in reversed(prompt.split()):
++                try:
++                    v = float(w.strip(".,;:"))
++                except ValueError:
++                    continue
++                if "umbral" in prompt:
++                    return f"canal:umbral_coherencia valor:{v}"
++                if "epsilon" in prompt or "mutaci" in prompt:
++                    return f"canal:epsilon_mutacion valor:{v}"
++                if "costo" in prompt or "energ" in prompt:
++                    return f"canal:costo_hidratacion valor:{v}"
++                break
+         h = hashlib.sha256(prompt.encode("utf-8")).hexdigest() * 2  # padding circular
+         tokens = [w for w in prompt.split() if any(c.isalpha() for c in w)]
+         if not tokens:
+             return ""
+         n = max(3, len(tokens) // 4)
+-        picks = [tokens[int(h[i:i + 4], 16) % len(tokens)] for i in range(0, n * 4, 4)]
++        picks = [tokens[int(h[i % len(h): i % len(h) + 4], 16) % len(tokens)]
++                 for i in range(0, n * 4, 4)]
+         return " ".join(picks)
+ 
+ 
+ class SustratoOpenAICompat(Sustrato):
+-    """Cubre OpenAI, Moonshot, Ollama (/v1), LM Studio, etc. vía base_url."""
++    """Cubre OpenAI, Moonshot, Ollama (/v1), LM Studio, OpenRouter, etc. vía base_url."""
++
++    @property
++    def es_llm_real(self) -> bool:
++        return True
+ 
+     def __init__(self, base_url: str, api_key: str, model: str, timeout: int = 60):
+         self.base_url = base_url.rstrip("/")
+diff --git a/core/llm/conector.py b/core/llm/conector.py
+index 4ac2cf8..d3d2eeb 100644
+--- a/core/llm/conector.py
++++ b/core/llm/conector.py
+@@ -72,6 +72,17 @@ class ConectorUniversal(Sustrato):
+         return c.sano
+ 
+     # ---- contrato Sustrato --------------------------------------------- #
++    @property
++    def es_llm_real(self) -> bool:
++        """Real si algún candidato no-determinista sigue en carrera.
++
++        Cuando todos los LLM caen y el conector delega en el mock, el sistema
++        degrada honestamente a modo inerte (heurísticas offline), sin fingir
++        que hay un modelo juzgando.
++        """
++        return any(not isinstance(c.sustrato, SustratoDeterminista)
++                   for c in self.candidatos)
++
+     def hidratar(self, prompt: str, temperatura: float = 0.7) -> str:
+         excluidos: set[int] = set()
+         ultima_exc: Optional[Exception] = None
