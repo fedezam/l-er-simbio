@@ -12,3 +12,10 @@ ler-patch-b64.txt
 ler-patch.b64
 ler-patch.bundle
 ler-patch.diff
+# Archivos temporales específicos
+historia/soma.jsonl
+historia/juez.jsonl
+pool_estado.json
+*.bak
+.DS_Store
+.ipynb_checkpoints/
