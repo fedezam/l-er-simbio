@@ -19,3 +19,10 @@ pool_estado.json
 *.bak
 .DS_Store
 .ipynb_checkpoints/
+logs/
+historia/*.jsonl
+pool_estado.json
+*.bak
+.DS_Store
+.ipynb_checkpoints/
+memoria/snapshots/*.bak
