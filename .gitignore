@@ -27,3 +27,6 @@ pool_estado.json
 .ipynb_checkpoints/
 memoria/snapshots/*.bak
 .env
+.env
+simulacion_evolutiva.py
+evolucion_router.py
