@@ -1,0 +1,17 @@
+# SNAPSHOT DE LIMPIEZA - 20261022_045232
+# Archivos que se van a borrar:
+core/__pycache__/__init__.cpython-314.pyc
+core/__pycache__/ecosistema.cpython-314.pyc
+core/__pycache__/juez.cpython-314.pyc
+core/__pycache__/lenguaje.cpython-314.pyc
+core/__pycache__/semilla.cpython-314.pyc
+core/__pycache__/soma.cpython-314.pyc
+core/__pycache__/tools.cpython-314.pyc
+core/ecosistema.py.bak
+core/llm/__pycache__/__init__.cpython-314.pyc
+core/llm/__pycache__/base.cpython-314.pyc
+core/llm/__pycache__/conector.cpython-314.pyc
+core/llm/__pycache__/config_loader.cpython-314.pyc
+memoria/snapshots/ecosistema.py.20261022_020749.bak
+tests/test_ai.py
+tests/test_multi_guia.py

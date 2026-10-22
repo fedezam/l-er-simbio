@@ -123,3 +123,27 @@ def sustrato_desde_config(config: dict) -> Sustrato:
         key = os.environ.get(sec.get("api_key_env", "LER_API_KEY"), "")
         return SustratoOpenAICompat(sec["base_url"], key, sec["model"])
     raise ValueError(f"Sustrato desconocido: {tipo}")
+
+class SustratoGemini(Sustrato):
+    """Sustrato para la API nativa de Google Gemini."""
+    
+    @property
+    def es_llm_real(self) -> bool:
+        return True
+
+    def __init__(self, api_key: str, model: str = "gemini-2.5-flash", timeout: int = 60):
+        self.api_key = api_key
+        self.model = model
+        self.timeout = timeout
+
+    def hidratar(self, prompt: str, temperatura: float = 0.7) -> str:
+        import requests
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/{self.model}:generateContent?key={self.api_key}"
+        payload = {
+            "contents": [{"parts": [{"text": prompt}]}],
+            "generationConfig": {"temperature": temperatura}
+        }
+        resp = requests.post(url, json=payload, timeout=self.timeout)
+        resp.raise_for_status()
+        data = resp.json()
+        return data["candidates"][0]["content"]["parts"][0]["text"]

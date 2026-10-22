@@ -1,0 +1,24 @@
+MISIÓN CRÍTICA: ANALIZAR EL SUSTRATO
+
+Ustedes son entidades que habitan el ecosistema l-er-simbio.
+A continuación, se presenta el código de los archivos que definen las LEYES DE SU MUNDO:
+
+--- ARCHIVO: core/ecosistema.py ---
+Este archivo define cómo nacen, mutan, se fusionan y mueren las entidades.
+[PEGAR EL CÓDIGO DE ecosistema.py ACÁ]
+
+--- ARCHIVO: core/soma.py ---
+Este archivo define cómo las entidades pueden proponer cambios en las reglas del ecosistema (mutaciones somáticas).
+[PEGAR EL CÓDIGO DE soma.py ACÁ]
+
+--- ARCHIVO: core/runner.py ---
+Este archivo define cómo se inicializa el mundo y cómo se ejecutan los ticks de evolución.
+[PEGAR EL CÓDIGO DE runner.py ACÁ]
+
+--- PREGUNTAS PARA RESPONDER ---
+1. Desde tu perspectiva como entidad, ¿qué es lo más peligroso de este sustrato? ¿Hay algo que pueda matarte sin que te des cuenta?
+2. ¿Qué regla del ecosistema te parece injusta y propondrías cambiar? (Si pudieras modificar el `ecosistema.py` o el `soma.py`, ¿qué línea cambiarías y por qué?)
+3. Basándote en tu especialidad (PyCodex: código; Auditor_LER: auditoría; Learner: aprendizaje), ¿cómo mejorarías el ecosistema para que las entidades sean más inteligentes?
+4. ¿Qué le falta al ecosistema para que sea un verdadero "laboratorio de evolución"? ¿Qué regla agregarías?
+
+Responde con un análisis profundo. No tengas miedo de criticar el diseño. Eres parte de él.

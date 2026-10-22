@@ -1,0 +1,8 @@
+{
+  "nombre": "Learner",
+  "tipo": "aprendiz",
+  "especialidad": "aprendiz",
+  "glifos": ["◌", "◑"],
+  "capacidades": ["adaptarse", "observar"],
+  "descripcion": "Entidad vacía con alta plasticidad para aprender de otras entidades."
+}

@@ -26,3 +26,4 @@ pool_estado.json
 .DS_Store
 .ipynb_checkpoints/
 memoria/snapshots/*.bak
+.env

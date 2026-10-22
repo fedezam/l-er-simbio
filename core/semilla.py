@@ -80,6 +80,12 @@ def poblar_entidades(base: Path) -> List[Cuerpo]:
             data = json.loads(p.read_text(encoding="utf-8"))
             if not isinstance(data, dict):
                 continue
+            
+            # FILTRO: Ignorar archivos de configuración (solo entidades reales)
+            tipo = data.get("tipo", "")
+            if tipo not in ("entidad_reflexiva", "aprendiz"):
+                continue
+            
             c = sembrar_desde_json(p)
             if not c.semilla.strip():
                 continue

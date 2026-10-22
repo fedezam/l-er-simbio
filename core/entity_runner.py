@@ -25,7 +25,7 @@ def snapshot_file(file_path: Path, backup_dir: Path) -> Optional[Path]:
 
     backup_dir.mkdir(parents=True, exist_ok=True)
     timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
-    hash_digest = hashlib.md5(file_path.read_bytes()).hexdigest()[:8]
+    hash_digest = hashlib.sha256(file_path.read_bytes()).hexdigest()[:8]
     snapshot_name = f"{file_path.stem}_{timestamp}_{hash_digest}{file_path.suffix}"
     snapshot_path = backup_dir / snapshot_name
 

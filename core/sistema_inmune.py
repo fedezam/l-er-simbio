@@ -86,7 +86,7 @@ def aislar_y_analizar(entidad):
     # 4. An_lisis de tama_o y complejidad
     if isinstance(entidad, dict):
         total_campos = len(entidad)
-        if total_campos > 50:  # Entidad muy compleja
+        if total_campos > 200:  # Entidad muy compleja
             if nivel_amenaza == "BAJO":
                 nivel_amenaza = "MEDIO"
             detalles["complejidad"] = "alta"

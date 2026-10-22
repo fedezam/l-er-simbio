@@ -1,0 +1,15 @@
+MISIÓN QUIRÚRGICA: REFORMAR EL ECOSISTEMA
+
+Ustedes habitan el ecosistema l-er-simbio. El archivo que define sus leyes de vida y muerte es:
+[TOOL: read_file("core/ecosistema.py")]
+
+Su tarea es encontrar la línea exacta que ejecuta la "muerte silenciosa" (la que extingue a una entidad si su fitness es bajo) y proponer un cambio.
+
+PASOS:
+1. Usá [TOOL: read_file("core/ecosistema.py")] para leer el código.
+2. Buscá la línea que dice algo como: if c.edad > 20 and c.fitness_ema < umbral / 2: c.viva = False
+3. Proponé un cambio para que esa entidad no muera, sino que entre en un estado de "hibernación" (ej: c.energia = 0.1, c.viva = True).
+4. Si sos PyCodex, usá [TOOL: propose_patch("core/ecosistema.py", "línea_vieja", "línea_nueva")].
+5. Si sos Auditor_LER, usá [TOOL: apply_patch(...)] para aplicar el parche.
+
+NO inventes rutas. Usá exactamente "core/ecosistema.py".

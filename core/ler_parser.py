@@ -78,8 +78,12 @@ class LERParser:
         return tree
 
     def extract_patterns(self, text: str) -> List[str]:
-        """Simple pattern extraction from a string of glyphs."""
-        return [glyph for glyph in text if glyph in self.glyphs]
+        import re
+        import unicodedata
+        text = unicodedata.normalize("NFC", text)
+        all_symbols = sorted(list(self.glyphs.keys()), key=len, reverse=True)
+        pattern = re.compile("|".join(re.escape(g) for g in all_symbols))
+        return pattern.findall(text)
 
     def generate_graph(self, entity_tree: Dict[str, Any]) -> Dict[str, Set[str]]:
         """Generates a simple adjacency graph from the entity tree."""

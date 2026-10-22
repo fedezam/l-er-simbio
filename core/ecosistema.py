@@ -41,6 +41,7 @@ class Cuerpo:
     edad: int = 0
     fitness_ema: float = 0.0          # media móvil de coherencia medida
     viva: bool = True
+    resucitando: bool = False  # Flag para permitir una última propuesta antes de archivar
     especialidad: str = ""            # p.ej. "codigo", "auditoria": habilita propuesta somática
     historial: List[str] = field(default_factory=list)  # memoria episódica (texto hidratado)
 
@@ -177,8 +178,9 @@ class Plano:
         # 4. MUERTE: sin interpretación sostenida
         for c in self.cuerpos.values():
             if c.viva and c.edad > 20 and c.fitness_ema < umbral / 2:
-                c.viva = False
-                eventos.append(("extincion", c.id))
+                c.energia = 0.1  # hibernación
+                c.viva = True  # mantiene la entidad viva
+                # eventos.append(("extincion", c.id)) # DESACTIVADO: ahora hay hibernación
 
         resumen = {"tick": self.tick,
                    "poblacion": sum(1 for c in self.cuerpos.values() if c.viva),
@@ -231,9 +233,12 @@ class Plano:
         if self.lenguaje_propuestas:
             traductor = TraductorPropuestas(self.juez, canales)
 
-        for c in vivos:
-            if not c.especialidad or c.energia < 0.3:
-                continue  # proponer cuesta: solo organismos con excedente
+        # Incluimos a las entidades vivas Y a las que están resucitando
+        candidatos = vivos + [c for c in self.cuerpos.values() if c.resucitando and not c.viva]
+        
+        for c in candidatos:
+            if not c.especialidad or (c.energia < 0.3 and not c.resucitando):
+                continue  # proponer cuesta: solo organismos con excedente o resucitando
             canal = valor = por_que = None
             hablada = False
             if traductor is not None:
@@ -287,6 +292,13 @@ class Plano:
                     self._fitness_antes[canal] = self._fitness_global()
                     eventos.append(("propuesta_somatica", c.id, canal, prop.valor,
                                     "hablada" if hablada else "refleja"))
+                    
+                    # RESURRECCIÓN: si la entidad estaba resucitando, vuelve a la vida
+                    if c.resucitando:
+                        c.viva = True
+                        c.resucitando = False
+                        c.energia = 0.5  # Le damos energía para que pueda seguir
+                        eventos.append(("resurreccion", c.id, f"{canal}={prop.valor}"))
                 else:
                     eventos.append(("propuesta_rechazada", c.id, canal))
         return eventos

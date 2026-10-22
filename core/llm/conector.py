@@ -35,6 +35,7 @@ class Candidato:
         return base + self.exitos - self.fallos * 3
 
 
+# PARCHE: backoff_exponencial aplicado para manejar rate limits
 class ConectorUniversal(Sustrato):
     """Fachada Sustrato sobre un pool: delega en el mejor modelo disponible.
 
@@ -83,36 +84,59 @@ class ConectorUniversal(Sustrato):
         return any(not isinstance(c.sustrato, SustratoDeterminista)
                    for c in self.candidatos)
 
-    def hidratar(self, prompt: str, temperatura: float = 0.7) -> str:
+    def hidratar(self, prompt: str, temperatura: float = 0.7, max_reintentos: int = 5) -> str:
+        """Hidrata el prompt con reintentos y backoff exponencial para manejar rate limits."""
+        import time
+        import random
+        
         excluidos: set[int] = set()
         ultima_exc: Optional[Exception] = None
-        while True:
+        
+        for intento in range(max_reintentos):
             activo = self._mejor_disponible(excluidos)
             if activo is None:
                 break
+            
             idx = self.candidatos.index(activo)
-            if not self._verificar(activo):
-                excluidos.add(idx)
-                continue
+            
+            # Health-check (solo la primera vez)
+            if not activo._verificado:
+                if not self._verificar(activo):
+                    excluidos.add(idx)
+                    continue
+            
             try:
                 out = activo.sustrato.hidratar(prompt, temperatura)
                 activo.exitos += 1
-                activo.fallos = max(0, activo.fallos - 1)  # recuperacion lenta
+                activo.fallos = max(0, activo.fallos - 1)
                 activo.sano = True
                 self._activo = activo
                 return out
             except Exception as e:
+                error_str = str(e)
                 ultima_exc = e
                 activo.fallos += 1
-                if activo.fallos >= self.max_fallos:
-                    activo.sano = False
-                excluidos.add(idx)
-        # Todos los LLM cayeron: la celula respira en modo inerte, no muere.
+                
+                # Si es rate limit, esperar con backoff exponencial
+                if '429' in error_str or 'Too Many Requests' in error_str:
+                    wait_time = (2 ** intento) + random.uniform(0, 2)
+                    print(f'   ⏳ Rate limit detectado. Esperando {wait_time:.1f}s (intento {intento+1}/{max_reintentos})...')
+                    time.sleep(wait_time)
+                    # No excluir el modelo, solo esperar
+                else:
+                    # Otro error: marcar como no sano
+                    if activo.fallos >= self.max_fallos:
+                        activo.sano = False
+                    excluidos.add(idx)
+        
+        # Si todos los reintentos fallaron
         fallback = self.candidatos[-1]
         if isinstance(fallback.sustrato, SustratoDeterminista):
+            print('   ⚠️  Todos los reintentos fallaron. Usando fallback determinista.')
             return fallback.sustrato.hidratar(prompt, temperatura)
+        
         raise RuntimeError(
-            "Sin sustrato disponible y sin fallback determinista."
+            f'Sin sustrato disponible después de {max_reintentos} reintentos.'
         ) from ultima_exc
 
     @property

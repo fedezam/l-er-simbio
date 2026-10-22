@@ -48,6 +48,14 @@ class GlyphEngine:
                 "level": 1
             }
 
+    def extract_patterns(self, text: str) -> list:
+        import re
+        import unicodedata
+        text = unicodedata.normalize("NFC", text)
+        all_symbols = sorted(list(self.glyphs.keys()) + list(self.operators.keys()), key=len, reverse=True)
+        pattern = re.compile("|".join(re.escape(g) for g in all_symbols))
+        return pattern.findall(text)
+
     def is_valid_glyph(self, symbol: str) -> bool:
         return symbol in self.glyphs or symbol in self.operators
 
@@ -62,8 +70,8 @@ class GlyphEngine:
         return f"Unrecognized symbol: '{symbol}'"
 
     def validate_expression(self, expression: str):
-        parts = expression.split()
-        errors = [f"Position {i+1}: '{s}' is not valid" for i, s in enumerate(parts) if not self.is_valid_glyph(s)]
+        tokens = self.extract_patterns(expression)
+        errors = [f"Token '{t}' no reconocido" for t in tokens if not self.is_valid_glyph(t)]
         return len(errors) == 0, errors
 
     def represent_expression(self, expression: str) -> str:

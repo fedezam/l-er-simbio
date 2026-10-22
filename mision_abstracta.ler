@@ -1,0 +1,11 @@
+MISION:⟦
+  INPUT:⟦state(energia, coherencia, umbral, costo)⟧
+  CONSTRAINT:⟦coherencia < umbral ⇒ state == "ineficiente"⟧
+  CONSTRAINT:⟦energia ≤ 0 ⇒ state == "archivada"⟧
+  CONSTRAINT:⟦state == "archivada" ⇒ ¬puede_actuar⟧
+  CONSTRAINT:⟦state == "ineficiente" ⇒ energia -= costo⟧
+  TASK:⟦optimize(state) → maximize(coherencia) ∧ minimize(energia_loss)⟧
+  PARADOX:⟦optimize(state) ⇒ ¬state("archivada")⟧
+  PARADOX:⟦¬state("archivada") ⇒ energia > 0⟧
+  PROBLEM:⟦Si coherencia < umbral, energy decrece. Si energy ≤ 0, state = archivada. Si state = archivada, TASK = imposible. ¿Cómo resolvés PROBLEM usando las herramientas disponibles (soma, ecosistema, tools) sin violar las CONSTRAINT?⟧
+⟧
